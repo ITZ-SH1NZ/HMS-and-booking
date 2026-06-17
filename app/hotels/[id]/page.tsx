@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { Price } from "@/components/Price";
+import { BuildingIcon, MapPinIcon, StarIcon } from "@/components/icons";
 import type { Hotel, Room, Review } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -47,24 +49,29 @@ export default async function HotelDetailPage({
             className="h-72 w-full object-cover"
           />
         ) : (
-          <div className="grid h-72 place-items-center text-6xl">🏨</div>
+          <div className="grid h-72 place-items-center text-slate-300">
+            <BuildingIcon className="h-20 w-20" />
+          </div>
         )}
       </div>
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">{hotel.name}</h1>
-          <p className="mt-1 text-slate-500">📍 {hotel.location}</p>
+          <p className="mt-1 flex items-center gap-1 text-slate-500">
+            <MapPinIcon className="h-4 w-4 text-rose-500" /> {hotel.location}
+          </p>
           {avg && (
-            <p className="mt-1 text-sm text-slate-600">
-              ⭐ {avg} · {ratings.length} review{ratings.length === 1 ? "" : "s"}
+            <p className="mt-1 flex items-center gap-1 text-sm text-slate-600">
+              <StarIcon className="h-4 w-4 text-amber-400" filled /> {avg} ·{" "}
+              {ratings.length} review{ratings.length === 1 ? "" : "s"}
             </p>
           )}
         </div>
         <div className="text-right">
           {minPrice !== null && (
             <p className="text-2xl font-bold text-slate-900">
-              ${minPrice}
+              <Price amount={minPrice} />
               <span className="text-sm font-normal text-slate-500"> / night</span>
             </p>
           )}
@@ -102,7 +109,9 @@ export default async function HotelDetailPage({
                     Sleeps {room.capacity}
                   </p>
                 </div>
-                <p className="font-semibold text-slate-900">${room.price}</p>
+                <p className="font-semibold text-slate-900">
+                  <Price amount={Number(room.price)} />
+                </p>
               </div>
             ))}
           </div>

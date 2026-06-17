@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { resendVerification } from "@/lib/auth";
-import { AuthCard } from "@/components/AuthCard";
+import { AuthShell } from "@/components/AuthShell";
+import { MailIcon } from "@/components/icons";
 
 function VerifyEmailInner() {
   const router = useRouter();
@@ -43,10 +44,22 @@ function VerifyEmailInner() {
   }
 
   return (
-    <AuthCard title="Verify your email">
+    <AuthShell
+      side={{
+        title: "Almost there!",
+        subtitle: "Verify your email to unlock your HMS account.",
+      }}
+    >
       <div className="space-y-4 text-sm text-slate-600">
-        <div className="grid place-items-center py-2 text-5xl">📬</div>
-        <p>
+        <div className="flex justify-center py-2">
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-rose-50 text-rose-600">
+            <MailIcon className="h-7 w-7" />
+          </div>
+        </div>
+        <h1 className="text-center text-xl font-bold text-slate-900">
+          Verify your email
+        </h1>
+        <p className="text-center">
           We&apos;ve sent a verification link to{" "}
           <span className="font-semibold text-slate-900">{email}</span>.
         </p>
@@ -83,7 +96,7 @@ function VerifyEmailInner() {
           </Link>
         </p>
       </div>
-    </AuthCard>
+    </AuthShell>
   );
 }
 

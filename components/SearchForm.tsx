@@ -2,6 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import {
+  SearchIcon,
+  MapPinIcon,
+  CalendarIcon,
+  UserIcon,
+  CheckIcon,
+} from "@/components/icons";
 
 // Search form shown in the navbar (compact) and the hero (full).
 // Submitting navigates to "/" with the criteria as query params, which the
@@ -42,7 +49,7 @@ export function SearchForm({ compact = false }: { compact?: boolean }) {
           className="grid h-8 w-8 place-items-center rounded-full bg-rose-600 text-white hover:bg-rose-700"
           aria-label="Search"
         >
-          🔍
+          <SearchIcon className="h-4 w-4" />
         </button>
       </form>
     );
@@ -51,66 +58,90 @@ export function SearchForm({ compact = false }: { compact?: boolean }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid w-full max-w-4xl grid-cols-1 gap-3 rounded-2xl bg-white p-4 shadow-xl sm:grid-cols-2 lg:grid-cols-5"
+      className="w-full max-w-5xl rounded-2xl bg-white p-4 text-left shadow-xl"
     >
-      <Field label="Location">
-        <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Where to?"
-          className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
-        />
-      </Field>
-      <Field label="Check in">
-        <input
-          type="date"
-          value={checkIn}
-          onChange={(e) => setCheckIn(e.target.value)}
-          className="w-full bg-transparent text-sm text-slate-700 outline-none"
-        />
-      </Field>
-      <Field label="Check out">
-        <input
-          type="date"
-          value={checkOut}
-          onChange={(e) => setCheckOut(e.target.value)}
-          className="w-full bg-transparent text-sm text-slate-700 outline-none"
-        />
-      </Field>
-      <Field label="Guests">
-        <select
-          value={guests}
-          onChange={(e) => setGuests(e.target.value)}
-          className="w-full bg-transparent text-sm text-slate-700 outline-none"
-        >
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <option key={n} value={n}>
-              {n} {n === 1 ? "guest" : "guests"}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <button
-        type="submit"
-        className="rounded-xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white hover:bg-rose-700"
-      >
-        Search
-      </button>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto] lg:divide-x lg:divide-slate-200">
+        <Field icon={<MapPinIcon className="h-4 w-4" />} label="Destination">
+          <input
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Where are you going?"
+            className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+          />
+        </Field>
+        <Field icon={<CalendarIcon className="h-4 w-4" />} label="Check In">
+          <input
+            type="date"
+            value={checkIn}
+            onChange={(e) => setCheckIn(e.target.value)}
+            className="w-full bg-transparent text-sm text-slate-700 outline-none"
+          />
+        </Field>
+        <Field icon={<CalendarIcon className="h-4 w-4" />} label="Check Out">
+          <input
+            type="date"
+            value={checkOut}
+            onChange={(e) => setCheckOut(e.target.value)}
+            className="w-full bg-transparent text-sm text-slate-700 outline-none"
+          />
+        </Field>
+        <Field icon={<UserIcon className="h-4 w-4" />} label="Guests">
+          <select
+            value={guests}
+            onChange={(e) => setGuests(e.target.value)}
+            className="w-full bg-transparent text-sm text-slate-700 outline-none"
+          >
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <option key={n} value={n}>
+                {n} {n === 1 ? "guest" : "guests"}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <div className="flex items-center lg:pl-2">
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Search Hotels
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-1 border-t border-slate-100 pt-3 text-xs font-medium text-slate-500">
+        <Badge>Best Price Guarantee</Badge>
+        <Badge>Free Cancellation</Badge>
+        <Badge>Secure Booking</Badge>
+      </div>
     </form>
   );
 }
 
 function Field({
+  icon,
   label,
   children,
 }: {
+  icon: React.ReactNode;
   label: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col rounded-xl border border-slate-200 px-3 py-2 text-left focus-within:border-rose-400">
-      <span className="text-xs font-semibold text-slate-500">{label}</span>
-      {children}
+    <label className="flex items-start gap-2 rounded-xl px-3 py-2 hover:bg-slate-50">
+      <span className="mt-0.5 text-rose-500">{icon}</span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="text-xs font-semibold text-slate-700">{label}</span>
+        {children}
+      </span>
     </label>
+  );
+}
+
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="flex items-center gap-1">
+      <CheckIcon className="h-4 w-4 text-emerald-500" />
+      {children}
+    </span>
   );
 }

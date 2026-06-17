@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { MapPinIcon } from "@/components/icons";
 import type { Hotel, ManagerVerification, Profile } from "@/lib/types";
 
 type ManagerRow = ManagerVerification & { profiles: Pick<Profile, "full_name"> | null };
@@ -158,7 +159,9 @@ export default function AdminDashboardPage() {
               >
                 <div>
                   <p className="font-semibold text-slate-900">{h.name}</p>
-                  <p className="text-sm text-slate-500">📍 {h.location}</p>
+                  <p className="flex items-center gap-1 text-sm text-slate-500">
+                    <MapPinIcon className="h-4 w-4 text-rose-500" /> {h.location}
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <button

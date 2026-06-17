@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { ClockIcon, BanIcon } from "@/components/icons";
 import type { VerificationStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,9 @@ export default async function ManagerWaitingPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
         {status === "rejected" ? (
           <>
-            <div className="text-5xl">⛔</div>
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-rose-50 text-rose-600">
+              <BanIcon className="h-7 w-7" />
+            </div>
             <h1 className="mt-4 text-xl font-bold text-slate-900">
               Application rejected
             </h1>
@@ -44,7 +47,9 @@ export default async function ManagerWaitingPage() {
           </>
         ) : (
           <>
-            <div className="text-5xl">⏳</div>
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-50 text-amber-600">
+              <ClockIcon className="h-7 w-7" />
+            </div>
             <h1 className="mt-4 text-xl font-bold text-slate-900">
               Waiting for admin approval
             </h1>

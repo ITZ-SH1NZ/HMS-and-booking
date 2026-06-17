@@ -1,0 +1,55 @@
+import Link from "next/link";
+import {
+  UmbrellaIcon,
+  MountainIcon,
+  BuildingIcon,
+  TreeIcon,
+  GemIcon,
+  WalletIcon,
+} from "@/components/icons";
+
+// Static, decorative category shortcuts (not hotel data). Each links into the
+// hotel grid below.
+const CATEGORIES = [
+  { label: "Beachfront", Icon: UmbrellaIcon, image: "1507525428034-b723cf961d3e" },
+  { label: "Mountain", Icon: MountainIcon, image: "1464822759023-fed622ff2c3b" },
+  { label: "City", Icon: BuildingIcon, image: "1480714378408-67cf0d13bc1b" },
+  { label: "Countryside", Icon: TreeIcon, image: "1500382017468-9049fed747ef" },
+  { label: "Luxury", Icon: GemIcon, image: "1582719478250-c89cae4dc85b" },
+  { label: "Budget", Icon: WalletIcon, image: "1505693416388-ac5ce068fe85" },
+];
+
+export function CategoryStrip() {
+  return (
+    <section id="categories" className="mx-auto max-w-7xl px-4 py-10">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-slate-900">Explore by category</h2>
+        <Link href="#hotels" className="text-sm font-semibold text-rose-600">
+          View all
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {CATEGORIES.map((cat) => (
+          <Link
+            key={cat.label}
+            href="#hotels"
+            className="group relative flex h-20 items-center gap-2 overflow-hidden rounded-xl bg-white px-3 shadow-sm ring-1 ring-slate-100 transition hover:shadow-md"
+          >
+            <cat.Icon className="h-5 w-5 text-rose-500" />
+            <span className="text-sm font-semibold text-slate-800">
+              {cat.label}
+            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=200&q=60`}
+              alt=""
+              aria-hidden
+              className="absolute right-0 top-0 h-full w-16 rounded-r-xl object-cover opacity-90 transition group-hover:scale-105"
+            />
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}

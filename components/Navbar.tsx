@@ -6,6 +6,15 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { signOut } from "@/lib/auth";
 import { SearchForm } from "@/components/SearchForm";
+import { BedIcon } from "@/components/icons";
+
+const NAV_LINKS = [
+  { label: "Explore", href: "/#hotels" },
+  { label: "Destinations", href: "/#categories" },
+  { label: "Deals", href: "/#hotels" },
+  { label: "Hosts", href: "/signup/manager" },
+  { label: "About Us", href: "/#why" },
+];
 
 export function Navbar() {
   const { user, profile, loading } = useAuth();
@@ -35,12 +44,26 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-        <Link
-          href="/"
-          className="text-2xl font-extrabold tracking-tight text-rose-600"
-        >
-          HMS
+        <Link href="/" className="flex items-center gap-2">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-rose-600 text-white">
+            <BedIcon className="h-5 w-5" />
+          </span>
+          <span className="text-2xl font-extrabold tracking-tight text-rose-600">
+            HMS
+          </span>
         </Link>
+
+        <nav className="hidden items-center gap-5 lg:flex">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
         <div className="hidden flex-1 justify-center md:flex">
           <Suspense fallback={<div className="h-10 w-72" />}>

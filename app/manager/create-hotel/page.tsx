@@ -115,8 +115,9 @@ export default function CreateHotelPage() {
       </form>
 
       <p className="mt-4 text-xs text-slate-400">
-        Tip: the price you set here becomes the hotel&apos;s starting price on the
-        landing page. You can add more rooms later.
+        Tip: enter prices in USD ($) — they become the hotel&apos;s starting
+        price and are shown to each visitor converted to their local currency.
+        You can add more rooms later.
       </p>
     </div>
   );

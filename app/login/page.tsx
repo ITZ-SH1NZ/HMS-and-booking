@@ -10,7 +10,10 @@ import {
 } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { AuthCard, inputClass, labelClass, primaryBtn } from "@/components/AuthCard";
+import { AuthShell } from "@/components/AuthShell";
+import { IconField, PasswordField, FieldLabel } from "@/components/AuthFields";
+import { primaryBtn } from "@/components/AuthCard";
+import { GoogleIcon, MailIcon, LockIcon, BuildingIcon } from "@/components/icons";
 import type { UserRole, VerificationStatus } from "@/lib/types";
 
 function LoginForm() {
@@ -118,8 +121,16 @@ function LoginForm() {
   }
 
   return (
-    <AuthCard title="Welcome back" subtitle="Log in to your HMS account">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <AuthShell
+      side={{
+        title: "Welcome back!",
+        subtitle: "Log in to continue your journey and find your perfect stay.",
+      }}
+    >
+      <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
+      <p className="mt-1 text-sm text-slate-500">Log in to your HMS account</p>
+
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && (
           <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
             {error}
@@ -136,41 +147,44 @@ function LoginForm() {
         )}
 
         <div>
-          <label className={labelClass} htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
+          <FieldLabel>Email</FieldLabel>
+          <IconField
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
+            placeholder="you@example.com"
+            icon={<MailIcon className="h-4 w-4" />}
           />
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="password">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
+          <FieldLabel>Password</FieldLabel>
+          <PasswordField
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
+            placeholder="••••••••"
+            icon={<LockIcon className="h-4 w-4" />}
           />
+          <div className="mt-1.5 text-right">
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-rose-600 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
         <button type="submit" disabled={loading} className={primaryBtn}>
-          {loading ? "Logging in…" : "Login"}
+          {loading ? "Logging in…" : "Log In"}
         </button>
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
         <span className="h-px flex-1 bg-slate-200" />
-        OR
+        or
         <span className="h-px flex-1 bg-slate-200" />
       </div>
 
@@ -178,31 +192,41 @@ function LoginForm() {
         onClick={handleGoogle}
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
       >
-        <span>🌐</span> Login with Google
-        <span className="text-xs font-normal text-slate-400">(guests)</span>
+        <GoogleIcon className="h-5 w-5" /> Continue with Google
       </button>
 
-      <div className="mt-6 space-y-1 text-center text-sm text-slate-500">
-        <p>
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-semibold text-rose-600">
-            Sign up
-          </Link>
-        </p>
-        <p>
-          Want to list your property?{" "}
-          <Link href="/signup/manager" className="font-semibold text-rose-600">
+      <p className="mt-5 text-center text-sm text-slate-500">
+        Don&apos;t have an account?{" "}
+        <Link href="/signup" className="font-semibold text-rose-600">
+          Sign up
+        </Link>
+      </p>
+
+      {/* Host promo */}
+      <div className="mt-6 flex items-center gap-4 rounded-xl bg-rose-50 p-4">
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-slate-900">Own a hotel or property?</p>
+          <p className="mt-0.5 text-sm text-slate-600">
+            List your property and start earning with HMS.
+          </p>
+          <Link
+            href="/signup/manager"
+            className="mt-2 inline-block rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-sm font-semibold text-rose-600 hover:bg-rose-100"
+          >
             Become a Host
           </Link>
-        </p>
+        </div>
+        <BuildingIcon className="hidden h-14 w-14 shrink-0 text-rose-300 sm:block" />
       </div>
-    </AuthCard>
+    </AuthShell>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center text-slate-400">Loading…</div>}>
+    <Suspense
+      fallback={<div className="p-10 text-center text-slate-400">Loading…</div>}
+    >
       <LoginForm />
     </Suspense>
   );

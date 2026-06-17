@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { HotelCard } from "@/components/HotelCard";
 import { SearchForm } from "@/components/SearchForm";
+import { CategoryStrip } from "@/components/CategoryStrip";
+import { WhyChoose } from "@/components/WhyChoose";
 import { toHotelCard } from "@/lib/hotels";
 import type { HotelWithStats } from "@/lib/types";
 
@@ -36,35 +38,44 @@ export default async function HomePage({
   const hotels = ((data as HotelWithStats[] | null) ?? []).map(toHotelCard);
 
   return (
-    <div>
+    <div className="pb-4">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-slate-900">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-40"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80')",
-          }}
-        />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-20 text-center">
-          <h1 className="max-w-2xl text-4xl font-extrabold text-white sm:text-5xl">
-            Find your next stay
-          </h1>
-          <p className="max-w-xl text-lg text-slate-200">
-            Search hotels around the world, compare prices, and book your perfect
-            room.
-          </p>
-          <Suspense fallback={<div className="h-28 w-full max-w-4xl" />}>
+      <section className="px-4 pt-6">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-slate-900">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80')",
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/50 to-transparent" />
+          <div className="relative px-6 py-16 sm:px-12 sm:py-24">
+            <h1 className="max-w-xl text-4xl font-extrabold text-white sm:text-5xl">
+              Find your perfect stay
+            </h1>
+            <p className="mt-3 max-w-md text-lg text-slate-200">
+              Book hotels, resorts and apartments worldwide. Best prices
+              guaranteed.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-10 mx-auto -mt-10 flex max-w-5xl justify-center px-2">
+          <Suspense fallback={<div className="h-32 w-full max-w-5xl" />}>
             <SearchForm />
           </Suspense>
         </div>
       </section>
 
+      {/* Categories */}
+      <CategoryStrip />
+
       {/* Hotel grid */}
-      <section id="hotels" className="mx-auto max-w-7xl px-4 py-12">
+      <section id="hotels" className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-6 flex items-baseline justify-between">
-          <h2 className="text-2xl font-bold text-slate-900">
-            {location ? `Hotels in “${location}”` : "Explore hotels"}
+          <h2 className="text-xl font-bold text-slate-900">
+            {location ? `Hotels in “${location}”` : "Popular hotels"}
           </h2>
           <span className="text-sm text-slate-500">
             {hotels.length} {hotels.length === 1 ? "result" : "results"}
@@ -74,7 +85,7 @@ export default async function HomePage({
         {error ? (
           <EmptyState
             title="Couldn't load hotels"
-            body="Check that your Supabase keys are set in .env.local and the schema has been applied."
+            body="Check that your Supabase keys are set and the schema has been applied."
           />
         ) : hotels.length === 0 ? (
           <EmptyState
@@ -93,6 +104,9 @@ export default async function HomePage({
           </div>
         )}
       </section>
+
+      {/* Why choose HMS */}
+      <WhyChoose />
     </div>
   );
 }
