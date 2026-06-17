@@ -6,7 +6,7 @@ import {
   DEFAULT_LOCALE,
   formatMoney,
   getRates,
-  localeToCurrency,
+  detectMoneyLocale,
 } from "@/lib/currency";
 
 interface CurrencyState {
@@ -36,8 +36,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     (async () => {
-      const locale = navigator.language || DEFAULT_LOCALE;
-      const currency = localeToCurrency(locale);
+      const { currency, locale } = await detectMoneyLocale();
 
       if (currency === BASE_CURRENCY) {
         if (!cancelled) setState({ locale, currency, rate: 1, ready: true });

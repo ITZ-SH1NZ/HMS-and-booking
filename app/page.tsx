@@ -1,8 +1,7 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { HotelCard } from "@/components/HotelCard";
-import { SearchForm } from "@/components/SearchForm";
+import { AirbnbSearch } from "@/components/AirbnbSearch";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { WhyChoose } from "@/components/WhyChoose";
 import { toHotelCard } from "@/lib/hotels";
@@ -62,10 +61,8 @@ export default async function HomePage({
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto -mt-10 flex max-w-5xl justify-center px-2">
-          <Suspense fallback={<div className="h-32 w-full max-w-5xl" />}>
-            <SearchForm />
-          </Suspense>
+        <div className="relative z-20 mx-auto -mt-8 flex max-w-3xl justify-center px-2">
+          <AirbnbSearch />
         </div>
       </section>
 

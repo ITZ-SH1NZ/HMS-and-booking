@@ -34,21 +34,21 @@ export function CategoryStrip() {
           <Link
             key={cat.label}
             href="#hotels"
-            className="group flex h-24 items-center justify-between overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md"
+            className="group flex items-center gap-2 rounded-2xl bg-white p-2 pl-3 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            <span className="flex items-center gap-2 py-4 pl-4">
-              <cat.Icon className="h-5 w-5 shrink-0 text-slate-700" />
-              <span className="text-sm font-semibold text-slate-800">
-                {cat.label}
-              </span>
+            <cat.Icon className="h-5 w-5 shrink-0 text-rose-500" />
+            <span className="flex-1 truncate text-sm font-semibold text-slate-800">
+              {cat.label}
             </span>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=240&q=70`}
-              alt=""
-              aria-hidden
-              className="h-full w-24 shrink-0 object-cover transition duration-300 group-hover:scale-105"
-            />
+            <span className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=240&q=70`}
+                alt=""
+                aria-hidden
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+              />
+            </span>
           </Link>
         ))}
       </div>

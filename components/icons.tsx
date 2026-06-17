@@ -87,6 +87,38 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </Base>
+  );
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="m9 18 6-6-6-6" />
+    </Base>
+  );
+}
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M5 12h14M12 5v14" />
+    </Base>
+  );
+}
+
+export function MinusIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M5 12h14" />
+    </Base>
+  );
+}
+
 export function StarIcon({
   className = "h-5 w-5",
   filled = false,

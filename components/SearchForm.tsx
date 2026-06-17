@@ -23,6 +23,8 @@ export function SearchForm({ compact = false }: { compact?: boolean }) {
   const [checkOut, setCheckOut] = useState(params.get("checkOut") ?? "");
   const [guests, setGuests] = useState(params.get("guests") ?? "1");
 
+  const today = new Date().toISOString().split("T")[0];
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const query = new URLSearchParams();
@@ -71,10 +73,18 @@ export function SearchForm({ compact = false }: { compact?: boolean }) {
           />
         </Field>
         <Field icon={<CalendarIcon className="h-4 w-4" />} label="Check In">
-          <DateInput value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+          <DateInput
+            value={checkIn}
+            min={today}
+            onChange={(e) => setCheckIn(e.target.value)}
+          />
         </Field>
         <Field icon={<CalendarIcon className="h-4 w-4" />} label="Check Out">
-          <DateInput value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
+          <DateInput
+            value={checkOut}
+            min={checkIn || today}
+            onChange={(e) => setCheckOut(e.target.value)}
+          />
         </Field>
         <Field
           icon={<UserIcon className="h-4 w-4" />}
@@ -135,27 +145,39 @@ function Field({
   );
 }
 
-// Shows "Add dates" until focused/filled, then behaves as a native date picker.
+// Shows "Add dates" until focused/filled, then opens a native date picker.
 function DateInput({
   value,
+  min,
   onChange,
 }: {
   value: string;
+  min?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
+  function openPicker(el: HTMLInputElement) {
+    el.type = "date";
+    // Open the calendar immediately on user interaction (supported browsers).
+    try {
+      el.showPicker?.();
+    } catch {
+      // showPicker can throw if not triggered by a user gesture — ignore.
+    }
+  }
+
   return (
     <input
       type={value ? "date" : "text"}
       value={value}
+      min={min}
       onChange={onChange}
       placeholder="Add dates"
-      onFocus={(e) => {
-        e.currentTarget.type = "date";
-      }}
+      onFocus={(e) => openPicker(e.currentTarget)}
+      onClick={(e) => openPicker(e.currentTarget)}
       onBlur={(e) => {
         if (!e.currentTarget.value) e.currentTarget.type = "text";
       }}
-      className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+      className="w-full cursor-pointer bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
     />
   );
 }

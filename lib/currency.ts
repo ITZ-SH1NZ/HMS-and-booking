@@ -46,6 +46,72 @@ export function formatMoney(amount: number, locale: string, currency: string) {
   }).format(amount);
 }
 
+interface DetectedMoney {
+  currency: string;
+  locale: string;
+}
+
+const MONEY_CACHE_KEY = "hms_money_locale";
+const MONEY_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// Detect the visitor's currency from their IP location (so it matches where
+// they actually are, not their browser language). Falls back to the browser
+// locale if the geo lookup is unavailable. Cached for a day.
+export async function detectMoneyLocale(): Promise<DetectedMoney> {
+  const fallback = (): DetectedMoney => {
+    const locale =
+      typeof navigator !== "undefined" ? navigator.language : DEFAULT_LOCALE;
+    return { currency: localeToCurrency(locale), locale: locale || DEFAULT_LOCALE };
+  };
+
+  if (typeof window !== "undefined") {
+    try {
+      const raw = localStorage.getItem(MONEY_CACHE_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw) as DetectedMoney & { ts: number };
+        if (Date.now() - cached.ts < MONEY_TTL && cached.currency) {
+          return { currency: cached.currency, locale: cached.locale };
+        }
+      }
+    } catch {
+      // ignore corrupt cache
+    }
+  }
+
+  let result: DetectedMoney | null = null;
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    if (res.ok) {
+      const data = (await res.json()) as {
+        currency?: string;
+        languages?: string;
+      };
+      if (data.currency) {
+        const locale =
+          data.languages?.split(",")[0] ||
+          (typeof navigator !== "undefined" ? navigator.language : DEFAULT_LOCALE);
+        result = { currency: data.currency, locale: locale || DEFAULT_LOCALE };
+      }
+    }
+  } catch {
+    // network/CORS/ratelimit — fall back below
+  }
+
+  if (!result) result = fallback();
+
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(
+        MONEY_CACHE_KEY,
+        JSON.stringify({ ...result, ts: Date.now() }),
+      );
+    } catch {
+      // storage unavailable — fine
+    }
+  }
+  return result;
+}
+
 interface CachedRates {
   ts: number;
   rates: Record<string, number>;
