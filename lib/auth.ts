@@ -108,9 +108,14 @@ export async function signInWithEmail(email: string, password: string) {
 // Google OAuth — guests only. Redirects to Google then back to /auth/callback.
 export async function signInWithGoogle() {
   const supabase = createClient();
+  // Always runs in the browser (click handler), so prefer the live origin.
+  // This keeps localhost, Vercel previews, and production each redirecting
+  // back to themselves rather than a single hard-coded site URL.
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : siteUrl;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${siteUrl}/auth/callback` },
+    options: { redirectTo: `${origin}/auth/callback` },
   });
   if (error) throw error;
   return data;
