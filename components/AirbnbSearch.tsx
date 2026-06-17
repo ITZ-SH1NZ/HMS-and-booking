@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   SearchIcon,
   MapPinIcon,
+  CalendarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   PlusIcon,
@@ -13,6 +15,7 @@ import {
 } from "@/components/icons";
 
 type Segment = "where" | "when" | "who" | null;
+type WhenMode = "dates" | "flexible";
 
 interface Guests {
   adults: number;
@@ -20,6 +23,8 @@ interface Guests {
   infants: number;
   pets: number;
 }
+
+const NIGHTS: Record<string, number> = { weekend: 2, week: 7, month: 30 };
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -52,19 +57,33 @@ export function AirbnbSearch() {
   const whereInputRef = useRef<HTMLInputElement>(null);
   const segEls = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Sliding highlight geometry (keeps last position when closing so it can
-  // slide back out smoothly).
-  const [hl, setHl] = useState({ left: 0, width: 0, visible: false });
+  // Sliding / scaling highlight behind the active segment.
+  const [hl, setHl] = useState({ left: 0, width: 0 });
+  const [slide, setSlide] = useState(false);
+  const prevActive = useRef<Segment>(null);
 
   useEffect(() => {
+    // Measure the active segment so the highlight can track it (DOM sync).
     function measure() {
       const el = active ? segEls.current[active] : null;
-      if (el) setHl({ left: el.offsetLeft, width: el.offsetWidth, visible: true });
-      else setHl((h) => ({ ...h, visible: false }));
+      if (el) setHl({ left: el.offsetLeft, width: el.offsetWidth });
     }
-    measure();
+    if (active !== null) {
+      // Jump (no slide) when opening from idle; spring-slide when switching.
+      setSlide(prevActive.current !== null);
+      measure();
+    }
+    prevActive.current = active;
+
+    // The search button expands on open, reflowing the segments — re-measure
+    // continuously until the layout settles so the highlight tracks correctly.
+    const ro = new ResizeObserver(measure);
+    Object.values(segEls.current).forEach((el) => el && ro.observe(el));
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, [active]);
 
   // Real destination suggestions from approved hotels.
@@ -82,9 +101,8 @@ export function AirbnbSearch() {
     })();
   }, []);
 
-  // Close on outside click / Escape.
   useEffect(() => {
-    function onClick(e: MouseEvent) {
+    function onDown(e: MouseEvent) {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
         setActive(null);
       }
@@ -92,10 +110,10 @@ export function AirbnbSearch() {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setActive(null);
     }
-    document.addEventListener("mousedown", onClick);
+    document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
     };
   }, []);
@@ -122,7 +140,16 @@ export function AirbnbSearch() {
       setCheckIn(date);
     } else {
       setCheckOut(date);
+      setActive("who");
     }
+  }
+
+  function setRange(start: string, nights: number) {
+    const d = new Date(`${start}T00:00:00`);
+    d.setDate(d.getDate() + nights);
+    setCheckIn(start);
+    setCheckOut(ymd(d));
+    setActive("who");
   }
 
   function submit() {
@@ -145,14 +172,20 @@ export function AirbnbSearch() {
         }`}
       >
         {/* Sliding highlight */}
-        <div
-          className="pointer-events-none absolute rounded-full bg-white shadow-md transition-all duration-300 ease-out"
-          style={{
+        <motion.div
+          className="pointer-events-none absolute rounded-full bg-white shadow-md"
+          style={{ top: 4, bottom: 4 }}
+          animate={{
             left: hl.left,
             width: hl.width,
-            top: 4,
-            bottom: 4,
-            opacity: hl.visible ? 1 : 0,
+            opacity: expanded ? 1 : 0,
+            scale: expanded ? 1 : 0.96,
+          }}
+          transition={{
+            left: slide ? { type: "spring", stiffness: 600, damping: 48 } : { duration: 0 },
+            width: slide ? { type: "spring", stiffness: 600, damping: 48 } : { duration: 0 },
+            opacity: { duration: 0.18, ease: "easeOut" },
+            scale: { duration: 0.18, ease: "easeOut" },
           }}
         />
 
@@ -161,6 +194,8 @@ export function AirbnbSearch() {
             segEls.current.where = el;
           }}
           label="Where"
+          active={active === "where"}
+          expanded={expanded}
           onActivate={() => setActive("where")}
         >
           <input
@@ -180,6 +215,8 @@ export function AirbnbSearch() {
             segEls.current.when = el;
           }}
           label="When"
+          active={active === "when"}
+          expanded={expanded}
           onActivate={() => setActive("when")}
         >
           <span className={`text-sm ${dateLabel ? "text-slate-700" : "text-slate-400"}`}>
@@ -194,6 +231,8 @@ export function AirbnbSearch() {
             segEls.current.who = el;
           }}
           label="Who"
+          active={active === "who"}
+          expanded={expanded}
           onActivate={() => setActive("who")}
         >
           <span className={`text-sm ${guestLabel ? "text-slate-700" : "text-slate-400"}`}>
@@ -215,101 +254,146 @@ export function AirbnbSearch() {
       </div>
 
       {/* Popovers */}
-      {active === "where" && (
-        <Panel className="left-0 w-full max-w-md">
-          <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Suggested destinations
-          </p>
-          {suggestions.length === 0 ? (
-            <p className="px-1 py-4 text-sm text-slate-400">
-              Type a destination above.
-            </p>
-          ) : (
-            <ul className="space-y-1">
-              {suggestions
-                .filter((s) =>
-                  location ? s.toLowerCase().includes(location.toLowerCase()) : true,
-                )
-                .map((s) => (
-                  <li key={s}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLocation(s);
-                        setActive("when");
-                      }}
-                      className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50"
-                    >
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500">
-                        <MapPinIcon className="h-5 w-5" />
-                      </span>
-                      <span className="text-sm font-medium text-slate-800">{s}</span>
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          )}
-        </Panel>
-      )}
+      <AnimatePresence>
+        {active && (
+          <motion.div
+            key={active}
+            className={`absolute inset-x-0 top-full z-50 mt-3 flex ${
+              active === "who"
+                ? "justify-end"
+                : active === "when"
+                  ? "justify-center"
+                  : "justify-start"
+            }`}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            style={{ transformOrigin: "top" }}
+          >
+            <div
+              className={`w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl ${
+                active === "where"
+                  ? "max-w-md"
+                  : active === "when"
+                    ? "max-w-2xl"
+                    : "max-w-sm"
+              }`}
+            >
+              {active === "where" && (
+                <>
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
+                    Suggested destinations
+                  </p>
+                  {suggestions.length === 0 ? (
+                    <p className="px-1 py-4 text-sm text-slate-400">
+                      Type a destination above.
+                    </p>
+                  ) : (
+                    <ul className="space-y-1">
+                      {suggestions
+                        .filter((s) =>
+                          location
+                            ? s.toLowerCase().includes(location.toLowerCase())
+                            : true,
+                        )
+                        .map((s) => (
+                          <li key={s}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setLocation(s);
+                                setActive("when");
+                              }}
+                              className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50"
+                            >
+                              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500">
+                                <MapPinIcon className="h-5 w-5" />
+                              </span>
+                              <span className="text-sm font-medium text-slate-800">
+                                {s}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </>
+              )}
 
-      {active === "when" && (
-        <Panel className="left-1/2 w-[90vw] max-w-2xl -translate-x-1/2">
-          <RangeCalendar checkIn={checkIn} checkOut={checkOut} onPick={pickDate} />
-        </Panel>
-      )}
+              {active === "when" && (
+                <WhenPanel
+                  checkIn={checkIn}
+                  checkOut={checkOut}
+                  onPick={pickDate}
+                  onFlexRange={setRange}
+                />
+              )}
 
-      {active === "who" && (
-        <Panel className="right-0 w-full max-w-sm">
-          <GuestRow
-            label="Adults"
-            sub="Ages 13 or above"
-            value={guests.adults}
-            onChange={(v) => setGuests((g) => ({ ...g, adults: v }))}
-          />
-          <GuestRow
-            label="Children"
-            sub="Ages 2–12"
-            value={guests.children}
-            onChange={(v) => setGuests((g) => ({ ...g, children: v }))}
-          />
-          <GuestRow
-            label="Infants"
-            sub="Under 2"
-            value={guests.infants}
-            onChange={(v) => setGuests((g) => ({ ...g, infants: v }))}
-          />
-          <GuestRow
-            label="Pets"
-            sub="Service animals welcome"
-            value={guests.pets}
-            onChange={(v) => setGuests((g) => ({ ...g, pets: v }))}
-            last
-          />
-        </Panel>
-      )}
+              {active === "who" && (
+                <>
+                  <GuestRow
+                    label="Adults"
+                    sub="Ages 13 or above"
+                    value={guests.adults}
+                    onChange={(v) => setGuests((g) => ({ ...g, adults: v }))}
+                  />
+                  <GuestRow
+                    label="Children"
+                    sub="Ages 2–12"
+                    value={guests.children}
+                    onChange={(v) => setGuests((g) => ({ ...g, children: v }))}
+                  />
+                  <GuestRow
+                    label="Infants"
+                    sub="Under 2"
+                    value={guests.infants}
+                    onChange={(v) => setGuests((g) => ({ ...g, infants: v }))}
+                  />
+                  <GuestRow
+                    label="Pets"
+                    sub="Service animals welcome"
+                    value={guests.pets}
+                    onChange={(v) => setGuests((g) => ({ ...g, pets: v }))}
+                    last
+                  />
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 function SegmentItem({
   label,
+  active,
+  expanded,
   onActivate,
   innerRef,
   children,
 }: {
   label: string;
+  active: boolean;
+  expanded: boolean;
   onActivate: () => void;
   innerRef: React.Ref<HTMLDivElement>;
   children: React.ReactNode;
 }) {
+  const hover = active
+    ? ""
+    : expanded
+      ? "hover:bg-slate-200/70"
+      : "hover:bg-slate-100";
   return (
     <div
       ref={innerRef}
       role="button"
       tabIndex={0}
-      onMouseEnter={onActivate}
       onClick={onActivate}
-      className="relative z-10 flex flex-1 cursor-pointer flex-col rounded-full px-6 py-3 text-left"
+      className={`relative z-10 flex flex-1 cursor-pointer flex-col rounded-full px-6 py-3 text-left transition-colors duration-200 ${hover}`}
     >
       <span className="text-xs font-semibold text-slate-800">{label}</span>
       {children}
@@ -324,22 +408,6 @@ function Divider({ hidden }: { hidden: boolean }) {
         hidden ? "opacity-0" : "opacity-100"
       }`}
     />
-  );
-}
-
-function Panel({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={`absolute top-full z-50 mt-3 ${className ?? ""}`}>
-      <div className="animate-pop-in w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
-        {children}
-      </div>
-    </div>
   );
 }
 
@@ -408,6 +476,136 @@ function Stepper({
   );
 }
 
+function WhenPanel({
+  checkIn,
+  checkOut,
+  onPick,
+  onFlexRange,
+}: {
+  checkIn: string;
+  checkOut: string;
+  onPick: (date: string) => void;
+  onFlexRange: (start: string, nights: number) => void;
+}) {
+  const [mode, setMode] = useState<WhenMode>("dates");
+  const [duration, setDuration] = useState<keyof typeof NIGHTS>("weekend");
+
+  return (
+    <div>
+      <div className="mx-auto mb-5 flex w-fit items-center rounded-full bg-slate-100 p-1">
+        {(["dates", "flexible"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setMode(m)}
+            className="relative rounded-full px-6 py-2 text-sm font-semibold"
+          >
+            {mode === m && (
+              <motion.span
+                layoutId="when-tab"
+                className="absolute inset-0 rounded-full bg-white shadow"
+                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+              />
+            )}
+            <span
+              className={`relative z-10 transition-colors ${
+                mode === m ? "text-slate-900" : "text-slate-500"
+              }`}
+            >
+              {m === "dates" ? "Dates" : "Flexible"}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <motion.div layout transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={mode}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
+          >
+            {mode === "dates" ? (
+              <RangeCalendar checkIn={checkIn} checkOut={checkOut} onPick={onPick} />
+            ) : (
+              <FlexiblePanel
+                duration={duration}
+                setDuration={setDuration}
+                onPickMonth={(start) => onFlexRange(start, NIGHTS[duration])}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
+function FlexiblePanel({
+  duration,
+  setDuration,
+  onPickMonth,
+}: {
+  duration: keyof typeof NIGHTS;
+  setDuration: (d: keyof typeof NIGHTS) => void;
+  onPickMonth: (start: string) => void;
+}) {
+  const today = new Date();
+  const months = Array.from({ length: 6 }).map((_, i) => {
+    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+    return d;
+  });
+
+  return (
+    <div className="text-center">
+      <p className="mb-3 text-lg font-semibold text-slate-800">
+        How long would you like to stay?
+      </p>
+      <div className="mb-8 flex justify-center gap-3">
+        {(["weekend", "week", "month"] as const).map((d) => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => setDuration(d)}
+            className={`rounded-full border px-5 py-2 text-sm font-medium capitalize transition ${
+              duration === d
+                ? "border-slate-900 bg-slate-900 text-white"
+                : "border-slate-300 text-slate-700 hover:border-slate-500"
+            }`}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+
+      <p className="mb-3 text-lg font-semibold text-slate-800">
+        When do you want to go?
+      </p>
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+        {months.map((d) => {
+          const start = ymd(d < today ? today : d);
+          return (
+            <button
+              key={d.toISOString()}
+              type="button"
+              onClick={() => onPickMonth(start)}
+              className="flex flex-col items-center gap-1 rounded-2xl border border-slate-200 px-2 py-4 text-slate-700 transition hover:border-slate-900"
+            >
+              <CalendarIcon className="h-6 w-6 text-slate-500" />
+              <span className="text-sm font-medium">
+                {d.toLocaleDateString(undefined, { month: "long" })}
+              </span>
+              <span className="text-xs text-slate-400">{d.getFullYear()}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function RangeCalendar({
   checkIn,
   checkOut,
@@ -420,17 +618,30 @@ function RangeCalendar({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [offset, setOffset] = useState(0);
+  const [hover, setHover] = useState("");
 
   const base = new Date(today.getFullYear(), today.getMonth() + offset, 1);
   const next = new Date(today.getFullYear(), today.getMonth() + offset + 1, 1);
 
+  // Preview end while choosing the second date.
+  const previewEnd = checkIn && !checkOut && hover > checkIn ? hover : "";
+  const effEnd = checkOut || previewEnd;
+
+  const monthProps = {
+    today,
+    checkIn,
+    effEnd,
+    onPick,
+    onHover: setHover,
+  };
+
   return (
-    <div className="relative">
+    <div className="relative" onMouseLeave={() => setHover("")}>
       <button
         type="button"
         onClick={() => setOffset((o) => Math.max(0, o - 1))}
         disabled={offset === 0}
-        className="absolute left-0 top-0 grid h-8 w-8 place-items-center rounded-full transition hover:bg-slate-100 disabled:opacity-30"
+        className="absolute left-1 top-0 grid h-9 w-9 place-items-center rounded-full transition hover:bg-slate-100 disabled:opacity-30"
         aria-label="Previous month"
       >
         <ChevronLeftIcon className="h-4 w-4" />
@@ -438,15 +649,15 @@ function RangeCalendar({
       <button
         type="button"
         onClick={() => setOffset((o) => o + 1)}
-        className="absolute right-0 top-0 grid h-8 w-8 place-items-center rounded-full transition hover:bg-slate-100"
+        className="absolute right-1 top-0 grid h-9 w-9 place-items-center rounded-full transition hover:bg-slate-100"
         aria-label="Next month"
       >
         <ChevronRightIcon className="h-4 w-4" />
       </button>
-      <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2">
-        <Month date={base} today={today} checkIn={checkIn} checkOut={checkOut} onPick={onPick} />
+      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
+        <Month date={base} {...monthProps} />
         <div className="hidden sm:block">
-          <Month date={next} today={today} checkIn={checkIn} checkOut={checkOut} onPick={onPick} />
+          <Month date={next} {...monthProps} />
         </div>
       </div>
     </div>
@@ -457,14 +668,16 @@ function Month({
   date,
   today,
   checkIn,
-  checkOut,
+  effEnd,
   onPick,
+  onHover,
 }: {
   date: Date;
   today: Date;
   checkIn: string;
-  checkOut: string;
+  effEnd: string;
   onPick: (date: string) => void;
+  onHover: (date: string) => void;
 }) {
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -477,36 +690,49 @@ function Month({
 
   return (
     <div>
-      <p className="mb-3 text-center text-sm font-semibold text-slate-800">
+      <p className="mb-4 text-center text-sm font-semibold text-slate-800">
         {date.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
       </p>
-      <div className="mb-1 grid grid-cols-7 text-center text-xs text-slate-400">
+      <div className="mb-2 grid grid-cols-7 text-center text-xs font-medium text-slate-400">
         {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
           <span key={i}>{d}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-y-1">
+      <div className="grid grid-cols-7">
         {cells.map((cell, i) => {
           if (!cell) return <span key={i} />;
           const s = ymd(cell);
           const past = cell < today;
           const isStart = s === checkIn;
-          const isEnd = s === checkOut;
-          const inRange = checkIn && checkOut && s > checkIn && s < checkOut;
+          const isEnd = s === effEnd;
+          const inRange = checkIn && effEnd && s > checkIn && s < effEnd;
+          const endpoint = isStart || isEnd;
+
+          // Connected range bar (sits behind endpoint circles).
+          let bar = "";
+          if (inRange) bar = "left-0 right-0";
+          else if (isStart && effEnd && !isEnd) bar = "left-1/2 right-0";
+          else if (isEnd && checkIn && !isStart) bar = "left-0 right-1/2";
+
           return (
-            <div key={i} className="flex justify-center">
+            <div
+              key={i}
+              className="relative flex h-11 items-center justify-center"
+              onMouseEnter={() => onHover(s)}
+            >
+              {bar && <span className={`absolute inset-y-1 ${bar} bg-rose-100`} />}
               <button
                 type="button"
                 disabled={past}
                 onClick={() => onPick(s)}
-                className={`grid h-9 w-9 place-items-center rounded-full text-sm transition ${
-                  isStart || isEnd
+                className={`relative z-10 grid h-10 w-10 place-items-center rounded-full text-sm transition ${
+                  endpoint
                     ? "bg-rose-600 font-semibold text-white"
                     : inRange
-                      ? "bg-rose-50 text-rose-700"
+                      ? "text-rose-700"
                       : past
                         ? "cursor-not-allowed text-slate-300"
-                        : "text-slate-700 hover:bg-slate-100"
+                        : "text-slate-800 hover:ring-1 hover:ring-slate-900"
                 }`}
               >
                 {cell.getDate()}
