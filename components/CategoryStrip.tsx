@@ -34,18 +34,20 @@ export function CategoryStrip() {
           <Link
             key={cat.label}
             href="#hotels"
-            className="group relative flex h-20 items-center gap-2 overflow-hidden rounded-xl bg-white px-3 shadow-sm ring-1 ring-slate-100 transition hover:shadow-md"
+            className="group flex h-24 items-center justify-between overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            <cat.Icon className="h-5 w-5 text-rose-500" />
-            <span className="text-sm font-semibold text-slate-800">
-              {cat.label}
+            <span className="flex items-center gap-2 py-4 pl-4">
+              <cat.Icon className="h-5 w-5 shrink-0 text-slate-700" />
+              <span className="text-sm font-semibold text-slate-800">
+                {cat.label}
+              </span>
             </span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=200&q=60`}
+              src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=240&q=70`}
               alt=""
               aria-hidden
-              className="absolute right-0 top-0 h-full w-16 rounded-r-xl object-cover opacity-90 transition group-hover:scale-105"
+              className="h-full w-24 shrink-0 object-cover transition duration-300 group-hover:scale-105"
             />
           </Link>
         ))}

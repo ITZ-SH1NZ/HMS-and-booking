@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { HotelCard } from "@/components/HotelCard";
 import { SearchForm } from "@/components/SearchForm";
@@ -49,7 +50,7 @@ export default async function HomePage({
                 "url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80')",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/35 to-transparent" />
           <div className="relative px-6 py-16 sm:px-12 sm:py-24">
             <h1 className="max-w-xl text-4xl font-extrabold text-white sm:text-5xl">
               Find your perfect stay
@@ -77,9 +78,15 @@ export default async function HomePage({
           <h2 className="text-xl font-bold text-slate-900">
             {location ? `Hotels in “${location}”` : "Popular hotels"}
           </h2>
-          <span className="text-sm text-slate-500">
-            {hotels.length} {hotels.length === 1 ? "result" : "results"}
-          </span>
+          {location ? (
+            <span className="text-sm text-slate-500">
+              {hotels.length} {hotels.length === 1 ? "result" : "results"}
+            </span>
+          ) : (
+            <Link href="#hotels" className="text-sm font-semibold text-rose-600">
+              View all
+            </Link>
+          )}
         </div>
 
         {error ? (

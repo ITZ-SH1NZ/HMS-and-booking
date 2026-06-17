@@ -70,6 +70,23 @@ export function CheckIcon(props: IconProps) {
   );
 }
 
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m8 12 2.5 2.5L16 9" />
+    </Base>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Base>
+  );
+}
+
 export function StarIcon({
   className = "h-5 w-5",
   filled = false,

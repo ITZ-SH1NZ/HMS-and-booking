@@ -89,6 +89,9 @@ as $$
   select role from public.profiles where id = auth.uid();
 $$;
 
+-- The API roles must be allowed to execute this, since RLS policies call it.
+grant execute on function public.get_my_role() to anon, authenticated;
+
 -- =============================================================================
 -- TRIGGER: when an auth user is created, create their profile (and, for
 -- managers, their pending verification row) from the sign-up metadata.
@@ -142,6 +145,16 @@ alter table public.manager_verifications   enable row level security;
 alter table public.hotels                  enable row level security;
 alter table public.rooms                   enable row level security;
 alter table public.reviews                 enable row level security;
+
+-- Table-level privileges for the API roles. RLS (below) still restricts which
+-- rows each role can actually see/modify.
+grant select, insert, update, delete on
+  public.profiles,
+  public.manager_verifications,
+  public.hotels,
+  public.rooms,
+  public.reviews
+to anon, authenticated;
 
 -- ---- profiles --------------------------------------------------------------
 drop policy if exists "profiles: read own"   on public.profiles;
