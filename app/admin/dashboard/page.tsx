@@ -12,23 +12,56 @@ export default function AdminDashboardPage() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [totalUsers, setTotalUsers] = useState(0);
+const [totalHotels, setTotalHotels] = useState(0);
+const [totalReviews, setTotalReviews] = useState(0);
+const [totalManagers, setTotalManagers] = useState(0);
 
   const load = useCallback(async () => {
     const supabase = createClient();
-    const [mv, ht] = await Promise.all([
-      supabase
-        .from("manager_verifications")
-        .select("*, profiles(full_name)")
-        .eq("status", "pending")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("hotels")
-        .select("*")
-        .eq("status", "pending")
-        .order("created_at", { ascending: false }),
-    ]);
+    const [
+  mv,
+  ht,
+  usersCount,
+  hotelsCount,
+  reviewsCount,
+  managersCount,
+] = await Promise.all([
+  supabase
+    .from("manager_verifications")
+    .select("*, profiles(full_name)")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false }),
+
+  supabase
+    .from("hotels")
+    .select("*")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false }),
+
+  supabase
+    .from("profiles")
+    .select("*", { count: "exact", head: true }),
+
+  supabase
+    .from("hotels")
+    .select("*", { count: "exact", head: true }),
+
+  supabase
+    .from("reviews")
+    .select("*", { count: "exact", head: true }),
+
+  supabase
+    .from("profiles")
+    .select("*", { count: "exact", head: true })
+    .eq("role", "manager"),
+]);
     setManagers((mv.data as ManagerRow[] | null) ?? []);
     setHotels((ht.data as Hotel[] | null) ?? []);
+    setTotalUsers(usersCount.count ?? 0);
+setTotalHotels(hotelsCount.count ?? 0);
+setTotalReviews(reviewsCount.count ?? 0);
+setTotalManagers(managersCount.count ?? 0);
     setLoading(false);
   }, []);
 
@@ -83,7 +116,27 @@ export default function AdminDashboardPage() {
       <p className="text-sm text-slate-500">
         Review manager applications and hotel listings.
       </p>
+<div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+  <div className="rounded-xl border p-4 bg-white">
+    <h3 className="text-sm text-slate-500">Users</h3>
+    <p className="text-2xl font-bold">{totalUsers}</p>
+  </div>
 
+  <div className="rounded-xl border p-4 bg-white">
+    <h3 className="text-sm text-slate-500">Hotels</h3>
+    <p className="text-2xl font-bold">{totalHotels}</p>
+  </div>
+
+  <div className="rounded-xl border p-4 bg-white">
+    <h3 className="text-sm text-slate-500">Reviews</h3>
+    <p className="text-2xl font-bold">{totalReviews}</p>
+  </div>
+
+  <div className="rounded-xl border p-4 bg-white">
+    <h3 className="text-sm text-slate-500">Managers</h3>
+    <p className="text-2xl font-bold">{totalManagers}</p>
+  </div>
+</div>
       {/* Managers */}
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold text-slate-800">
