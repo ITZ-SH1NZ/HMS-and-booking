@@ -8,11 +8,11 @@ import {
   SearchIcon,
   MapPinIcon,
   CalendarIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   PlusIcon,
   MinusIcon,
 } from "@/components/icons";
+import { RangeCalendar } from "@/components/RangeCalendar";
+import { ymd } from "@/lib/booking";
 
 type Segment = "where" | "when" | "who" | null;
 type WhenMode = "dates" | "flexible";
@@ -25,11 +25,6 @@ interface Guests {
 }
 
 const NIGHTS: Record<string, number> = { weekend: 2, week: 7, month: 30 };
-
-const ymd = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-    d.getDate(),
-  ).padStart(2, "0")}`;
 
 const fmt = (s: string) =>
   s
@@ -599,145 +594,6 @@ function FlexiblePanel({
               </span>
               <span className="text-xs text-slate-400">{d.getFullYear()}</span>
             </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function RangeCalendar({
-  checkIn,
-  checkOut,
-  onPick,
-}: {
-  checkIn: string;
-  checkOut: string;
-  onPick: (date: string) => void;
-}) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const [offset, setOffset] = useState(0);
-  const [hover, setHover] = useState("");
-
-  const base = new Date(today.getFullYear(), today.getMonth() + offset, 1);
-  const next = new Date(today.getFullYear(), today.getMonth() + offset + 1, 1);
-
-  // Preview end while choosing the second date.
-  const previewEnd = checkIn && !checkOut && hover > checkIn ? hover : "";
-  const effEnd = checkOut || previewEnd;
-
-  const monthProps = {
-    today,
-    checkIn,
-    effEnd,
-    onPick,
-    onHover: setHover,
-  };
-
-  return (
-    <div className="relative" onMouseLeave={() => setHover("")}>
-      <button
-        type="button"
-        onClick={() => setOffset((o) => Math.max(0, o - 1))}
-        disabled={offset === 0}
-        className="absolute left-1 top-0 grid h-9 w-9 place-items-center rounded-full transition hover:bg-slate-100 disabled:opacity-30"
-        aria-label="Previous month"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
-        onClick={() => setOffset((o) => o + 1)}
-        className="absolute right-1 top-0 grid h-9 w-9 place-items-center rounded-full transition hover:bg-slate-100"
-        aria-label="Next month"
-      >
-        <ChevronRightIcon className="h-4 w-4" />
-      </button>
-      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
-        <Month date={base} {...monthProps} />
-        <div className="hidden sm:block">
-          <Month date={next} {...monthProps} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Month({
-  date,
-  today,
-  checkIn,
-  effEnd,
-  onPick,
-  onHover,
-}: {
-  date: Date;
-  today: Date;
-  checkIn: string;
-  effEnd: string;
-  onPick: (date: string) => void;
-  onHover: (date: string) => void;
-}) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const startDow = new Date(year, month, 1).getDay();
-  const daysIn = new Date(year, month + 1, 0).getDate();
-
-  const cells: (Date | null)[] = [];
-  for (let i = 0; i < startDow; i++) cells.push(null);
-  for (let d = 1; d <= daysIn; d++) cells.push(new Date(year, month, d));
-
-  return (
-    <div>
-      <p className="mb-4 text-center text-sm font-semibold text-slate-800">
-        {date.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
-      </p>
-      <div className="mb-2 grid grid-cols-7 text-center text-xs font-medium text-slate-400">
-        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <span key={i}>{d}</span>
-        ))}
-      </div>
-      <div className="grid grid-cols-7">
-        {cells.map((cell, i) => {
-          if (!cell) return <span key={i} />;
-          const s = ymd(cell);
-          const past = cell < today;
-          const isStart = s === checkIn;
-          const isEnd = s === effEnd;
-          const inRange = checkIn && effEnd && s > checkIn && s < effEnd;
-          const endpoint = isStart || isEnd;
-
-          // Connected range bar (sits behind endpoint circles).
-          let bar = "";
-          if (inRange) bar = "left-0 right-0";
-          else if (isStart && effEnd && !isEnd) bar = "left-1/2 right-0";
-          else if (isEnd && checkIn && !isStart) bar = "left-0 right-1/2";
-
-          return (
-            <div
-              key={i}
-              className="relative flex h-11 items-center justify-center"
-              onMouseEnter={() => onHover(s)}
-            >
-              {bar && <span className={`absolute inset-y-1 ${bar} bg-rose-100`} />}
-              <button
-                type="button"
-                disabled={past}
-                onClick={() => onPick(s)}
-                className={`relative z-10 grid h-10 w-10 place-items-center rounded-full text-sm transition ${
-                  endpoint
-                    ? "bg-rose-600 font-semibold text-white"
-                    : inRange
-                      ? "text-rose-700"
-                      : past
-                        ? "cursor-not-allowed text-slate-300"
-                        : "text-slate-800 hover:ring-1 hover:ring-slate-900"
-                }`}
-              >
-                {cell.getDate()}
-              </button>
-            </div>
           );
         })}
       </div>

@@ -115,7 +115,10 @@ export function Navbar() {
                 <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
                   {role === "guest" && (
                     <>
-                      <MenuLink href="/dashboard" onClick={() => setMenuOpen(false)}>
+                      <MenuLink
+                        href="/dashboard/bookings"
+                        onClick={() => setMenuOpen(false)}
+                      >
                         View Bookings
                       </MenuLink>
                       <MenuLink

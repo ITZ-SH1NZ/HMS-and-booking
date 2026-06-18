@@ -17,6 +17,7 @@ export default function CreateHotelPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [roomName, setRoomName] = useState("Standard Room");
   const [price, setPrice] = useState("");
+  const [totalUnits, setTotalUnits] = useState("5");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +59,7 @@ export default function CreateHotelPage() {
         hotel_id: hotel.id,
         name: roomName || "Standard Room",
         price: Number(price),
+        total_units: Number(totalUnits) || 5,
       });
       if (roomError) {
         setLoading(false);
@@ -106,6 +108,9 @@ export default function CreateHotelPage() {
           </Field>
           <Field label="Price / night ($)">
             <input type="number" min="0" step="1" className={inputClass} value={price} onChange={(e) => setPrice(e.target.value)} />
+          </Field>
+          <Field label="Rooms of this type">
+            <input type="number" min="1" step="1" className={inputClass} value={totalUnits} onChange={(e) => setTotalUnits(e.target.value)} />
           </Field>
         </div>
 

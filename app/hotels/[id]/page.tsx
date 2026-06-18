@@ -76,12 +76,15 @@ export default async function HotelDetailPage({
             </p>
           )}
           {user ? (
-            <button className="mt-2 rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700">
+            <Link
+              href={`/hotels/${hotel.id}/book`}
+              className="mt-2 inline-block rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+            >
               Book now
-            </button>
+            </Link>
           ) : (
             <Link
-              href={`/login?redirect=/hotels/${hotel.id}`}
+              href={`/login?redirect=/hotels/${hotel.id}/book`}
               className="mt-2 inline-block rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
             >
               Log in to book
