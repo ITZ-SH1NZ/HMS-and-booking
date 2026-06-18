@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Price } from "@/components/Price";
+import ReviewForm from "@/components/ReviewForm";
 import { BuildingIcon, MapPinIcon, StarIcon } from "@/components/icons";
 import type { Hotel, Room, Review } from "@/lib/types";
 
@@ -122,6 +123,43 @@ export default async function HotelDetailPage({
           <p className="text-sm text-slate-500">No rooms listed yet.</p>
         )}
       </section>
+      <section className="mt-8">
+  <h2 className="mb-3 text-lg font-semibold text-slate-800">
+    Guest Reviews
+  </h2>
+
+  {hotel.reviews?.length ? (
+    <div className="space-y-3">
+      {hotel.reviews.map((review) => (
+        <div
+          key={review.id}
+          className="rounded-xl border border-slate-200 bg-white p-4"
+        >
+          <div className="flex items-center justify-between">
+            <p className="font-semibold text-slate-900">
+              ⭐ {review.rating}/5
+            </p>
+
+            <p className="text-xs text-slate-500">
+              {new Date(review.created_at).toLocaleDateString()}
+            </p>
+          </div>
+
+          {review.comment && (
+            <p className="mt-2 text-sm text-slate-600">
+              {review.comment}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-sm text-slate-500">
+      No reviews yet.
+    </p>
+  )}
+</section>
+<ReviewForm hotelId={hotel.id} />
     </div>
   );
 }
