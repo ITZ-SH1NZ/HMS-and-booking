@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Price } from "@/components/Price";
+import ReviewForm from "@/components/ReviewForm";
 import { BuildingIcon, MapPinIcon, StarIcon } from "@/components/icons";
 import type { Hotel, Room, Review } from "@/lib/types";
 
@@ -155,6 +156,7 @@ export default async function HotelDetailPage({
     </p>
   )}
 </section>
+<ReviewForm hotelId={hotel.id} />
     </div>
   );
 }

@@ -117,25 +117,47 @@ setTotalManagers(managersCount.count ?? 0);
         Review manager applications and hotel listings.
       </p>
 <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-  <div className="rounded-xl border p-4 bg-white">
-    <h3 className="text-sm text-slate-500">Users</h3>
-    <p className="text-2xl font-bold">{totalUsers}</p>
+
+  <div className="rounded-xl border border-slate-200 bg-blue-50 p-5 shadow-sm">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-sm text-slate-600">Users</h3>
+        <p className="text-3xl font-bold text-slate-900">{totalUsers}</p>
+      </div>
+      <span className="text-3xl">👤</span>
+    </div>
   </div>
 
-  <div className="rounded-xl border p-4 bg-white">
-    <h3 className="text-sm text-slate-500">Hotels</h3>
-    <p className="text-2xl font-bold">{totalHotels}</p>
+  <div className="rounded-xl border border-slate-200 bg-emerald-50 p-5 shadow-sm">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-sm text-slate-600">Hotels</h3>
+        <p className="text-3xl font-bold text-slate-900">{totalHotels}</p>
+      </div>
+      <span className="text-3xl">🏨</span>
+    </div>
   </div>
 
-  <div className="rounded-xl border p-4 bg-white">
-    <h3 className="text-sm text-slate-500">Reviews</h3>
-    <p className="text-2xl font-bold">{totalReviews}</p>
+  <div className="rounded-xl border border-slate-200 bg-amber-50 p-5 shadow-sm">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-sm text-slate-600">Reviews</h3>
+        <p className="text-3xl font-bold text-slate-900">{totalReviews}</p>
+      </div>
+      <span className="text-3xl">⭐</span>
+    </div>
   </div>
 
-  <div className="rounded-xl border p-4 bg-white">
-    <h3 className="text-sm text-slate-500">Managers</h3>
-    <p className="text-2xl font-bold">{totalManagers}</p>
+  <div className="rounded-xl border border-slate-200 bg-rose-50 p-5 shadow-sm">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-sm text-slate-600">Managers</h3>
+        <p className="text-3xl font-bold text-slate-900">{totalManagers}</p>
+      </div>
+      <span className="text-3xl">👨‍💼</span>
+    </div>
   </div>
+
 </div>
       {/* Managers */}
       <section className="mt-8">
