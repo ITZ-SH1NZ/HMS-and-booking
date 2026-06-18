@@ -127,6 +127,7 @@ export interface Payment {
   payment_method: PaymentMethod;
   status: PaymentStatus;
   transaction_id: string | null;
+  order_id: string | null;
   receipt: string | null;
   created_at: string;
   paid_at: string | null;

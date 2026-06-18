@@ -38,6 +38,7 @@ import {
   Zap,
   Star,
   Heart,
+  CreditCard,
   type LucideProps,
 } from "lucide-react";
 
@@ -75,6 +76,7 @@ export const ArrowRightIcon = ArrowRight;
 export const ArrowLeftIcon = ArrowLeft;
 export const PencilIcon = Pencil;
 export const BoltIcon = Zap;
+export const CreditCardIcon = CreditCard;
 
 // Star / Heart support a `filled` convenience prop.
 export function StarIcon({

@@ -143,6 +143,18 @@ export function Navbar() {
                       >
                         Create New Hotel
                       </MenuLink>
+                      <MenuLink
+                        href="/manager/earnings"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Earnings
+                      </MenuLink>
+                      <MenuLink
+                        href="/manager/payouts"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Payout settings
+                      </MenuLink>
                     </>
                   )}
                   {role === "admin" && (

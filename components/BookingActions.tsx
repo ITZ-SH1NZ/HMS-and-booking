@@ -27,6 +27,26 @@ export function BookingActions({
   const policy = refundPolicy(checkIn);
   const estRefund = Math.round(totalPrice * policy.pct * 100) / 100;
 
+  async function refreshPayment() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/payments/razorpay/reconcile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Could not check payment");
+      router.refresh();
+      if (!json.confirmed) setError("Payment not received yet. Try again shortly.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not check payment");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function cancel() {
     setLoading(true);
     setError(null);
@@ -50,6 +70,15 @@ export function BookingActions({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
+        {status === "pending" && (
+          <button
+            onClick={refreshPayment}
+            disabled={loading}
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+          >
+            {loading ? "Checking…" : "Refresh payment status"}
+          </button>
+        )}
         <button
           onClick={() => window.print()}
           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"

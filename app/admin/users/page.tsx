@@ -12,24 +12,20 @@ interface UserProfile {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const supabase = createClient();
 
   useEffect(() => {
-    fetchUsers();
+    (async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, role, phone");
+      if (error) {
+        console.error(error);
+        return;
+      }
+      setUsers(data ?? []);
+    })();
   }, []);
-
-  async function fetchUsers() {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, role, phone");
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    setUsers(data || []);
-  }
 
   return (
   <div className="mx-auto max-w-6xl px-4 py-10">

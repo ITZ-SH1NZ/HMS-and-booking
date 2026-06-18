@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { Price } from "@/components/Price";
-import { UpiPayment } from "@/components/UpiPayment";
+import { startRazorpayPayment } from "@/lib/razorpayCheckout";
 import { BookingStepper } from "@/components/BookingStepper";
 import { BookingSummary } from "@/components/BookingSummary";
 import { DateRangePicker } from "@/components/DateRangePicker";
@@ -22,7 +22,7 @@ import {
   LockIcon,
   CheckCircleIcon,
   PencilIcon,
-  GoogleIcon,
+  CreditCardIcon,
   BuildingIcon,
 } from "@/components/icons";
 import { nightsBetween, computeQuote } from "@/lib/booking";
@@ -82,7 +82,6 @@ export function BookingFlow({
   const [terms, setTerms] = useState(false);
 
   const [bookingId, setBookingId] = useState("");
-  const [paying, setPaying] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -125,6 +124,24 @@ export function BookingFlow({
     }
   }
 
+  // Reserve the booking (status 'pending') if not already done. Returns the id.
+  async function ensureBooking(): Promise<string | null> {
+    if (bookingId) return bookingId;
+    const res = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId, checkIn, checkOut, guestCount: guests, numRooms }),
+    });
+    const json = await res.json();
+    if (res.status === 401) {
+      router.push(`/login?redirect=/hotels/${hotel.id}/book`);
+      return null;
+    }
+    if (!res.ok) throw new Error(json.error ?? "Could not create booking");
+    setBookingId(json.bookingId);
+    return json.bookingId as string;
+  }
+
   async function pay() {
     if (!terms) {
       setError("Please accept the terms & cancellation policy.");
@@ -133,28 +150,19 @@ export function BookingFlow({
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          roomId,
-          checkIn,
-          checkOut,
-          guestCount: guests,
-          numRooms,
-        }),
+      const id = await ensureBooking();
+      if (!id) return;
+      await startRazorpayPayment({
+        bookingId: id,
+        prefill: { name, email, contact: phone },
+        onSuccess: () => router.push(`/bookings/${id}/success`),
+        onError: (m) => {
+          setError(m);
+          setSubmitting(false);
+        },
       });
-      const json = await res.json();
-      if (res.status === 401) {
-        router.push(`/login?redirect=/hotels/${hotel.id}/book`);
-        return;
-      }
-      if (!res.ok) throw new Error(json.error ?? "Could not create booking");
-      setBookingId(json.bookingId);
-      setPaying(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not create booking");
-    } finally {
+      setError(e instanceof Error ? e.message : "Could not start payment");
       setSubmitting(false);
     }
   }
@@ -231,36 +239,23 @@ export function BookingFlow({
                 />
               )}
 
-              {step === 3 &&
-                (paying && bookingId && quote ? (
-                  <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                    <div className="mb-4 flex items-center gap-2 text-sm text-emerald-700">
-                      <CheckCircleIcon className="h-5 w-5" /> Room reserved — complete
-                      payment to confirm.
-                    </div>
-                    <UpiPayment
-                      bookingId={bookingId}
-                      totalBase={quote.total}
-                      onPaid={() => router.push(`/bookings/${bookingId}/success`)}
-                    />
-                  </div>
-                ) : (
-                  <Payment
-                    name={name}
-                    setName={setName}
-                    email={email}
-                    setEmail={setEmail}
-                    phone={phone}
-                    setPhone={setPhone}
-                    terms={terms}
-                    setTerms={setTerms}
-                    total={quote?.total ?? 0}
-                    error={error}
-                    submitting={submitting}
-                    onBack={() => goTo(2)}
-                    onPay={pay}
-                  />
-                ))}
+              {step === 3 && (
+                <Payment
+                  name={name}
+                  setName={setName}
+                  email={email}
+                  setEmail={setEmail}
+                  phone={phone}
+                  setPhone={setPhone}
+                  terms={terms}
+                  setTerms={setTerms}
+                  total={quote?.total ?? 0}
+                  error={error}
+                  submitting={submitting}
+                  onBack={() => goTo(2)}
+                  onPay={pay}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -548,14 +543,16 @@ function Payment(props: {
       <div className="my-6 border-t border-slate-100" />
 
       <SectionTitle icon={<LockIcon className="h-5 w-5" />}>Payment method</SectionTitle>
-      <p className="text-xs text-slate-500">Pay securely via UPI — scan a QR with any UPI app.</p>
+      <p className="text-xs text-slate-500">
+        Pay securely via Razorpay — cards, netbanking, wallets &amp; UPI.
+      </p>
       <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-rose-500 bg-rose-50/40 px-4 py-3">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white shadow-sm">
-          <GoogleIcon className="h-5 w-5" />
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white text-rose-600 shadow-sm">
+          <CreditCardIcon className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-sm font-semibold text-slate-900">UPI</p>
-          <p className="text-xs text-slate-500">GPay, PhonePe, Paytm &amp; more</p>
+          <p className="text-sm font-semibold text-slate-900">Razorpay Secure Checkout</p>
+          <p className="text-xs text-slate-500">Cards · Netbanking · Wallets · UPI</p>
         </div>
         <span className="ml-auto grid h-5 w-5 place-items-center rounded-full bg-rose-600 text-white">
           <CheckCircleIcon className="h-4 w-4" />

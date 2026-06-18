@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { reconcilePendingBooking } from "@/lib/reconcile";
 import { Price } from "@/components/Price";
 import { PriceBreakdown } from "@/components/PriceBreakdown";
 import { BookingActions } from "@/components/BookingActions";
@@ -34,16 +35,35 @@ export default async function BookingDetailPage({
   } = await supabase.auth.getUser();
   if (!user) redirect(`/login?redirect=/bookings/${id}`);
 
-  const { data } = await supabase
+  const select =
+    "*, hotels(id, name, location, image_url), rooms(id, name, capacity), payments(*)";
+
+  let { data } = await supabase
     .from("bookings")
-    .select(
-      "*, hotels(id, name, location, image_url), rooms(id, name, capacity), payments(*)",
-    )
+    .select(select)
     .eq("id", id)
     .maybeSingle();
 
-  const booking = data as BookingDetail | null;
+  let booking = data as BookingDetail | null;
   if (!booking) notFound();
+
+  // Webhook-free safety net: if still pending, re-check with Razorpay and
+  // re-fetch if it just got confirmed.
+  if (booking.status === "pending") {
+    const confirmed = await reconcilePendingBooking(
+      supabase,
+      booking.id,
+      booking.payments?.[0]?.order_id ?? null,
+    );
+    if (confirmed) {
+      ({ data } = await supabase
+        .from("bookings")
+        .select(select)
+        .eq("id", id)
+        .maybeSingle());
+      booking = (data as BookingDetail | null) ?? booking;
+    }
+  }
 
   const payment = booking.payments?.[0];
   const quote = {

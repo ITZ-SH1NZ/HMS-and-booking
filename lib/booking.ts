@@ -3,6 +3,10 @@ import type { PriceQuote, BookingStatus } from "@/lib/types";
 export const GST_RATE = 0.18;
 export const PLATFORM_FEE_RATE = 0.02;
 
+// Commission the platform keeps from the manager's room revenue (used for the
+// payout split + earnings accounting). Manager keeps (1 - this) of room base.
+export const PLATFORM_COMMISSION_RATE = 0.15;
+
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 // Local YYYY-MM-DD (avoids UTC shifting from toISOString).
