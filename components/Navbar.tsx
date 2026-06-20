@@ -9,7 +9,7 @@ import { SearchForm } from "@/components/SearchForm";
 import { BedIcon } from "@/components/icons";
 
 const NAV_LINKS = [
-  { label: "Explore", href: "/#hotels" },
+  { label: "Explore", href: "/hotels" },
   { label: "Destinations", href: "/#categories" },
   { label: "Deals", href: "/#hotels" },
   { label: "Hosts", href: "/signup/manager" },
