@@ -31,3 +31,18 @@ body {
 .animate-pop-in {
   animation: popIn 0.18s ease-out;
 }
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-tab-fade {
+  animation: tabFadeIn 0.25s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}

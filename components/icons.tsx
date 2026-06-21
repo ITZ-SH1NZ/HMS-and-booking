@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Plus,
   Minus,
   Lock,
@@ -39,8 +40,17 @@ import {
   Star,
   Heart,
   CreditCard,
+  Camera,
+  Trash2,
+  Navigation,
+  UploadCloud,
+  Share2,
+  Image,
+  LayoutGrid,
+  X,
   type LucideProps,
 } from "lucide-react";
+
 
 export const SearchIcon = Search;
 export const MapPinIcon = MapPin;
@@ -77,6 +87,15 @@ export const ArrowLeftIcon = ArrowLeft;
 export const PencilIcon = Pencil;
 export const BoltIcon = Zap;
 export const CreditCardIcon = CreditCard;
+export const CameraIcon = Camera;
+export const TrashIcon = Trash2;
+export const NavigationIcon = Navigation;
+export const UploadIcon = UploadCloud;
+export const ChevronUpIcon = ChevronUp;
+export const ShareIcon = Share2;
+export const ImageIcon = Image;
+export const GridIcon = LayoutGrid;
+export const XIcon = X;
 
 // Star / Heart support a `filled` convenience prop.
 export function StarIcon({

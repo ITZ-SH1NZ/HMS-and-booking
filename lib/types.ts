@@ -27,6 +27,71 @@ export interface ManagerVerification {
   reviewed_at: string | null;
 }
 
+export type PropertyType = "Hotel" | "Resort" | "Villa" | "Apartment" | "Homestay" | "Guest house" | "Hostel";
+
+export type PhotoCategory = "cover" | "exterior" | "lobby" | "rooms" | "restaurant" | "pool" | "amenities" | "bathroom" | "other";
+
+export type PolicyChoice = "allowed" | "not_allowed" | "on_request" | "designated";
+
+export type CancellationPolicy = "flexible" | "moderate" | "strict" | "custom";
+
+export type PaymentPolicy = "pay_at_property" | "advance" | "both";
+
+export interface HotelPhoto {
+  id: string;
+  hotel_id: string;
+  url: string;
+  category: PhotoCategory;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface RoomPhoto {
+  id: string;
+  room_id: string;
+  url: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface PricingSeason {
+  id: string;
+  hotel_id: string;
+  name: string | null;
+  start_date: string;
+  end_date: string;
+  price: number;
+  created_at: string;
+}
+
+export interface AdditionalCharge {
+  id: string;
+  hotel_id: string;
+  label: string;
+  amount: number;
+  per: "night" | "stay" | "day" | "guest";
+  created_at: string;
+}
+
+export interface AvailabilityRule {
+  id: string;
+  hotel_id: string;
+  open_for_booking: boolean;
+  advance_days: number | null;
+  min_stay_weekday: number;
+  min_stay_weekend: number;
+  max_stay: number | null;
+  created_at: string;
+}
+
+export interface BlockedDate {
+  id: string;
+  hotel_id: string;
+  date: string;
+  reason: string | null;
+  created_at: string;
+}
+
 export interface Room {
   id: string;
   hotel_id: string;
@@ -36,7 +101,17 @@ export interface Room {
   total_units: number;
   amenities: string[];
   created_at: string;
+  // New fields
+  short_description?: string | null;
+  bedroom_type?: string | null;
+  adults?: number;
+  children?: number;
+  room_size?: string | null;
+  is_active?: boolean;
+  sort_order?: number;
 }
+
+export type RoomDraft = Room;
 
 export interface Review {
   id: string;
@@ -54,9 +129,47 @@ export interface Hotel {
   description: string | null;
   location: string;
   image_url: string | null;
-  status: VerificationStatus;
+  status: VerificationStatus | "draft";
   created_at: string;
+  // New fields
+  wizard_step?: number;
+  property_type?: PropertyType | null;
+  short_description?: string | null;
+  detailed_description?: string | null;
+  star_rating?: number | null;
+  year_built?: number | null;
+  languages_spoken?: string[];
+  highlights?: string[];
+  best_for?: string[];
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
+  area?: string | null;
+  address_line?: string | null;
+  pincode?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  amenities?: string[];
+  check_in_time?: string | null;
+  check_out_time?: string | null;
+  min_age?: number | null;
+  pets_policy?: PolicyChoice | string | null;
+  smoking_policy?: PolicyChoice | string | null;
+  parties_policy?: PolicyChoice | string | null;
+  cancellation_policy?: CancellationPolicy | null;
+  cancellation_policy_custom?: string | null;
+  payment_policy?: PaymentPolicy | null;
+  require_advance?: boolean;
+  advance_amount?: number | null;
+  advance_is_percent?: boolean;
+  gst_percent?: number;
+  service_charge_percent?: number;
+  other_tax_percent?: number;
+  terms_accepted?: boolean;
+  published_at?: string | null;
 }
+
+export type HotelDraft = Hotel;
 
 // Hotel joined with its rooms/reviews, as returned by the landing-page query.
 export interface HotelWithStats extends Hotel {
@@ -73,6 +186,57 @@ export interface HotelCardData {
   minPrice: number | null;
   rating: number | null;
   reviewCount: number;
+}
+
+// ---------------------------------------------------------------------------
+// Public listing page
+// ---------------------------------------------------------------------------
+
+// Safe subset of profiles exposed via public.public_profiles view.
+export interface PublicProfile {
+  id: string;
+  full_name: string | null;
+  created_at: string;
+}
+
+// Review with reviewer identity from get_hotel_reviews RPC.
+export interface ReviewWithAuthor {
+  id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  reviewer_name: string | null;
+  reviewer_since: string;
+}
+
+// A nearby landmark stored in hotels.nearby_places jsonb.
+export interface NearbyPlace {
+  name: string;
+  distance_km: number;
+  type: string; // "airport" | "railway_station" | "beach" | "mall" | "hospital" etc.
+}
+
+// Room with its photos attached (for listing page room carousel).
+export interface RoomWithPhotos extends Room {
+  room_photos: RoomPhoto[];
+}
+
+// Full view-model for the public hotel listing page.
+export interface PublicHotelDetail {
+  hotel: Hotel & { nearby_places: NearbyPlace[] | null };
+  rooms: RoomWithPhotos[];
+  photos: HotelPhoto[];
+  reviews: ReviewWithAuthor[];
+  host: PublicProfile | null;
+  availabilityRule: AvailabilityRule | null;
+  // Derived aggregates
+  avgRating: number | null;
+  reviewCount: number;
+  ratingHistogram: Record<number, number>; // { 5: 10, 4: 5, 3: 2, 2: 1, 1: 0 }
+  minPrice: number | null;
+  isGuestFavourite: boolean;
+  isSuperhost: boolean;
 }
 
 // ---------------------------------------------------------------------------
