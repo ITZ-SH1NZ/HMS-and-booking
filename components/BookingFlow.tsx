@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Price } from "@/components/Price";
 import { startRazorpayPayment } from "@/lib/razorpayCheckout";
@@ -33,6 +34,10 @@ interface HotelLite {
   name: string;
   location: string;
   image_url: string | null;
+  payment_policy?: string | null;
+  require_advance?: boolean | null;
+  advance_amount?: number | null;
+  advance_is_percent?: boolean | null;
 }
 interface RoomLite {
   id: string;
@@ -48,33 +53,46 @@ const addDays = (s: string, n: number) => {
   d.setDate(d.getDate() + n);
   return d.toISOString().split("T")[0];
 };
+
 export function BookingFlow({
   hotel,
   rooms,
   rating,
   reviewCount,
   guest,
+  initialCheckIn,
+  initialCheckOut,
+  initialAdults,
+  initialChildren,
+  initialRooms,
+  initialRoomId,
 }: {
   hotel: HotelLite;
   rooms: RoomLite[];
   rating: number | null;
   reviewCount: number;
   guest: { name: string; email: string; phone: string };
+  initialCheckIn?: string;
+  initialCheckOut?: string;
+  initialAdults?: number;
+  initialChildren?: number;
+  initialRooms?: number;
+  initialRoomId?: string;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [dir, setDir] = useState(1);
 
-  const [checkIn, setCheckIn] = useState(todayStr());
-  const [checkOut, setCheckOut] = useState(addDays(todayStr(), 1));
-  const [adults, setAdults] = useState(1);
-  const [children, setChildren] = useState(0);
-  const [numRooms, setNumRooms] = useState(1);
+  const [checkIn, setCheckIn] = useState(initialCheckIn || todayStr());
+  const [checkOut, setCheckOut] = useState(initialCheckOut || addDays(initialCheckIn || todayStr(), 1));
+  const [adults, setAdults] = useState(initialAdults ?? 1);
+  const [children, setChildren] = useState(initialChildren ?? 0);
+  const [numRooms, setNumRooms] = useState(initialRooms ?? 1);
 
   const [availability, setAvailability] = useState<AvailabilityResult[] | null>(null);
   const [loadingAvail, setLoadingAvail] = useState(false);
   const [availError, setAvailError] = useState<string | null>(null);
-  const [roomId, setRoomId] = useState("");
+  const [roomId, setRoomId] = useState(initialRoomId ?? "");
 
   const [name, setName] = useState(guest.name);
   const [email, setEmail] = useState(guest.email);
@@ -84,6 +102,46 @@ export function BookingFlow({
   const [bookingId, setBookingId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkoutMethod, setCheckoutMethod] = useState<"pay_online" | "pay_at_property">(
+    hotel.payment_policy === "pay_at_property" ? "pay_at_property" : "pay_online"
+  );
+
+  useEffect(() => {
+    if (initialCheckIn && initialCheckOut) {
+      const autoCheck = async () => {
+        setLoadingAvail(true);
+        setAvailError(null);
+        try {
+          const res = await fetch(
+            `/api/availability?hotelId=${hotel.id}&checkIn=${initialCheckIn}&checkOut=${initialCheckOut}`
+          );
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.error ?? "Could not check availability");
+          const avails = json.rooms as AvailabilityResult[];
+          setAvailability(avails);
+
+          if (initialRoomId) {
+            const hasRoom = avails.some(
+              (r) => r.room_id === initialRoomId && r.available >= (initialRooms ?? 1)
+            );
+            if (hasRoom) {
+              setRoomId(initialRoomId);
+              setStep(3);
+            } else {
+              setStep(2);
+            }
+          } else {
+            setStep(2);
+          }
+        } catch (e) {
+          setAvailError(e instanceof Error ? e.message : "Could not check availability");
+        } finally {
+          setLoadingAvail(false);
+        }
+      };
+      autoCheck();
+    }
+  }, [initialCheckIn, initialCheckOut, initialRoomId, initialRooms, hotel.id]);
 
   const guests = adults + children;
   const nights = nightsBetween(checkIn, checkOut);
@@ -152,17 +210,34 @@ export function BookingFlow({
     try {
       const id = await ensureBooking();
       if (!id) return;
-      await startRazorpayPayment({
-        bookingId: id,
-        prefill: { name, email, contact: phone },
-        onSuccess: () => router.push(`/bookings/${id}/success`),
-        onError: (m) => {
-          setError(m);
-          setSubmitting(false);
-        },
-      });
+
+      if (checkoutMethod === "pay_online") {
+        await startRazorpayPayment({
+          bookingId: id,
+          prefill: { name, email, contact: phone },
+          onSuccess: () => router.push(`/bookings/${id}/success`),
+          onError: (m) => {
+            setError(m);
+            setSubmitting(false);
+          },
+        });
+      } else {
+        // Direct confirmation for Pay At Property
+        const res = await fetch("/api/payments/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bookingId: id,
+            reference: "Pay on Arrival",
+            method: "pay_at_property",
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? "Could not confirm booking");
+        router.push(`/bookings/${id}/success`);
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not start payment");
+      setError(e instanceof Error ? e.message : "Could not complete booking");
       setSubmitting(false);
     }
   }
@@ -254,6 +329,9 @@ export function BookingFlow({
                   submitting={submitting}
                   onBack={() => goTo(2)}
                   onPay={pay}
+                  paymentPolicy={hotel.payment_policy}
+                  checkoutMethod={checkoutMethod}
+                  setCheckoutMethod={setCheckoutMethod}
                 />
               )}
             </motion.div>
@@ -279,7 +357,7 @@ export function BookingFlow({
 }
 
 const longShort = (s: string) =>
-  new Date(`${s}T00:00:00`).toLocaleDateString(undefined, {
+  new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
   });
@@ -430,11 +508,12 @@ function RoomSelection(props: {
               </span>
               <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                 {props.hotel.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={props.hotel.image_url}
                     alt={room.name}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="128px"
+                    className="object-cover"
                   />
                 ) : (
                   <span className="grid h-full w-full place-items-center text-slate-300">
@@ -523,6 +602,9 @@ function Payment(props: {
   submitting: boolean;
   onBack: () => void;
   onPay: () => void;
+  paymentPolicy?: string | null;
+  checkoutMethod: "pay_online" | "pay_at_property";
+  setCheckoutMethod: (m: "pay_online" | "pay_at_property") => void;
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -543,20 +625,73 @@ function Payment(props: {
       <div className="my-6 border-t border-slate-100" />
 
       <SectionTitle icon={<LockIcon className="h-5 w-5" />}>Payment method</SectionTitle>
-      <p className="text-xs text-slate-500">
-        Pay securely via Razorpay — cards, netbanking, wallets &amp; UPI.
+      <p className="text-xs text-slate-500 mb-3">
+        {props.paymentPolicy === "both"
+          ? "Select how you would like to pay for your reservation:"
+          : "Please review your payment method to secure the booking:"}
       </p>
-      <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-rose-500 bg-rose-50/40 px-4 py-3">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white text-rose-600 shadow-sm">
-          <CreditCardIcon className="h-5 w-5" />
-        </span>
-        <div>
-          <p className="text-sm font-semibold text-slate-900">Razorpay Secure Checkout</p>
-          <p className="text-xs text-slate-500">Cards · Netbanking · Wallets · UPI</p>
-        </div>
-        <span className="ml-auto grid h-5 w-5 place-items-center rounded-full bg-rose-600 text-white">
-          <CheckCircleIcon className="h-4 w-4" />
-        </span>
+
+      {/* Payment Selection Container */}
+      <div className="space-y-3">
+        {/* Option 1: Pay Online (Shown if policy is 'advance' or 'both' or not set) */}
+        {(props.paymentPolicy === "advance" || props.paymentPolicy === "both" || !props.paymentPolicy) && (
+          <button
+            type="button"
+            onClick={() => props.setCheckoutMethod("pay_online")}
+            className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
+              props.checkoutMethod === "pay_online"
+                ? "border-rose-500 bg-rose-50/20 ring-1 ring-rose-200"
+                : "border-slate-200 hover:border-slate-300 bg-white"
+            }`}
+          >
+            <span
+              className={`grid h-9 w-9 place-items-center rounded-lg shadow-sm ${
+                props.checkoutMethod === "pay_online" ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-500"
+              }`}
+            >
+              <CreditCardIcon className="h-5 w-5" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-900">Razorpay Secure Checkout (Pay Online)</p>
+              <p className="text-xs text-slate-500">Pay securely via Cards, Netbanking, UPI or Wallets</p>
+            </div>
+            {props.checkoutMethod === "pay_online" && (
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-rose-600 text-white">
+                <CheckCircleIcon className="h-4 w-4" />
+              </span>
+            )}
+          </button>
+        )}
+
+        {/* Option 2: Pay At Property (Shown if policy is 'pay_at_property' or 'both') */}
+        {(props.paymentPolicy === "pay_at_property" || props.paymentPolicy === "both") && (
+          <button
+            type="button"
+            onClick={() => props.setCheckoutMethod("pay_at_property")}
+            className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
+              props.checkoutMethod === "pay_at_property"
+                ? "border-rose-500 bg-rose-50/20 ring-1 ring-rose-200"
+                : "border-slate-200 hover:border-slate-300 bg-white"
+            }`}
+          >
+            <span
+              className={`grid h-9 w-9 place-items-center rounded-lg shadow-sm ${
+                props.checkoutMethod === "pay_at_property" ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-500"
+              }`}
+            >
+              <BuildingIcon className="h-5 w-5" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-900">Pay At Property (Pay on Arrival)</p>
+              <p className="text-xs text-slate-500">No payment required now. Pay directly at the hotel.</p>
+            </div>
+            {props.checkoutMethod === "pay_at_property" && (
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-rose-600 text-white">
+                <CheckCircleIcon className="h-4 w-4" />
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       <label className="mt-4 flex items-start gap-2 text-sm text-slate-600">
@@ -588,7 +723,14 @@ function Payment(props: {
           disabled={props.submitting}
           className="flex items-center gap-2 rounded-lg bg-rose-600 px-6 py-3 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
         >
-          <LockIcon className="h-4 w-4" /> Pay <Price amount={props.total} />
+          <LockIcon className="h-4 w-4" />
+          {props.checkoutMethod === "pay_online" ? (
+            <>
+              Pay <Price amount={props.total} />
+            </>
+          ) : (
+            "Confirm Booking"
+          )}
           <ArrowRightIcon className="h-4 w-4" />
         </button>
       </div>

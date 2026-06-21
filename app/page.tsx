@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { HotelCard } from "@/components/HotelCard";
 import { AirbnbSearch } from "@/components/AirbnbSearch";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { WhyChoose } from "@/components/WhyChoose";
-import { toHotelCard } from "@/lib/hotels";
-import type { HotelWithStats } from "@/lib/types";
+import { toHotelCard, getApprovedHotelsCached } from "@/lib/hotels";
+import type { HotelCardData } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,20 +21,26 @@ export default async function HomePage({
   searchParams: Promise<SearchParams>;
 }) {
   const { location } = await searchParams;
-  const supabase = await createClient();
 
-  let query = supabase
-    .from("hotels")
-    .select("*, rooms(price), reviews(rating)")
-    .eq("status", "approved")
-    .order("created_at", { ascending: false });
-
-  if (location) {
-    query = query.ilike("location", `%${location}%`);
+  // Read the catalog from cache (one cached DB query, tag-invalidated on
+  // approve/publish), then filter the search term in memory — instant, and
+  // avoids a DB round-trip per keystroke/search.
+  let hotels: HotelCardData[] = [];
+  let error = false;
+  try {
+    const all = await getApprovedHotelsCached();
+    const term = location?.replace(/[,()]/g, " ").trim().toLowerCase();
+    const matched = term
+      ? all.filter((h) =>
+          `${h.name ?? ""} ${h.location ?? ""} ${h.city ?? ""} ${h.state ?? ""}`
+            .toLowerCase()
+            .includes(term),
+        )
+      : all;
+    hotels = matched.map(toHotelCard);
+  } catch {
+    error = true;
   }
-
-  const { data, error } = await query;
-  const hotels = ((data as HotelWithStats[] | null) ?? []).map(toHotelCard);
 
   return (
     <div className="pb-4">

@@ -28,7 +28,7 @@ const NIGHTS: Record<string, number> = { weekend: 2, week: 7, month: 30 };
 
 const fmt = (s: string) =>
   s
-    ? new Date(`${s}T00:00:00`).toLocaleDateString(undefined, {
+    ? new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
         month: "short",
         day: "numeric",
       })
@@ -590,7 +590,7 @@ function FlexiblePanel({
             >
               <CalendarIcon className="h-6 w-6 text-slate-500" />
               <span className="text-sm font-medium">
-                {d.toLocaleDateString(undefined, { month: "long" })}
+                {d.toLocaleDateString("en-IN", { month: "long" })}
               </span>
               <span className="text-xs text-slate-400">{d.getFullYear()}</span>
             </button>

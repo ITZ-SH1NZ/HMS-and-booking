@@ -1,11 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Price } from "@/components/Price";
 import { BuildingIcon, MapPinIcon, CalendarIcon } from "@/components/icons";
 import { BOOKING_STATUS_STYLES, BOOKING_STATUS_LABELS } from "@/lib/booking";
 import type { BookingDetail } from "@/lib/types";
 
 const fmt = (s: string) =>
-  new Date(`${s}T00:00:00`).toLocaleDateString(undefined, {
+  new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -20,11 +21,12 @@ export function BookingCard({ booking }: { booking: BookingDetail }) {
     >
       <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-xl bg-slate-100">
         {hotel?.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={hotel.image_url}
             alt={hotel.name}
-            className="h-full w-full object-cover"
+            fill
+            sizes="128px"
+            className="object-cover"
           />
         ) : (
           <div className="grid h-full w-full place-items-center text-slate-300">

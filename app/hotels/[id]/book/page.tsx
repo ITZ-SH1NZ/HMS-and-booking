@@ -7,10 +7,20 @@ export const dynamic = "force-dynamic";
 
 export default async function BookPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    checkIn?: string;
+    checkOut?: string;
+    adults?: string;
+    children?: string;
+    rooms?: string;
+    roomId?: string;
+  }>;
 }) {
   const { id } = await params;
+  const search = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -22,7 +32,7 @@ export default async function BookPage({
     await Promise.all([
       supabase
         .from("hotels")
-        .select("id, name, location, image_url")
+        .select("id, name, location, image_url, payment_policy, require_advance, advance_amount, advance_is_percent")
         .eq("id", id)
         .maybeSingle(),
       supabase
@@ -45,8 +55,8 @@ export default async function BookPage({
   const prof = profile as Pick<Profile, "full_name" | "phone"> | null;
 
   const rating = reviews.length
-    ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
-    : null;
+     ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
+     : null;
 
   return (
     <BookingFlow
@@ -59,6 +69,12 @@ export default async function BookPage({
         email: user.email ?? "",
         phone: prof?.phone ?? "",
       }}
+      initialCheckIn={search.checkIn}
+      initialCheckOut={search.checkOut}
+      initialAdults={search.adults ? parseInt(search.adults) : undefined}
+      initialChildren={search.children ? parseInt(search.children) : undefined}
+      initialRooms={search.rooms ? parseInt(search.rooms) : undefined}
+      initialRoomId={search.roomId}
     />
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { StarIcon } from "@/components/icons";
 
 export default function ReviewForm({
   hotelId,
@@ -50,28 +51,28 @@ export default function ReviewForm({
 }
 
   return (
-    <div className="mt-8 rounded-xl border border-slate-200 bg-white p-4">
-      <h2 className="mb-3 text-lg font-semibold">
+    <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-3 text-lg font-semibold text-slate-800">
         Add Review
       </h2>
 
       <div className="mb-3">
-        <label className="block text-sm font-medium mb-2">
-  Rating
-</label>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Rating
+        </label>
 
-<div className="flex gap-2 mb-4">
-  {[1, 2, 3, 4, 5].map((star) => (
-    <button
-      key={star}
-      type="button"
-      onClick={() => setRating(star)}
-      className="text-3xl"
-    >
-      {star <= rating ? "⭐" : "☆"}
-    </button>
-  ))}
-</div>
+        <div className="flex gap-1.5 mb-4">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setRating(star)}
+              className="text-amber-500 hover:scale-110 transition duration-150 p-1"
+            >
+              <StarIcon className="h-7 w-7" filled={star <= rating} />
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mb-3">
