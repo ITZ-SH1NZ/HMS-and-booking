@@ -618,10 +618,10 @@ export function Navbar() {
                   ))
                 ) : (
                   <>
-                    <li><Link href="/#categories" className="hover:text-brand-650 transition">Luxury Villas</Link></li>
-                    <li><Link href="/#categories" className="hover:text-brand-650 transition">Boutique Stays</Link></li>
-                    <li><Link href="/#categories" className="hover:text-brand-650 transition">Mountain Cabins</Link></li>
-                    <li><Link href="/#categories" className="hover:text-brand-650 transition">Beachfront Resorts</Link></li>
+                    <li><Link href="/hotels" className="hover:text-brand-650 transition">Luxury Villas</Link></li>
+                    <li><Link href="/hotels" className="hover:text-brand-650 transition">Boutique Stays</Link></li>
+                    <li><Link href="/hotels" className="hover:text-brand-650 transition">Mountain Cabins</Link></li>
+                    <li><Link href="/hotels" className="hover:text-brand-650 transition">Beachfront Resorts</Link></li>
                   </>
                 )}
               </ul>
