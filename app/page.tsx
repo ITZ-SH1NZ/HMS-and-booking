@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { HotelCard } from "@/components/HotelCard";
 import { AirbnbSearch } from "@/components/AirbnbSearch";
-import { CategoryStrip } from "@/components/CategoryStrip";
 import { Footer } from "@/components/Footer";
 import { toHotelCard, getApprovedHotelsCached } from "@/lib/hotels";
 import type { HotelCardData, HotelWithStats } from "@/lib/types";
@@ -185,9 +184,6 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Categories strip */}
-      <CategoryStrip />
-
       {/* Recommended/Featured Stays */}
       <section id="hotels" className="relative z-10 mx-auto max-w-7xl w-full px-4 py-8 scroll-mt-20">
         <div className="mb-8 flex items-baseline justify-between border-b border-slate-200/60 pb-4">
@@ -353,7 +349,7 @@ export default async function HomePage({
             </p>
           </div>
           <Link
-            href="/#categories"
+            href="/hotels"
             className="text-sm font-black text-brand-700 hover:text-brand-600 transition flex items-center gap-1 group"
           >
             Explore all destinations

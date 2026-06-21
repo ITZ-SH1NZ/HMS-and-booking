@@ -1,121 +1,61 @@
-"use client";
-
-import { Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-  Building2,
   Palmtree,
   Home,
-  Gem,
-  Briefcase,
-  Leaf,
   Umbrella,
-  Wallet,
-  ChevronDown,
+  Waves,
+  Flower2,
+  PawPrint,
+  Building2,
+  Tent,
+  LayoutGrid,
 } from "lucide-react";
 
-const CATEGORIES = [
-  { label: "Hotels", Icon: Building2 },
-  { label: "Resorts", Icon: Palmtree },
-  { label: "Villas", Icon: Home },
-  { label: "Luxury", Icon: Gem },
-  { label: "Business", Icon: Briefcase },
-  { label: "Nature", Icon: Leaf },
-  { label: "Beachfront", Icon: Umbrella },
-  { label: "Budget", Icon: Wallet },
-  { label: "More", Icon: ChevronDown },
+// Curated collections that deep-link into the Explore page with a REAL filter
+// applied (property_type / amenity / pets_policy) — so every tile leads to an
+// actual, filtered result set rather than a decorative dead-end.
+const COLLECTIONS = [
+  { label: "Resorts", Icon: Palmtree, href: "/hotels?type=Resort" },
+  { label: "Villas", Icon: Home, href: "/hotels?type=Villa" },
+  { label: "Beachfront", Icon: Umbrella, href: "/hotels?amenity=Sea+View" },
+  { label: "With a pool", Icon: Waves, href: "/hotels?amenity=Swimming+Pool" },
+  { label: "Spa stays", Icon: Flower2, href: "/hotels?amenity=Spa" },
+  { label: "Pet-friendly", Icon: PawPrint, href: "/hotels?pets=allowed" },
+  { label: "Apartments", Icon: Building2, href: "/hotels?type=Apartment" },
+  { label: "Homestays", Icon: Tent, href: "/hotels?type=Homestay" },
+  { label: "View all", Icon: LayoutGrid, href: "/hotels" },
 ];
 
-function CategoryStripInner() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const activeType = searchParams.get("type");
-
-  const handleCategoryClick = (label: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    // Map categories to the database PropertyType options
-    const typeMap: Record<string, string> = {
-      "Hotels": "Hotel",
-      "Resorts": "Resort",
-      "Villas": "Villa",
-      "Nature": "Homestay",
-      "Beachfront": "Apartment",
-      "Budget": "Hostel"
-    };
-
-    const targetType = typeMap[label];
-    if (!targetType) return;
-
-    if (activeType?.toLowerCase() === targetType.toLowerCase()) {
-      params.delete("type");
-    } else {
-      params.set("type", targetType);
-    }
-
-    // Retain page hash to anchor to the hotel section
-    router.push(`/?${params.toString()}#hotels`);
-  };
-
+export function CategoryStrip() {
   return (
     <section id="categories" className="mx-auto max-w-7xl px-4 py-8">
-      <div className="flex gap-4 overflow-x-auto pb-4 pt-2 scrollbar-none justify-between items-center -mx-4 px-4 lg:mx-0 lg:px-0">
-        {CATEGORIES.map((cat) => {
-          const Icon = cat.Icon;
-          const typeMap: Record<string, string> = {
-            "Hotels": "Hotel",
-            "Resorts": "Resort",
-            "Villas": "Villa",
-            "Nature": "Homestay",
-            "Beachfront": "Apartment",
-            "Budget": "Hostel"
-          };
-          const catType = typeMap[cat.label];
-          const isActive = catType && activeType?.toLowerCase() === catType.toLowerCase();
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-900">Find your kind of stay</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Jump straight to a curated collection of handpicked stays.
+        </p>
+      </div>
 
+      {/* Mobile: horizontal snap-scroll. Desktop (lg): evenly-spread grid. */}
+      <div className="flex gap-3 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-9 lg:gap-3 lg:overflow-visible">
+        {COLLECTIONS.map((cat) => {
+          const Icon = cat.Icon;
           return (
-            <button
+            <Link
               key={cat.label}
-              type="button"
-              onClick={() => handleCategoryClick(cat.label)}
-              className={`group hover-target-parent flex flex-col items-center justify-center shrink-0 w-24 h-24 rounded-2xl bg-white border transition-all duration-300 cursor-pointer text-center gap-2 select-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
-                isActive
-                  ? "border-brand-600 shadow-md ring-1 ring-brand-600"
-                  : "border-slate-200/60 shadow-xs hover:border-brand-500 hover:shadow-md"
-              }`}
+              href={cat.href}
+              className="group flex flex-col items-center justify-center shrink-0 snap-start w-24 lg:w-auto h-24 rounded-2xl bg-white border border-slate-200/60 shadow-xs transition-all duration-300 text-center gap-2 select-none active:scale-95 hover:border-brand-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              <div
-                className={`grid h-10 w-10 place-items-center rounded-full transition duration-200 ${
-                  isActive
-                    ? "bg-brand-600 text-white"
-                    : "bg-slate-50 text-brand-600 group-hover:bg-brand-50 group-hover:text-brand-700"
-                }`}
-              >
-                <Icon
-                  className={`h-5 w-5 transition-all duration-300 ${
-                    isActive ? "scale-110" : "animate-hover-wiggle-child group-hover:scale-110"
-                  }`}
-                />
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-slate-50 text-brand-600 transition duration-200 group-hover:bg-brand-50 group-hover:text-brand-700">
+                <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
               </div>
-              <span
-                className={`text-xs font-black transition truncate max-w-[84px] ${
-                  isActive ? "text-brand-700 font-extrabold" : "text-slate-700 group-hover:text-slate-900"
-                }`}
-              >
+              <span className="text-xs font-black text-slate-700 transition group-hover:text-slate-900 truncate max-w-[84px]">
                 {cat.label}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>
     </section>
-  );
-}
-
-export function CategoryStrip() {
-  return (
-    <Suspense fallback={<div className="h-24 animate-pulse bg-slate-100 rounded-2xl mx-auto max-w-7xl px-4 py-8" />}>
-      <CategoryStripInner />
-    </Suspense>
   );
 }
