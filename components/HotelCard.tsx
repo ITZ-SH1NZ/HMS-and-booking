@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Price } from "@/components/Price";
 import { HeartButton } from "@/components/HeartButton";
 import { BuildingIcon, StarIcon, MapPinIcon } from "@/components/icons";
@@ -12,11 +13,12 @@ export function HotelCard({ hotel }: { hotel: HotelCardData }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         {hotel.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={hotel.image_url}
             alt={hotel.name}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, 320px"
+            className="object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="grid h-full w-full place-items-center text-slate-300">

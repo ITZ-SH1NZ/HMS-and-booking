@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { revalidateHotels } from "@/app/actions/hotels";
 import { MapPinIcon } from "@/components/icons";
 import type { Hotel, ManagerVerification, Profile } from "@/lib/types";
 
@@ -94,6 +95,8 @@ setTotalManagers(managersCount.count ?? 0);
     setBusy(id);
     const supabase = createClient();
     await supabase.from("hotels").update({ status }).eq("id", id);
+    // Refresh cached catalog/listing so the change shows immediately.
+    await revalidateHotels();
     setBusy(null);
     load();
   }

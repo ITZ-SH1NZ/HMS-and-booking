@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { publishDraft } from "@/lib/hotelDraft";
-import { revalidateHotels } from "@/app/actions/hotels";
 import { CheckCircleIcon, MapPinIcon, StarIcon } from "@/components/icons";
 import { UseHotelDraftReturn } from "../useHotelDraft";
 import type { RoomDraft, HotelPhoto } from "@/lib/types";
@@ -55,8 +54,6 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
 
     try {
       await publishDraft(draft.id);
-      // Drop cached catalog/listing so the new listing can appear once approved.
-      await revalidateHotels();
       // Success redirect with query param for toast
       router.push("/manager/dashboard?published=success");
       router.refresh();

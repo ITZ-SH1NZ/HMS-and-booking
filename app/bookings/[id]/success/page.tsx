@@ -8,7 +8,7 @@ import type { BookingDetail } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 const fmt = (s: string) =>
-  new Date(`${s}T00:00:00`).toLocaleDateString(undefined, {
+  new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
     year: "numeric",

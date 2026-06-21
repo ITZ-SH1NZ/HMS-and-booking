@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Price } from "@/components/Price";
 import {
@@ -14,7 +15,7 @@ import type { PriceQuote } from "@/lib/types";
 
 const fmt = (s: string) =>
   s
-    ? new Date(`${s}T00:00:00`).toLocaleDateString(undefined, {
+    ? new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -52,11 +53,12 @@ export function BookingSummary({
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="relative h-40 bg-slate-100">
         {hotel.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={hotel.image_url}
             alt={hotel.name}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover"
           />
         ) : (
           <div className="grid h-full w-full place-items-center text-slate-300">

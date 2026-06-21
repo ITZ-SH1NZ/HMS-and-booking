@@ -18,7 +18,7 @@ export function RangeCalendar({
   months?: number;
 }) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(12, 0, 0, 0);
   const [offset, setOffset] = useState(0);
   const [hover, setHover] = useState("");
 
@@ -26,7 +26,7 @@ export function RangeCalendar({
   const effEnd = checkOut || previewEnd;
 
   const monthDates = Array.from({ length: months }).map(
-    (_, i) => new Date(today.getFullYear(), today.getMonth() + offset + i, 1),
+    (_, i) => new Date(today.getFullYear(), today.getMonth() + offset + i, 1, 12, 0, 0),
   );
 
   return (
@@ -85,17 +85,17 @@ function Month({
 }) {
   const year = date.getFullYear();
   const month = date.getMonth();
-  const startDow = new Date(year, month, 1).getDay();
-  const daysIn = new Date(year, month + 1, 0).getDate();
+  const startDow = new Date(year, month, 1, 12, 0, 0).getDay();
+  const daysIn = new Date(year, month + 1, 0, 12, 0, 0).getDate();
 
   const cells: (Date | null)[] = [];
   for (let i = 0; i < startDow; i++) cells.push(null);
-  for (let d = 1; d <= daysIn; d++) cells.push(new Date(year, month, d));
+  for (let d = 1; d <= daysIn; d++) cells.push(new Date(year, month, d, 12, 0, 0));
 
   return (
     <div>
       <p className="mb-4 text-center text-sm font-semibold text-slate-800">
-        {date.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+        {date.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
       </p>
       <div className="mb-2 grid grid-cols-7 text-center text-xs font-medium text-slate-400">
         {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
@@ -104,7 +104,7 @@ function Month({
       </div>
       <div className="grid grid-cols-7">
         {cells.map((cell, i) => {
-          if (!cell) return <span key={i} />;
+          if (!cell) return <div key={i} className="h-11" />;
           const s = ymd(cell);
           const past = cell < today;
           const isStart = s === checkIn;

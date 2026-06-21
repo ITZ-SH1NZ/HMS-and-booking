@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   UmbrellaIcon,
   MountainIcon,
@@ -41,12 +42,13 @@ export function CategoryStrip() {
               {cat.label}
             </span>
             <span className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=240&q=70`}
                 alt=""
                 aria-hidden
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+                fill
+                sizes="80px"
+                className="object-cover transition duration-300 group-hover:scale-110"
               />
             </span>
           </Link>

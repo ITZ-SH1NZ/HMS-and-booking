@@ -5,16 +5,19 @@ import { motion, AnimatePresence } from "motion/react";
 import { RangeCalendar } from "@/components/RangeCalendar";
 import { CalendarIcon, ArrowRightIcon } from "@/components/icons";
 
+// Pin the locale so server and client render identical strings (otherwise the
+// runtime default differs between the server and the browser → hydration
+// mismatch). en-IN suits this INR/India-focused app: "21 June 2026".
 const longDate = (s: string) =>
   s
-    ? new Date(`${s}T00:00:00`).toLocaleDateString(undefined, {
+    ? new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
         day: "numeric",
         month: "long",
         year: "numeric",
       })
     : "Select date";
 const weekday = (s: string) =>
-  s ? new Date(`${s}T00:00:00`).toLocaleDateString(undefined, { weekday: "long" }) : "";
+  s ? new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", { weekday: "long" }) : "";
 
 // Two date cards that open a shared range calendar popover.
 export function DateRangePicker({
@@ -28,9 +31,12 @@ export function DateRangePicker({
 }) {
   const [open, setOpen] = useState(false);
   const [focus, setFocus] = useState<"in" | "out">("in");
+  const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
     function onDown(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
@@ -80,14 +86,14 @@ export function DateRangePicker({
       </div>
 
       <AnimatePresence>
-        {open && (
+        {open && mounted && (
           <motion.div
             initial={{ opacity: 0, y: 8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             style={{ transformOrigin: "top" }}
-            className="absolute left-0 top-full z-30 mt-3 w-[92vw] max-w-2xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl"
+            className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 z-30 mt-3 w-[92vw] max-w-2xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl"
           >
             <RangeCalendar checkIn={checkIn} checkOut={checkOut} onPick={pick} />
           </motion.div>
