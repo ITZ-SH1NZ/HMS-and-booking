@@ -124,22 +124,22 @@ export function Footer() {
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">Discover</h4>
             <ul className="flex flex-col gap-2.5 text-sm font-semibold">
               <li>
-                <Link href="/#categories" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
                   Resorts & Villas
                 </Link>
               </li>
               <li>
-                <Link href="/#categories" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
                   Luxury Stays
                 </Link>
               </li>
               <li>
-                <Link href="/#categories" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
                   Nature Retreats
                 </Link>
               </li>
               <li>
-                <Link href="/#categories" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
                   Budget Escapes
                 </Link>
               </li>
