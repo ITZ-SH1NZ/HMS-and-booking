@@ -24,7 +24,7 @@ export default function StarRatingInput({
     <div className="flex flex-col">
       {label && (
         <span className="mb-1 text-sm font-medium text-slate-700">
-          {label} {required && <span className="text-rose-500">*</span>}
+          {label} {required && <span className="text-brand-500">*</span>}
         </span>
       )}
 
@@ -37,7 +37,7 @@ export default function StarRatingInput({
               onMouseEnter={() => setHoverValue(star)}
               onMouseLeave={() => setHoverValue(null)}
               onClick={() => onChange(star)}
-              className="text-amber-400 p-0.5 hover:scale-110 transition focus:outline-none"
+              className="text-gold-500 p-0.5 hover:scale-110 transition focus:outline-none"
             >
               <StarIcon
                 className="h-6 w-6"

@@ -47,12 +47,12 @@ function VerifyEmailInner() {
     <AuthShell
       side={{
         title: "Almost there!",
-        subtitle: "Verify your email to unlock your HMS account.",
+        subtitle: "Verify your email to unlock your BookNest account.",
       }}
     >
       <div className="space-y-4 text-sm text-slate-600">
         <div className="flex justify-center py-2">
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-rose-50 text-rose-600">
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-600">
             <MailIcon className="h-7 w-7" />
           </div>
         </div>
@@ -78,7 +78,7 @@ function VerifyEmailInner() {
         </p>
 
         {error && (
-          <div className="rounded-lg bg-rose-50 px-3 py-2 text-rose-700">
+          <div className="rounded-lg bg-brand-50 px-3 py-2 text-brand-700">
             {error}
           </div>
         )}
@@ -91,7 +91,7 @@ function VerifyEmailInner() {
         </button>
 
         <p className="text-center">
-          <Link href="/login" className="font-semibold text-rose-600">
+          <Link href="/login" className="font-semibold text-brand-600">
             Back to login
           </Link>
         </p>

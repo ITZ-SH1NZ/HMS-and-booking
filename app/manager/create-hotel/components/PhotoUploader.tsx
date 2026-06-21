@@ -149,7 +149,7 @@ export default function PhotoUploader({
       <div className="flex flex-col">
         {label && (
           <span className="mb-1 text-sm font-medium text-slate-700">
-            {label} <span className="text-rose-500">*</span>
+            {label} <span className="text-brand-500">*</span>
           </span>
         )}
 
@@ -177,7 +177,7 @@ export default function PhotoUploader({
                   type="button"
                   onClick={() => onDelete(currentPhoto.id)}
                   disabled={uploading}
-                  className="rounded-full bg-white p-2.5 shadow text-rose-600 hover:bg-slate-50 transition"
+                  className="rounded-full bg-white p-2.5 shadow text-brand-600 hover:bg-slate-50 transition"
                   title="Remove cover photo"
                 >
                   <TrashIcon className="h-5 w-5" />
@@ -204,7 +204,7 @@ export default function PhotoUploader({
           {uploading && (
             <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-200">
               <div
-                className="h-full bg-emerald-600 transition-all duration-300"
+                className="h-full bg-brand-600 transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -270,7 +270,7 @@ export default function PhotoUploader({
               </span>
               <div className="w-16 bg-slate-200 h-1 mt-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-emerald-600 h-full transition-all duration-300"
+                  className="bg-brand-600 h-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>

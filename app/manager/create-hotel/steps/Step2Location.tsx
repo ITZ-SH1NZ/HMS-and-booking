@@ -85,7 +85,7 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex flex-col">
                 <label className="mb-1 text-sm font-medium text-slate-700">
-                  Country <span className="text-rose-500">*</span>
+                  Country <span className="text-brand-500">*</span>
                 </label>
                 <select
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
@@ -102,11 +102,11 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
 
               <div className="flex flex-col">
                 <label className="mb-1 text-sm font-medium text-slate-700">
-                  State / Province <span className="text-rose-500">*</span>
+                  State / Province <span className="text-brand-500">*</span>
                 </label>
                 <input
                   type="text"
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                   value={draft.state || ""}
                   onChange={(e) => patch({ state: e.target.value })}
                   placeholder="e.g. Kerala"
@@ -116,11 +116,11 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
 
               <div className="flex flex-col">
                 <label className="mb-1 text-sm font-medium text-slate-700">
-                  City <span className="text-rose-500">*</span>
+                  City <span className="text-brand-500">*</span>
                 </label>
                 <input
                   type="text"
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                   value={draft.city || ""}
                   onChange={(e) => patch({ city: e.target.value })}
                   placeholder="e.g. Aluva"
@@ -136,7 +136,7 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
               </label>
               <input
                 type="text"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                 value={draft.area || ""}
                 onChange={(e) => patch({ area: e.target.value })}
                 placeholder="e.g. Periyar Nagar"
@@ -146,11 +146,11 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
             {/* Full Street Address */}
             <div className="flex flex-col">
               <label className="mb-1 text-sm font-medium text-slate-700">
-                Address line <span className="text-rose-500">*</span>
+                Address line <span className="text-brand-500">*</span>
               </label>
               <input
                 type="text"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                 value={draft.address_line || ""}
                 onChange={(e) => patch({ address_line: e.target.value })}
                 placeholder="e.g. Near Cochin International Airport Road"
@@ -161,11 +161,11 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
             {/* Pincode */}
             <div className="flex flex-col">
               <label className="mb-1 text-sm font-medium text-slate-700">
-                Pincode <span className="text-rose-500">*</span>
+                Pincode <span className="text-brand-500">*</span>
               </label>
               <input
                 type="text"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                 value={draft.pincode || ""}
                 onChange={(e) => patch({ pincode: e.target.value })}
                 placeholder="e.g. 683101"
@@ -197,10 +197,10 @@ export default function Step2Location({ draftContext }: Step2LocationProps) {
 
             <div className="space-y-3">
               <span className="font-semibold text-slate-800 block">Nearby landmarks</span>
-              <div className="space-y-2.5 border-l border-emerald-300 pl-3">
+              <div className="space-y-2.5 border-l border-brand-300 pl-3">
                 {nearbyPlaces.map((place, idx) => (
                   <div key={idx} className="flex flex-col gap-0.5 relative">
-                    <div className="absolute -left-[16.5px] top-1.5 h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                    <div className="absolute -left-[16.5px] top-1.5 h-1.5 w-1.5 rounded-full bg-brand-600" />
                     <span className="font-medium text-slate-700">
                       {place.name}
                     </span>

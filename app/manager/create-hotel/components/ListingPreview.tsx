@@ -44,7 +44,7 @@ export default function ListingPreview({
         <button
           type="button"
           onClick={onEditPhotosClick}
-          className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+          className="text-xs font-semibold text-green-700 hover:text-green-800 flex items-center gap-1"
         >
           See full preview &rarr;
         </button>
@@ -83,7 +83,7 @@ export default function ListingPreview({
           {draft?.name || "Untitled Property"}
         </h4>
         <p className="flex items-center gap-1 text-sm text-slate-500">
-          <MapPinIcon className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+          <MapPinIcon className="h-3.5 w-3.5 text-brand-500 shrink-0" />
           <span className="truncate">{locationStr}</span>
         </p>
       </div>
@@ -98,7 +98,7 @@ export default function ListingPreview({
           <span className="text-xs text-slate-400 ml-0.5">(128 reviews)</span>
         </div>
         {draft?.property_type && (
-          <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
+          <span className="text-[10px] font-semibold text-gold-800 bg-gold-50 border border-gold-200 rounded px-1.5 py-0.5">
             {draft.star_rating || 4} Star {draft.property_type}
           </span>
         )}

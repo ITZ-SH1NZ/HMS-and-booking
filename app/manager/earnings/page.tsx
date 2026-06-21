@@ -83,7 +83,7 @@ export default async function EarningsPage() {
               rows.map((b) => (
                 <tr key={b.id} className="border-t border-slate-100">
                   <td className="px-4 py-3">
-                    <Link href={`/bookings/${b.id}`} className="font-medium text-slate-800 hover:text-rose-600">
+                    <Link href={`/bookings/${b.id}`} className="font-medium text-slate-800 hover:text-brand-600">
                       {b.hotels?.name ?? "—"}
                     </Link>
                   </td>
@@ -129,11 +129,11 @@ function Stat({
   return (
     <div
       className={`rounded-2xl border p-5 ${
-        accent ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-white"
+        accent ? "border-brand-200 bg-brand-50" : "border-slate-200 bg-white"
       }`}
     >
       <p className="text-sm text-slate-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent ? "text-rose-700" : "text-slate-900"}`}>
+      <p className={`mt-1 text-2xl font-bold ${accent ? "text-brand-700" : "text-slate-900"}`}>
         {value}
       </p>
     </div>

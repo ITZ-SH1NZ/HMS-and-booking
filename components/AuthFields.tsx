@@ -4,7 +4,7 @@ import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
 
 const shell =
-  "flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 transition focus-within:border-rose-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-rose-100";
+  "flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 transition focus-within:border-brand-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100";
 
 const inputBase =
   "w-full bg-transparent py-2.5 text-sm text-slate-800 outline-none placeholder:text-slate-400";

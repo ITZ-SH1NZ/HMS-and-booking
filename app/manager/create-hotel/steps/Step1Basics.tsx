@@ -78,11 +78,11 @@ export default function Step1Basics({ draftContext }: Step1BasicsProps) {
           {/* Property Name */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-medium text-slate-700">
-              Property name <span className="text-rose-500">*</span>
+              Property name <span className="text-brand-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
               value={draft.name || ""}
               onChange={(e) => patch({ name: e.target.value })}
               placeholder="e.g. Neuron Resort"
@@ -93,10 +93,10 @@ export default function Step1Basics({ draftContext }: Step1BasicsProps) {
           {/* Property Type */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-medium text-slate-700">
-              Property type <span className="text-rose-500">*</span>
+              Property type <span className="text-brand-500">*</span>
             </label>
             <select
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 bg-white"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 bg-white"
               value={draft.property_type || ""}
               onChange={(e) => patch({ property_type: e.target.value as PropertyType })}
               required
@@ -112,7 +112,7 @@ export default function Step1Basics({ draftContext }: Step1BasicsProps) {
           <div className="flex flex-col md:col-span-2">
             <div className="flex justify-between items-center mb-1">
               <label className="text-sm font-medium text-slate-700">
-                Short description <span className="text-rose-500">*</span>
+                Short description <span className="text-brand-500">*</span>
               </label>
               <span className="text-xs text-slate-400">
                 {(draft.short_description || "").length}/200
@@ -120,7 +120,7 @@ export default function Step1Basics({ draftContext }: Step1BasicsProps) {
             </div>
             <textarea
               rows={2}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
               value={draft.short_description || ""}
               onChange={(e) => patch({ short_description: e.target.value })}
               placeholder="Describe your property in one or two short sentences..."
@@ -160,7 +160,7 @@ export default function Step1Basics({ draftContext }: Step1BasicsProps) {
               type="number"
               min={1800}
               max={new Date().getFullYear()}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
               value={draft.year_built || ""}
               onChange={(e) => {
                 const val = parseInt(e.target.value, 10);
@@ -215,17 +215,17 @@ export default function Step1Basics({ draftContext }: Step1BasicsProps) {
                 onClick={() => handleBestForToggle(opt.id)}
                 className={`relative flex flex-col items-center justify-center p-4 border rounded-2xl text-center transition w-full group ${
                   isSelected
-                    ? "border-emerald-600 bg-emerald-50 text-emerald-950 shadow-sm"
+                    ? "border-brand-600 bg-brand-50 text-brand-950 shadow-sm"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                 }`}
               >
                 {isSelected && (
-                  <div className="absolute top-2.5 right-2.5 h-4.5 w-4.5 rounded-full bg-emerald-600 border border-emerald-600 text-white flex items-center justify-center">
+                  <div className="absolute top-2.5 right-2.5 h-4.5 w-4.5 rounded-full bg-brand-600 border border-brand-600 text-white flex items-center justify-center">
                     <CheckIcon className="h-3 w-3 stroke-[3px]" />
                   </div>
                 )}
                 <Icon className={`h-8 w-8 mb-2 transition-colors ${
-                  isSelected ? "text-emerald-700" : "text-slate-400 group-hover:text-slate-500"
+                  isSelected ? "text-brand-700" : "text-slate-400 group-hover:text-slate-500"
                 }`} />
                 <span className="text-xs font-bold leading-tight">{opt.title}</span>
                 <span className="text-[10px] text-slate-500 mt-0.5">{opt.subtitle}</span>

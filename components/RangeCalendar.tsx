@@ -123,16 +123,16 @@ function Month({
               className="relative flex h-11 items-center justify-center"
               onMouseEnter={() => onHover(s)}
             >
-              {bar && <span className={`absolute inset-y-1 ${bar} bg-rose-100`} />}
+              {bar && <span className={`absolute inset-y-1 ${bar} bg-brand-100`} />}
               <button
                 type="button"
                 disabled={past}
                 onClick={() => onPick(s)}
                 className={`relative z-10 grid h-10 w-10 place-items-center rounded-full text-sm transition ${
                   endpoint
-                    ? "bg-rose-600 font-semibold text-white"
+                    ? "bg-brand-600 font-semibold text-white"
                     : inRange
-                      ? "text-rose-700"
+                      ? "text-brand-700"
                       : past
                         ? "cursor-not-allowed text-slate-300"
                         : "text-slate-800 hover:ring-1 hover:ring-slate-900"

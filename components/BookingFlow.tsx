@@ -392,7 +392,7 @@ function StayDetails(props: {
           onChange={props.onDatesChange}
         />
       </div>
-      <div className="mt-3 flex items-center gap-2 rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700">
+      <div className="mt-3 flex items-center gap-2 rounded-lg bg-brand-50 px-4 py-2.5 text-sm font-medium text-brand-700">
         <BoltIcon className="h-4 w-4" /> {props.nights} Night
         {props.nights === 1 ? "" : "s"} Stay
       </div>
@@ -427,7 +427,7 @@ function StayDetails(props: {
       </div>
 
       {props.error && (
-        <div className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="mt-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
           {props.error}
         </div>
       )}
@@ -441,7 +441,7 @@ function StayDetails(props: {
         <button
           onClick={props.onContinue}
           disabled={props.loading}
-          className="flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-6 py-3 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
         >
           {props.loading ? "Checking…" : "Continue"}
           <ArrowRightIcon className="h-4 w-4" />
@@ -495,16 +495,16 @@ function RoomSelection(props: {
               onClick={() => props.setRoomId(room.room_id)}
               className={`flex w-full gap-4 rounded-xl border p-3 text-left transition ${
                 selected
-                  ? "border-rose-500 ring-1 ring-rose-200"
+                  ? "border-brand-500 ring-1 ring-brand-200"
                   : "border-slate-200 hover:border-slate-300"
               } ${enough ? "" : "opacity-60"}`}
             >
               <span
                 className={`mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full border ${
-                  selected ? "border-rose-600" : "border-slate-300"
+                  selected ? "border-brand-600" : "border-slate-300"
                 }`}
               >
-                {selected && <span className="h-2.5 w-2.5 rounded-full bg-rose-600" />}
+                {selected && <span className="h-2.5 w-2.5 rounded-full bg-brand-600" />}
               </span>
               <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                 {props.hotel.image_url ? (
@@ -551,7 +551,7 @@ function RoomSelection(props: {
                 )}
                 <p
                   className={`mt-auto pt-2 text-sm font-medium ${
-                    enough ? "text-emerald-600" : "text-rose-600"
+                    enough ? "text-green-600" : "text-brand-600"
                   }`}
                 >
                   {enough
@@ -576,7 +576,7 @@ function RoomSelection(props: {
         <button
           onClick={props.onContinue}
           disabled={!props.roomId}
-          className="flex items-center gap-2 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
         >
           Continue to payment <ArrowRightIcon className="h-4 w-4" />
         </button>
@@ -640,13 +640,13 @@ function Payment(props: {
             onClick={() => props.setCheckoutMethod("pay_online")}
             className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
               props.checkoutMethod === "pay_online"
-                ? "border-rose-500 bg-rose-50/20 ring-1 ring-rose-200"
+                ? "border-brand-500 bg-brand-50/20 ring-1 ring-brand-200"
                 : "border-slate-200 hover:border-slate-300 bg-white"
             }`}
           >
             <span
               className={`grid h-9 w-9 place-items-center rounded-lg shadow-sm ${
-                props.checkoutMethod === "pay_online" ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-500"
+                props.checkoutMethod === "pay_online" ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500"
               }`}
             >
               <CreditCardIcon className="h-5 w-5" />
@@ -656,7 +656,7 @@ function Payment(props: {
               <p className="text-xs text-slate-500">Pay securely via Cards, Netbanking, UPI or Wallets</p>
             </div>
             {props.checkoutMethod === "pay_online" && (
-              <span className="grid h-5 w-5 place-items-center rounded-full bg-rose-600 text-white">
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-brand-600 text-white">
                 <CheckCircleIcon className="h-4 w-4" />
               </span>
             )}
@@ -670,13 +670,13 @@ function Payment(props: {
             onClick={() => props.setCheckoutMethod("pay_at_property")}
             className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
               props.checkoutMethod === "pay_at_property"
-                ? "border-rose-500 bg-rose-50/20 ring-1 ring-rose-200"
+                ? "border-brand-500 bg-brand-50/20 ring-1 ring-brand-200"
                 : "border-slate-200 hover:border-slate-300 bg-white"
             }`}
           >
             <span
               className={`grid h-9 w-9 place-items-center rounded-lg shadow-sm ${
-                props.checkoutMethod === "pay_at_property" ? "bg-rose-600 text-white" : "bg-slate-100 text-slate-500"
+                props.checkoutMethod === "pay_at_property" ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500"
               }`}
             >
               <BuildingIcon className="h-5 w-5" />
@@ -686,7 +686,7 @@ function Payment(props: {
               <p className="text-xs text-slate-500">No payment required now. Pay directly at the hotel.</p>
             </div>
             {props.checkoutMethod === "pay_at_property" && (
-              <span className="grid h-5 w-5 place-items-center rounded-full bg-rose-600 text-white">
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-brand-600 text-white">
                 <CheckCircleIcon className="h-4 w-4" />
               </span>
             )}
@@ -699,14 +699,14 @@ function Payment(props: {
           type="checkbox"
           checked={props.terms}
           onChange={(e) => props.setTerms(e.target.checked)}
-          className="mt-0.5 accent-rose-600"
+          className="mt-0.5 accent-brand-600"
         />
         I agree to the booking{" "}
-        <span className="font-semibold text-rose-600">terms and cancellation policy</span>.
+        <span className="font-semibold text-brand-600">terms and cancellation policy</span>.
       </label>
 
       {props.error && (
-        <div className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
           {props.error}
         </div>
       )}
@@ -721,7 +721,7 @@ function Payment(props: {
         <button
           onClick={props.onPay}
           disabled={props.submitting}
-          className="flex items-center gap-2 rounded-lg bg-rose-600 px-6 py-3 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
         >
           <LockIcon className="h-4 w-4" />
           {props.checkoutMethod === "pay_online" ? (
@@ -742,7 +742,7 @@ function Payment(props: {
 // Shared bits
 // ---------------------------------------------------------------------------
 const input =
-  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100";
+  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
 
 function SectionTitle({
   icon,
@@ -753,7 +753,7 @@ function SectionTitle({
 }) {
   return (
     <h2 className="flex items-center gap-2 font-semibold text-slate-900">
-      <span className="text-rose-500">{icon}</span>
+      <span className="text-brand-500">{icon}</span>
       {children}
     </h2>
   );
@@ -818,7 +818,7 @@ function CircleBtn({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="grid h-9 w-9 place-items-center rounded-full border border-slate-300 text-slate-600 transition hover:border-rose-400 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-30"
+      className="grid h-9 w-9 place-items-center rounded-full border border-slate-300 text-slate-600 transition hover:border-brand-400 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-30"
     >
       {children}
     </button>
@@ -836,7 +836,7 @@ function Trust({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="grid h-8 w-8 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+      <span className="grid h-8 w-8 place-items-center rounded-full bg-green-50 text-green-600">
         {icon}
       </span>
       <span>

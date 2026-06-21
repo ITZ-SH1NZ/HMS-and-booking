@@ -87,12 +87,17 @@ export function AirbnbSearch() {
       const supabase = createClient();
       const { data } = await supabase
         .from("hotels")
-        .select("location")
+        .select("location, city")
         .eq("status", "approved");
-      const locs = Array.from(
-        new Set((data ?? []).map((r) => r.location).filter(Boolean)),
-      ) as string[];
-      setSuggestions(locs.slice(0, 6));
+      
+      const locsSet = new Set<string>();
+      (data ?? []).forEach((r) => {
+        if (r.location) locsSet.add(r.location.trim());
+        if (r.city) locsSet.add(r.city.trim());
+      });
+      
+      const uniqueLocs = Array.from(locsSet).filter(Boolean);
+      setSuggestions(uniqueLocs);
     })();
   }, []);
 
@@ -157,19 +162,27 @@ export function AirbnbSearch() {
     router.push(`/?${q.toString()}#hotels`);
   }
 
+  const displaySuggestions = suggestions.length > 0
+    ? suggestions
+    : ["Goa", "Kerala", "Ladakh", "Udaipur", "Manali", "Jaipur"];
+
+  const filteredSuggestions = displaySuggestions.filter((s) =>
+    location ? s.toLowerCase().includes(location.toLowerCase()) : true
+  );
+
   const expanded = active !== null;
 
   return (
     <div ref={rootRef} className="relative w-full max-w-3xl">
       <div
-        className={`relative flex items-center rounded-full border shadow-lg transition-colors duration-300 ${
-          expanded ? "border-slate-200 bg-slate-100" : "border-slate-200 bg-white"
+        className={`relative flex flex-col md:flex-row md:items-center rounded-3xl md:rounded-full border shadow-lg transition-colors duration-300 bg-white p-3 md:p-1.5 gap-3 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100 md:divide-slate-200 ${
+          expanded ? "border-slate-200 md:bg-slate-100/50" : "border-slate-200"
         }`}
       >
-        {/* Sliding highlight */}
+        {/* Sliding highlight - visible only on desktop */}
         <motion.div
-          className="pointer-events-none absolute rounded-full bg-white shadow-md"
-          style={{ top: 4, bottom: 4 }}
+          className="pointer-events-none absolute rounded-full bg-white shadow-md hidden md:block"
+          style={{ top: 6, bottom: 6 }}
           animate={{
             left: hl.left,
             width: hl.width,
@@ -189,6 +202,7 @@ export function AirbnbSearch() {
             segEls.current.where = el;
           }}
           label="Where"
+          icon={<MapPinIcon className="h-5 w-5 text-slate-500" />}
           active={active === "where"}
           expanded={expanded}
           onActivate={() => setActive("where")}
@@ -199,53 +213,50 @@ export function AirbnbSearch() {
             onChange={(e) => setLocation(e.target.value)}
             onFocus={() => setActive("where")}
             placeholder="Search destinations"
-            className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+            className="w-full bg-transparent text-sm text-slate-800 font-bold outline-none placeholder:text-slate-400 placeholder:font-normal"
           />
         </SegmentItem>
-
-        <Divider hidden={expanded} />
 
         <SegmentItem
           innerRef={(el) => {
             segEls.current.when = el;
           }}
           label="When"
+          icon={<CalendarIcon className="h-5 w-5 text-slate-500" />}
           active={active === "when"}
           expanded={expanded}
           onActivate={() => setActive("when")}
         >
-          <span className={`text-sm ${dateLabel ? "text-slate-700" : "text-slate-400"}`}>
+          <span className={`text-sm font-bold truncate ${dateLabel ? "text-slate-800" : "text-slate-400 font-normal"}`}>
             {dateLabel || "Add dates"}
           </span>
         </SegmentItem>
-
-        <Divider hidden={expanded} />
 
         <SegmentItem
           innerRef={(el) => {
             segEls.current.who = el;
           }}
           label="Who"
+          icon={<svg className="h-5 w-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
           active={active === "who"}
           expanded={expanded}
           onActivate={() => setActive("who")}
         >
-          <span className={`text-sm ${guestLabel ? "text-slate-700" : "text-slate-400"}`}>
+          <span className={`text-sm font-bold truncate ${guestLabel ? "text-slate-800" : "text-slate-400 font-normal"}`}>
             {guestLabel || "Add guests"}
           </span>
         </SegmentItem>
 
-        <button
-          type="button"
-          onClick={submit}
-          aria-label="Search"
-          className={`relative z-10 my-2 mr-2 flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-rose-600 text-white transition-all duration-300 ease-out hover:bg-rose-700 ${
-            expanded ? "w-auto px-5" : "w-12"
-          }`}
-        >
-          <SearchIcon className="h-5 w-5" />
-          {expanded && <span className="font-semibold">Search</span>}
-        </button>
+        <div className="pt-2 md:pt-0 md:px-2 w-full md:w-auto shrink-0 z-10">
+          <button
+            type="button"
+            onClick={submit}
+            className="flex h-12 w-full md:w-auto items-center justify-center gap-2 rounded-2xl md:rounded-full bg-brand-600 px-6 text-white hover:bg-brand-700 active:scale-98 transition font-bold text-sm cursor-pointer shadow-xs"
+          >
+            <SearchIcon className="h-4.5 w-4.5" />
+            <span>Search stays</span>
+          </button>
+        </div>
       </div>
 
       {/* Popovers */}
@@ -253,7 +264,7 @@ export function AirbnbSearch() {
         {active && (
           <motion.div
             key={active}
-            className={`absolute inset-x-0 top-full z-50 mt-3 flex ${
+            className={`fixed inset-x-4 top-24 md:absolute md:inset-x-0 md:top-full z-50 mt-3 flex ${
               active === "who"
                 ? "justify-end"
                 : active === "when"
@@ -280,37 +291,31 @@ export function AirbnbSearch() {
                   <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
                     Suggested destinations
                   </p>
-                  {suggestions.length === 0 ? (
+                  {filteredSuggestions.length === 0 ? (
                     <p className="px-1 py-4 text-sm text-slate-400">
-                      Type a destination above.
+                      No destinations match your search.
                     </p>
                   ) : (
-                    <ul className="space-y-1">
-                      {suggestions
-                        .filter((s) =>
-                          location
-                            ? s.toLowerCase().includes(location.toLowerCase())
-                            : true,
-                        )
-                        .map((s) => (
-                          <li key={s}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setLocation(s);
-                                setActive("when");
-                              }}
-                              className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50"
-                            >
-                              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500">
-                                <MapPinIcon className="h-5 w-5" />
-                              </span>
-                              <span className="text-sm font-medium text-slate-800">
-                                {s}
-                              </span>
-                            </button>
-                          </li>
-                        ))}
+                    <ul className="space-y-1 max-h-60 overflow-y-auto pr-1 scrollbar-thin focus-visible:outline-none">
+                      {filteredSuggestions.map((s) => (
+                        <li key={s}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLocation(s);
+                              setActive("when");
+                            }}
+                            className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                          >
+                            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500">
+                              <MapPinIcon className="h-5 w-5" />
+                            </span>
+                            <span className="text-sm font-semibold text-slate-800">
+                              {s}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
                     </ul>
                   )}
                 </>
@@ -358,12 +363,21 @@ export function AirbnbSearch() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Best Price Guarantee Badge */}
+      <div className="mt-4 flex justify-center items-center gap-1.5 text-xs font-semibold text-slate-500 select-none">
+        <svg className="h-4.5 w-4.5 text-gold-500 fill-current" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        </svg>
+        <span>Best Price Guarantee</span>
+      </div>
     </div>
   );
 }
 
 function SegmentItem({
   label,
+  icon,
   active,
   expanded,
   onActivate,
@@ -371,6 +385,7 @@ function SegmentItem({
   children,
 }: {
   label: string;
+  icon: React.ReactNode;
   active: boolean;
   expanded: boolean;
   onActivate: () => void;
@@ -378,33 +393,38 @@ function SegmentItem({
   children: React.ReactNode;
 }) {
   const hover = active
-    ? ""
+    ? "bg-slate-50 md:bg-transparent"
     : expanded
-      ? "hover:bg-slate-200/70"
-      : "hover:bg-slate-100";
+      ? "hover:bg-slate-200/50"
+      : "hover:bg-slate-50";
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onActivate();
+    }
+  };
+
   return (
     <div
       ref={innerRef}
       role="button"
       tabIndex={0}
       onClick={onActivate}
-      className={`relative z-10 flex flex-1 cursor-pointer flex-col rounded-full px-6 py-3 text-left transition-colors duration-200 ${hover}`}
+      onKeyDown={handleKeyDown}
+      className={`relative z-10 flex flex-1 cursor-pointer items-center gap-3 rounded-2xl md:rounded-full px-4 py-2.5 text-left transition-all duration-200 border border-transparent md:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${hover}`}
     >
-      <span className="text-xs font-semibold text-slate-800">{label}</span>
-      {children}
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-600 transition-colors group-hover:bg-slate-200">
+        {icon}
+      </div>
+      <div className="flex flex-1 flex-col min-w-0">
+        <span className="text-xs font-black text-slate-900 leading-tight tracking-wide">{label}</span>
+        {children}
+      </div>
     </div>
   );
 }
 
-function Divider({ hidden }: { hidden: boolean }) {
-  return (
-    <span
-      className={`relative z-10 h-8 w-px bg-slate-200 transition-opacity duration-200 ${
-        hidden ? "opacity-0" : "opacity-100"
-      }`}
-    />
-  );
-}
 
 function GuestRow({
   label,

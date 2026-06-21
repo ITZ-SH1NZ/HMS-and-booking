@@ -49,7 +49,7 @@ export function SearchForm({ compact = false }: { compact?: boolean }) {
         />
         <button
           type="submit"
-          className="grid h-8 w-8 place-items-center rounded-full bg-rose-600 text-white hover:bg-rose-700"
+          className="grid h-8 w-8 place-items-center rounded-full bg-brand-600 text-white hover:bg-brand-700"
           aria-label="Search"
         >
           <SearchIcon className="h-4 w-4" />
@@ -106,7 +106,7 @@ export function SearchForm({ compact = false }: { compact?: boolean }) {
         <div className="flex items-center lg:pl-2">
           <button
             type="submit"
-            className="w-full rounded-xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white hover:bg-rose-700"
+            className="w-full rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700"
           >
             Search Hotels
           </button>
@@ -135,7 +135,7 @@ function Field({
 }) {
   return (
     <label className="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-slate-50">
-      <span className="text-rose-500">{icon}</span>
+      <span className="text-brand-500">{icon}</span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="text-xs font-semibold text-slate-700">{label}</span>
         {children}
@@ -185,7 +185,7 @@ function DateInput({
 function Badge({ children }: { children: React.ReactNode }) {
   return (
     <span className="flex items-center gap-1.5">
-      <CheckCircleIcon className="h-4 w-4 text-emerald-500" />
+      <CheckCircleIcon className="h-4 w-4 text-green-600" />
       {children}
     </span>
   );

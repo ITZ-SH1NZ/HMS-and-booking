@@ -123,7 +123,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
             onClick={() => setActiveTab("base")}
             className={`pb-3 text-sm font-bold border-b-2 px-1 transition ${
               activeTab === "base"
-                ? "border-emerald-600 text-emerald-800"
+                ? "border-brand-600 text-brand-800"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -134,7 +134,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
             onClick={() => setActiveTab("seasonal")}
             className={`pb-3 text-sm font-bold border-b-2 px-1 ml-6 transition ${
               activeTab === "seasonal"
-                ? "border-emerald-600 text-emerald-800"
+                ? "border-brand-600 text-brand-800"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -172,7 +172,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                       <button
                         type="button"
                         onClick={() => removeCharge(c.id)}
-                        className="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50"
+                        className="text-brand-500 hover:text-brand-700 p-1 rounded hover:bg-brand-50"
                         title="Remove charge"
                       >
                         <TrashIcon className="h-4 w-4" />
@@ -188,7 +188,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                   <span className="mb-1 text-[10px] font-semibold text-slate-500">Label</span>
                   <input
                     type="text"
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none bg-white focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none bg-white focus:border-brand-600"
                     placeholder="e.g. Cleaning fee"
                     value={chargeLabel}
                     onChange={(e) => setChargeLabel(e.target.value)}
@@ -199,7 +199,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                   <input
                     type="number"
                     min={0}
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none bg-white focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none bg-white focus:border-brand-600"
                     placeholder="e.g. 500"
                     value={chargeAmount}
                     onChange={(e) => setChargeAmount(e.target.value)}
@@ -220,7 +220,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                 </div>
                 <button
                   type="submit"
-                  className="rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3 flex items-center justify-center gap-1 transition shadow-sm h-[34px]"
+                  className="rounded-lg bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs py-2 px-3 flex items-center justify-center gap-1 transition shadow-sm h-[34px]"
                 >
                   <PlusIcon className="h-4 w-4" />
                   Add charge
@@ -232,7 +232,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
             <div className="border-t border-slate-100 pt-5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
                 <h4 className="text-sm font-bold text-slate-800">Taxes</h4>
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded px-2 py-0.5">
+                <span className="text-xs font-bold text-brand-800 bg-brand-50 border border-brand-200 rounded px-2 py-0.5">
                   Total tax: {totalTax}%
                 </span>
               </div>
@@ -244,7 +244,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                     type="number"
                     min={0}
                     max={100}
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                     value={draft.gst_percent ?? 18}
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
@@ -260,7 +260,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                     type="number"
                     min={0}
                     max={100}
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                     value={draft.service_charge_percent ?? 0}
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
@@ -276,7 +276,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                     type="number"
                     min={0}
                     max={100}
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                     value={draft.other_tax_percent ?? 0}
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
@@ -309,13 +309,13 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-1">
+                      <span className="font-bold text-brand-800 bg-brand-50 border border-brand-200 rounded-md px-2 py-1">
                         ₹{s.price}/night
                       </span>
                       <button
                         type="button"
                         onClick={() => removeSeason(s.id)}
-                        className="text-rose-500 hover:text-rose-700 p-1"
+                        className="text-brand-500 hover:text-brand-700 p-1"
                         title="Delete seasonal slot"
                       >
                         <TrashIcon className="h-4 w-4" />
@@ -337,7 +337,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                   <span className="mb-1 text-[10px] font-semibold text-slate-500">Season name</span>
                   <input
                     type="text"
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white outline-none focus:border-brand-600"
                     placeholder="e.g. Summer High Season"
                     value={seasonName}
                     onChange={(e) => setSeasonName(e.target.value)}
@@ -349,7 +349,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
                   <input
                     type="number"
                     min={1}
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white outline-none focus:border-brand-600"
                     placeholder="e.g. 5000"
                     value={seasonPrice}
                     onChange={(e) => setSeasonPrice(e.target.value)}
@@ -381,7 +381,7 @@ export default function Step7Pricing({ draftContext }: Step7PricingProps) {
               <div className="flex justify-end pt-2 border-t border-slate-200/60">
                 <button
                   type="submit"
-                  className="rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-4 shadow-sm transition flex items-center gap-1.5"
+                  className="rounded-lg bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs py-2 px-4 shadow-sm transition flex items-center gap-1.5"
                 >
                   <PlusIcon className="h-4 w-4" />
                   Save seasonal override

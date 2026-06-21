@@ -55,7 +55,7 @@ export default function Step3Photos({ draftContext }: Step3PhotosProps) {
                 <div key={cat.id} className="border-b border-slate-100 pb-5 last:border-b-0 last:pb-0">
                   <div className="mb-2">
                     <span className="text-sm font-bold text-slate-800 block">
-                      {cat.label} {cat.id === "cover" && <span className="text-rose-500">*</span>}
+                      {cat.label} {cat.id === "cover" && <span className="text-brand-500">*</span>}
                     </span>
                     <span className="text-xs text-slate-500">
                       {cat.helper}
@@ -85,23 +85,23 @@ export default function Step3Photos({ draftContext }: Step3PhotosProps) {
           </h4>
           <ul className="space-y-2.5 text-xs text-slate-600 leading-relaxed">
             <li className="flex items-start gap-2">
-              <span className="text-emerald-600 font-bold shrink-0">✓</span>
+              <span className="text-green-600 font-bold shrink-0">✓</span>
               <span>Use high-resolution images (at least 1920x1080px).</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-emerald-600 font-bold shrink-0">✓</span>
+              <span className="text-green-600 font-bold shrink-0">✓</span>
               <span>Bright, well-lit photos make rooms look spacious and clean.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-emerald-600 font-bold shrink-0">✓</span>
+              <span className="text-green-600 font-bold shrink-0">✓</span>
               <span>Show different angles to give guests a complete view.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-emerald-600 font-bold shrink-0">✓</span>
+              <span className="text-green-600 font-bold shrink-0">✓</span>
               <span>Keep rooms clean and tidy before taking shots.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-emerald-600 font-bold shrink-0">✓</span>
+              <span className="text-green-600 font-bold shrink-0">✓</span>
               <span>A minimum of 10 photos across categories is recommended.</span>
             </li>
           </ul>

@@ -10,7 +10,7 @@ interface BreadcrumbProps {
 export function Breadcrumb({ state, city, hotelName }: BreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-slate-500">
-      <Link href="/" className="hover:text-rose-600 transition">
+      <Link href="/" className="hover:text-brand-600 transition">
         Home
       </Link>
       {state && (
@@ -18,7 +18,7 @@ export function Breadcrumb({ state, city, hotelName }: BreadcrumbProps) {
           <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
           <Link
             href={`/?location=${encodeURIComponent(state)}`}
-            className="hover:text-rose-600 transition"
+            className="hover:text-brand-600 transition"
           >
             {state}
           </Link>
@@ -29,7 +29,7 @@ export function Breadcrumb({ state, city, hotelName }: BreadcrumbProps) {
           <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
           <Link
             href={`/?location=${encodeURIComponent(city)}`}
-            className="hover:text-rose-600 transition"
+            className="hover:text-brand-600 transition"
           >
             {city}
           </Link>

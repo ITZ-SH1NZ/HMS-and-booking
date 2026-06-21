@@ -40,7 +40,7 @@ export function SectionTabs() {
                 onClick={() => handleClick(section.id)}
                 className={`shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition whitespace-nowrap ${
                   isActive
-                    ? "border-rose-600 text-rose-600"
+                    ? "border-brand-600 text-brand-600"
                     : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
                 }`}
               >

@@ -123,7 +123,7 @@ export function OverviewSection({ hotel, availabilityRule }: OverviewSectionProp
       {sanitizedHtml && (
         <div className="mb-6">
           <div
-            className="prose prose-sm max-w-none text-slate-700 leading-relaxed prose-a:text-rose-600"
+            className="prose prose-sm max-w-none text-slate-700 leading-relaxed prose-a:text-brand-600"
             dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
           />
         </div>

@@ -1,4 +1,4 @@
-// Shared TypeScript types for the HMS app.
+// Shared TypeScript types for the BookNest app.
 
 export type UserRole = "guest" | "manager" | "admin";
 

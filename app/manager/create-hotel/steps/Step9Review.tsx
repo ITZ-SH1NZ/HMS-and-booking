@@ -107,18 +107,18 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
               <button
                 type="button"
                 onClick={() => onStepClick(1)}
-                className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                className="text-xs font-semibold text-brand-700 hover:text-brand-800"
               >
                 Edit
               </button>
             </div>
             <p className="flex items-center gap-1 text-sm text-slate-500 font-semibold">
-              <MapPinIcon className="h-4 w-4 text-rose-500" />
+              <MapPinIcon className="h-4 w-4 text-brand-500" />
               {addressText}
             </p>
 
             <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-0.5 text-amber-400">
+              <div className="flex items-center gap-0.5 text-gold-500">
                 <StarIcon className="h-4 w-4" filled />
                 <span className="text-xs font-bold text-slate-800 ml-1">
                   {draft.star_rating || 0}.0 Star
@@ -179,7 +179,7 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
               <button
                 type="button"
                 onClick={() => onStepClick(2)}
-                className="text-[10px] font-semibold text-emerald-700 hover:text-emerald-800 mt-1"
+                className="text-[10px] font-semibold text-brand-700 hover:text-brand-800 mt-1"
               >
                 Edit location
               </button>
@@ -196,7 +196,7 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
               <button
                 type="button"
                 onClick={() => onStepClick(6)}
-                className="text-[10px] font-semibold text-emerald-700 hover:text-emerald-800"
+                className="text-[10px] font-semibold text-brand-700 hover:text-brand-800"
               >
                 Edit
               </button>
@@ -213,7 +213,7 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
               <button
                 type="button"
                 onClick={() => onStepClick(6)}
-                className="text-[10px] font-semibold text-emerald-700 hover:text-emerald-800"
+                className="text-[10px] font-semibold text-brand-700 hover:text-brand-800"
               >
                 Edit
               </button>
@@ -224,13 +224,13 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
           <div className="flex justify-between items-center border-t border-slate-100 pt-3.5">
             <span className="text-slate-500 font-medium">Starting room rate</span>
             <div className="text-right flex items-center gap-2">
-              <span className="text-emerald-800 font-extrabold text-sm">
+              <span className="text-brand-800 font-extrabold text-sm">
                 ₹{minRoomPrice} + taxes / night
               </span>
               <button
                 type="button"
                 onClick={() => onStepClick(4)}
-                className="text-[10px] font-semibold text-emerald-700 hover:text-emerald-800"
+                className="text-[10px] font-semibold text-brand-700 hover:text-brand-800"
               >
                 Edit rooms
               </button>
@@ -240,9 +240,9 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
       </div>
 
       {/* Terms and Publish Card */}
-      <div className="rounded-2xl border border-slate-200 bg-emerald-50/40 p-6 shadow-sm border-emerald-100">
+      <div className="rounded-2xl border border-slate-200 bg-brand-50/40 p-6 shadow-sm border-brand-100">
         <h3 className="text-sm font-bold text-slate-800 mb-1 flex items-center gap-1.5">
-          <CheckCircleIcon className="h-5 w-5 text-emerald-700 shrink-0" />
+          <CheckCircleIcon className="h-5 w-5 text-brand-700 shrink-0" />
           Ready to publish?
         </h3>
         <p className="text-xs text-slate-600 leading-relaxed mb-4">
@@ -255,7 +255,7 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 bg-white"
+            className="mt-0.5 h-4 w-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300 bg-white"
           />
           <span className="text-xs font-semibold text-slate-700 leading-normal">
             I agree to the Terms & Conditions and Privacy Policy, and confirm that all property information provided is accurate.
@@ -267,7 +267,7 @@ export default function Step9Review({ draftContext, onStepClick }: Step9ReviewPr
           type="button"
           disabled={!agreed || publishing}
           onClick={handlePublish}
-          className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow transition flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+          className="w-full py-3 bg-brand-700 hover:bg-brand-800 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow transition flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           {publishing ? (
             <>

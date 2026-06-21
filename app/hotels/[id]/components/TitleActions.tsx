@@ -65,8 +65,8 @@ export function TitleActions() {
         <svg
           className={`h-4 w-4 transition-all duration-300 ${
             saved 
-              ? "fill-rose-500 stroke-rose-500 scale-110" 
-              : "fill-none stroke-slate-500 hover:stroke-rose-500"
+              ? "fill-brand-500 stroke-brand-500 scale-110" 
+              : "fill-none stroke-slate-500 hover:stroke-brand-500"
           }`}
           viewBox="0 0 24 24"
           strokeWidth="2.5"
@@ -111,8 +111,8 @@ export function TitleActions() {
                   onClick={handleCopy}
                   className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 shadow-sm cursor-pointer select-none active:scale-95 ${
                     copied 
-                      ? "bg-emerald-600 text-white" 
-                      : "bg-rose-600 text-white hover:bg-rose-700"
+                      ? "bg-brand-600 text-white" 
+                      : "bg-brand-600 text-white hover:bg-brand-700"
                   }`}
                 >
                   {copied ? "Copied!" : "Copy"}
@@ -131,7 +131,7 @@ export function TitleActions() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 hover:bg-slate-50 transition hover:shadow-sm cursor-pointer group"
                 >
-                  <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-100 text-emerald-600 group-hover:scale-110 transition duration-200 shrink-0">
+                  <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-100 text-brand-600 group-hover:scale-110 transition duration-200 shrink-0">
                     <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12.012 0C5.398 0 .019 5.38 0 11.99c0 2.115.553 4.178 1.602 5.993L0 24l6.15-1.612a11.953 11.953 0 005.856 1.6c6.613 0 11.993-5.38 12-11.99C24 5.38 18.623 0 12.012 0zm6.076 16.99c-.273.766-1.583 1.393-2.185 1.482-.41.06-1.62.148-3.418-.553-2.812-1.1-4.63-3.957-4.77-4.148-.142-.19-1.125-1.492-1.125-2.847 0-1.355.71-2.022.955-2.302.247-.28.547-.35.73-.35h.52c.163 0 .382-.06.6.464.218.52.738 1.79.8 1.918.064.128.106.277.02.447-.086.17-.128.276-.255.425-.128.15-.268.337-.38.45-.123.123-.25.257-.107.502.142.246.635 1.043 1.362 1.69.933.83 1.72 1.085 1.964 1.207.245.122.387.1.53-.064.14-.162.6-1.02.76-1.37.164-.35.328-.29.547-.208.22.08 1.393.655 1.633.775.24.12.398.18.458.28.06.1.06.582-.213 1.348z" />
                     </svg>

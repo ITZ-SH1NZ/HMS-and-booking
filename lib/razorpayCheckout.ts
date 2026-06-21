@@ -57,7 +57,7 @@ export async function startRazorpayPayment({
     order_id: order.orderId,
     amount: order.amount,
     currency: order.currency,
-    name: "HMS",
+    name: "BookNest",
     description: `Booking ${bookingId.slice(0, 8).toUpperCase()}`,
     prefill,
     theme: { color: "#e11d48" },

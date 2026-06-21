@@ -38,7 +38,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
           {/* Check-in Time */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-medium text-slate-700">
-              Check-in time <span className="text-rose-500">*</span>
+              Check-in time <span className="text-brand-500">*</span>
             </label>
             <select
               className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
@@ -55,7 +55,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
           {/* Check-out Time */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-medium text-slate-700">
-              Check-out time <span className="text-rose-500">*</span>
+              Check-out time <span className="text-brand-500">*</span>
             </label>
             <select
               className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
@@ -72,13 +72,13 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
           {/* Minimum Age */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-medium text-slate-700">
-              Minimum check-in age <span className="text-rose-500">*</span>
+              Minimum check-in age <span className="text-brand-500">*</span>
             </label>
             <input
               type="number"
               min={0}
               max={100}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
               value={draft.min_age ?? 18}
               onChange={(e) => {
                 const val = parseInt(e.target.value, 10);
@@ -104,7 +104,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                     value={opt}
                     checked={draft.pets_policy === opt}
                     onChange={(e) => patch({ pets_policy: e.target.value })}
-                    className="mr-1.5 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                    className="mr-1.5 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300"
                   />
                   {opt.replace("_", " ")}
                 </label>
@@ -124,7 +124,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                     value={opt}
                     checked={draft.smoking_policy === opt}
                     onChange={(e) => patch({ smoking_policy: e.target.value })}
-                    className="mr-1.5 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                    className="mr-1.5 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300"
                   />
                   {opt.replace("_", " ")}
                 </label>
@@ -144,7 +144,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                     value={opt}
                     checked={draft.parties_policy === opt}
                     onChange={(e) => patch({ parties_policy: e.target.value })}
-                    className="mr-1.5 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                    className="mr-1.5 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300"
                   />
                   {opt.replace("_", " ")}
                 </label>
@@ -157,7 +157,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
       {/* Cancellation Policy Card */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">
-          Cancellation policy <span className="text-rose-500">*</span>
+          Cancellation policy <span className="text-brand-500">*</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -171,7 +171,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                 onClick={() => patch({ cancellation_policy: opt as CancellationPolicy })}
                 className={`flex flex-col items-center justify-center p-4 border rounded-xl text-center capitalize transition w-full ${
                   isSelected
-                    ? "border-emerald-600 bg-emerald-50 text-emerald-950 font-bold"
+                    ? "border-brand-600 bg-brand-50 text-brand-950 font-bold"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-semibold"
                 }`}
               >
@@ -196,7 +196,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
             </label>
             <textarea
               rows={3}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
               value={draft.cancellation_policy_custom || ""}
               onChange={(e) => patch({ cancellation_policy_custom: e.target.value })}
               placeholder="e.g. Free cancellation up to 10 days before check-in. 50% charge if within 10-3 days..."
@@ -209,7 +209,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
       {/* Payment Policy Card */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">
-          Payment policy <span className="text-rose-500">*</span>
+          Payment policy <span className="text-brand-500">*</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -224,13 +224,13 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
             }
             className={`flex flex-col items-start p-4 border rounded-xl text-left transition w-full relative h-full ${
               draft.payment_policy === "pay_at_property"
-                ? "border-emerald-600 bg-emerald-50/30 ring-1 ring-emerald-600"
+                ? "border-brand-600 bg-brand-50/30 ring-1 ring-brand-600"
                 : "border-slate-200 bg-white hover:border-slate-300"
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <BuildingIcon className={`h-5 w-5 ${draft.payment_policy === "pay_at_property" ? "text-emerald-700" : "text-slate-500"}`} />
-              <span className={`block text-xs font-bold ${draft.payment_policy === "pay_at_property" ? "text-emerald-950 font-extrabold" : "text-slate-800"}`}>
+              <BuildingIcon className={`h-5 w-5 ${draft.payment_policy === "pay_at_property" ? "text-brand-700" : "text-slate-500"}`} />
+              <span className={`block text-xs font-bold ${draft.payment_policy === "pay_at_property" ? "text-brand-950 font-extrabold" : "text-slate-800"}`}>
                 Pay At Property
               </span>
             </div>
@@ -238,8 +238,8 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
               Bookings are secured instantly. Guests pay the full amount directly to you at the hotel on arrival or checkout.
             </span>
             {draft.payment_policy === "pay_at_property" && (
-              <div className="absolute top-3 right-3 text-emerald-700">
-                <CheckCircleIcon className="h-4.5 w-4.5 fill-emerald-100 stroke-[2.5]" />
+              <div className="absolute top-3 right-3 text-brand-700">
+                <CheckCircleIcon className="h-4.5 w-4.5 fill-brand-100 stroke-[2.5]" />
               </div>
             )}
           </button>
@@ -255,13 +255,13 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
             }
             className={`flex flex-col items-start p-4 border rounded-xl text-left transition w-full relative h-full ${
               draft.payment_policy === "advance"
-                ? "border-emerald-600 bg-emerald-50/30 ring-1 ring-emerald-600"
+                ? "border-brand-600 bg-brand-50/30 ring-1 ring-brand-600"
                 : "border-slate-200 bg-white hover:border-slate-300"
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <CreditCardIcon className={`h-5 w-5 ${draft.payment_policy === "advance" ? "text-emerald-700" : "text-slate-500"}`} />
-              <span className={`block text-xs font-bold ${draft.payment_policy === "advance" ? "text-emerald-950 font-extrabold" : "text-slate-800"}`}>
+              <CreditCardIcon className={`h-5 w-5 ${draft.payment_policy === "advance" ? "text-brand-700" : "text-slate-500"}`} />
+              <span className={`block text-xs font-bold ${draft.payment_policy === "advance" ? "text-brand-950 font-extrabold" : "text-slate-800"}`}>
                 Pay Online
               </span>
             </div>
@@ -269,8 +269,8 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
               Guests pay securely online via the website. You can collect a full or partial advance payment to guarantee their reservation.
             </span>
             {draft.payment_policy === "advance" && (
-              <div className="absolute top-3 right-3 text-emerald-700">
-                <CheckCircleIcon className="h-4.5 w-4.5 fill-emerald-100 stroke-[2.5]" />
+              <div className="absolute top-3 right-3 text-brand-700">
+                <CheckCircleIcon className="h-4.5 w-4.5 fill-brand-100 stroke-[2.5]" />
               </div>
             )}
           </button>
@@ -286,16 +286,16 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
             }
             className={`flex flex-col items-start p-4 border rounded-xl text-left transition w-full relative h-full ${
               draft.payment_policy === "both"
-                ? "border-emerald-600 bg-emerald-50/30 ring-1 ring-emerald-600"
+                ? "border-brand-600 bg-brand-50/30 ring-1 ring-brand-600"
                 : "border-slate-200 bg-white hover:border-slate-300"
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="flex -space-x-1 shrink-0">
-                <BuildingIcon className={`h-4 w-4 ${draft.payment_policy === "both" ? "text-emerald-700" : "text-slate-400"}`} />
-                <CreditCardIcon className={`h-4 w-4 ${draft.payment_policy === "both" ? "text-emerald-700" : "text-slate-400"}`} />
+                <BuildingIcon className={`h-4 w-4 ${draft.payment_policy === "both" ? "text-brand-700" : "text-slate-400"}`} />
+                <CreditCardIcon className={`h-4 w-4 ${draft.payment_policy === "both" ? "text-brand-700" : "text-slate-400"}`} />
               </div>
-              <span className={`block text-xs font-bold ${draft.payment_policy === "both" ? "text-emerald-950 font-extrabold" : "text-slate-800"}`}>
+              <span className={`block text-xs font-bold ${draft.payment_policy === "both" ? "text-brand-950 font-extrabold" : "text-slate-800"}`}>
                 Both Options
               </span>
             </div>
@@ -303,8 +303,8 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
               Guests can choose at checkout whether to pay securely online today or book and pay on arrival at the property.
             </span>
             {draft.payment_policy === "both" && (
-              <div className="absolute top-3 right-3 text-emerald-700">
-                <CheckCircleIcon className="h-4.5 w-4.5 fill-emerald-100 stroke-[2.5]" />
+              <div className="absolute top-3 right-3 text-brand-700">
+                <CheckCircleIcon className="h-4.5 w-4.5 fill-brand-100 stroke-[2.5]" />
               </div>
             )}
           </button>
@@ -318,7 +318,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                 type="checkbox"
                 checked={draft.require_advance ?? false}
                 onChange={(e) => patch({ require_advance: e.target.checked })}
-                className="mr-2 h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                className="mr-2 h-4 w-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300"
               />
               Require advance payment to secure booking
             </label>
@@ -330,7 +330,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                   <input
                     type="number"
                     min={0}
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                     value={draft.advance_amount || ""}
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
@@ -347,7 +347,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                       onClick={() => patch({ advance_is_percent: true })}
                       className={`flex-1 py-1.5 text-xs font-bold text-center border-r border-slate-200 transition ${
                         draft.advance_is_percent
-                          ? "bg-emerald-700 text-white"
+                          ? "bg-brand-700 text-white"
                           : "text-slate-600 hover:bg-slate-50"
                       }`}
                     >
@@ -358,7 +358,7 @@ export default function Step6Policies({ draftContext }: Step6PoliciesProps) {
                       onClick={() => patch({ advance_is_percent: false })}
                       className={`flex-1 py-1.5 text-xs font-bold text-center transition ${
                         !draft.advance_is_percent
-                          ? "bg-emerald-700 text-white"
+                          ? "bg-brand-700 text-white"
                           : "text-slate-600 hover:bg-slate-50"
                       }`}
                     >

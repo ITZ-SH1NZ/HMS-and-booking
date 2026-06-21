@@ -128,11 +128,11 @@ function LoginForm() {
       }}
     >
       <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
-      <p className="mt-1 text-sm text-slate-500">Log in to your HMS account</p>
+      <p className="mt-1 text-sm text-slate-500">Log in to your BookNest account</p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && (
-          <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <div className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
             {error}
             {needsVerify && (
               <button
@@ -170,7 +170,7 @@ function LoginForm() {
           <div className="mt-1.5 text-right">
             <Link
               href="/login"
-              className="text-sm font-semibold text-rose-600 hover:underline"
+              className="text-sm font-semibold text-brand-600 hover:underline"
             >
               Forgot password?
             </Link>
@@ -197,26 +197,26 @@ function LoginForm() {
 
       <p className="mt-5 text-center text-sm text-slate-500">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-semibold text-rose-600">
+        <Link href="/signup" className="font-semibold text-brand-600">
           Sign up
         </Link>
       </p>
 
       {/* Host promo */}
-      <div className="mt-6 flex items-center gap-4 rounded-xl bg-rose-50 p-4">
+      <div className="mt-6 flex items-center gap-4 rounded-xl bg-brand-50 p-4">
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-slate-900">Own a hotel or property?</p>
           <p className="mt-0.5 text-sm text-slate-600">
-            List your property and start earning with HMS.
+            List your property and start earning with BookNest.
           </p>
           <Link
             href="/signup/manager"
-            className="mt-2 inline-block rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-sm font-semibold text-rose-600 hover:bg-rose-100"
+            className="mt-2 inline-block rounded-lg border border-brand-300 bg-white px-3 py-1.5 text-sm font-semibold text-brand-600 hover:bg-brand-100"
           >
             Become a Host
           </Link>
         </div>
-        <BuildingIcon className="hidden h-14 w-14 shrink-0 text-rose-300 sm:block" />
+        <BuildingIcon className="hidden h-14 w-14 shrink-0 text-brand-300 sm:block" />
       </div>
     </AuthShell>
   );

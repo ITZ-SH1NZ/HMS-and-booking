@@ -1,20 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #F8F7F4;
+  --foreground: #1F2937;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+
+  --color-brand-50: #EAF3EF;
+  --color-brand-100: #CFE5DD;
+  --color-brand-200: #A6CFC1;
+  --color-brand-300: #72B09C;
+  --color-brand-400: #3F8E76;
+  --color-brand-500: #14785D;
+  --color-brand-600: #0F5A46;
+  --color-brand-700: #0A4335;
+  --color-brand-800: #083528;
+  --color-brand-900: #062A20;
+  --color-brand-950: #03190F;
+
+  --color-gold-50: #FBF6E9;
+  --color-gold-100: #F5E9C7;
+  --color-gold-200: #EBD79B;
+  --color-gold-300: #DEC06B;
+  --color-gold-400: #D0AE54;
+  --color-gold-500: #C9A24D;
+  --color-gold-600: #B88E32;
+  --color-gold-700: #997327;
+  --color-gold-800: #7A5B22;
+  --color-gold-900: #654C20;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Custom global scrollbar styled with BookNest colors */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F8F7F4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #14785D; /* brand-500 */
+  border-radius: 9999px;
+  border: 2px solid #F8F7F4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0F5A46; /* brand-600 */
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #14785D #F8F7F4;
 }
 
 @keyframes popIn {
@@ -46,3 +94,98 @@ body {
 .animate-tab-fade {
   animation: tabFadeIn 0.25s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }
+
+/* Icon Micro-Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes pulseScale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-hover-float:hover {
+  animation: float 2s ease-in-out infinite;
+}
+
+.animate-hover-wiggle:hover {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+.animate-hover-pulse:hover {
+  animation: pulseScale 1.5s ease-in-out infinite;
+}
+
+.animate-pop-active:active {
+  animation: heartPop 0.3s ease-out;
+}
+
+/* Category & Badge Hover Targets */
+.hover-target-parent:hover .animate-hover-wiggle-child {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+.animate-hover-parent:hover .animate-hover-float-child {
+  animation: float 1.8s ease-in-out infinite;
+}
+
+@keyframes leafFloatOne {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
+@keyframes leafFloatTwo {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(6px) rotate(-4deg);
+  }
+}
+
+.animate-leaf-float-1 {
+  animation: leafFloatOne 8s ease-in-out infinite;
+}
+
+.animate-leaf-float-2 {
+  animation: leafFloatTwo 10s ease-in-out infinite;
+}
+

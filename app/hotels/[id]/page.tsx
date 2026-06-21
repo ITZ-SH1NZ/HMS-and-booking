@@ -47,18 +47,18 @@ export default async function HotelDetailPage({
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
                 {hotel.name}
               </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 border border-rose-100 px-3 py-1 text-xs font-bold text-rose-700 shadow-sm whitespace-nowrap">
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 border border-brand-100 px-3 py-1 text-xs font-bold text-brand-700 shadow-sm whitespace-nowrap">
                 {hotel.star_rating ? `${hotel.star_rating} Star ` : ""}{hotel.property_type || "Hotel"}
               </span>
             </div>
 
             <p className="text-sm font-semibold text-slate-500 flex items-center gap-1 flex-wrap">
-              <MapPinIcon className="h-4.5 w-4.5 text-rose-600 shrink-0" />
+              <MapPinIcon className="h-4.5 w-4.5 text-brand-600 shrink-0" />
               <span>
                 {hotel.address_line ? `${hotel.address_line}, ` : ""}{hotel.city}, {hotel.state},{" "}
                 {hotel.country}
               </span>
-              <a href="#location" className="text-rose-600 hover:underline ml-1.5 transition">
+              <a href="#location" className="text-brand-600 hover:underline ml-1.5 transition">
                 View on map
               </a>
             </p>
@@ -79,8 +79,8 @@ export default async function HotelDetailPage({
 
         {/* Guest Favourite Highlight Card */}
         {isGuestFavourite && (
-          <div className="rounded-2xl border border-rose-100 bg-rose-50/20 p-5 flex items-start gap-4 shadow-sm">
-            <div className="text-rose-500 shrink-0 mt-0.5">
+          <div className="rounded-2xl border border-brand-100 bg-brand-50/20 p-5 flex items-start gap-4 shadow-sm">
+            <div className="text-brand-500 shrink-0 mt-0.5">
               <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
@@ -88,7 +88,7 @@ export default async function HotelDetailPage({
             <div>
               <h3 className="text-sm font-bold text-slate-800">Guest Favourite</h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed font-medium">
-                One of the most loved properties on HMS, recognized for outstanding guest reviews, exceptional service, and amenities.
+                One of the most loved properties on BookNest, recognized for outstanding guest reviews, exceptional service, and amenities.
               </p>
             </div>
           </div>
@@ -115,7 +115,7 @@ export default async function HotelDetailPage({
             {parsedAmenities.length > 7 && (
               <a
                 href="#amenities"
-                className="text-xs font-bold text-rose-600 hover:underline transition ml-1"
+                className="text-xs font-bold text-brand-600 hover:underline transition ml-1"
               >
                 +{parsedAmenities.length - 7} more
               </a>
@@ -153,14 +153,14 @@ export default async function HotelDetailPage({
           )}
           {avgRating && (
             <div className="flex items-center gap-1 mt-0.5 text-[10px] font-bold text-slate-700">
-              <StarIcon className="h-3 w-3 text-amber-500" filled />
+              <StarIcon className="h-3 w-3 text-gold-500" filled />
               <span>{avgRating.toFixed(1)}</span>
             </div>
           )}
         </div>
         <a
           href="#booking-widget-container"
-          className="rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 px-5 py-3 text-xs font-bold text-white shadow-md hover:scale-[1.01] transition text-center"
+          className="rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-3 text-xs font-bold text-white shadow-md hover:scale-[1.01] transition text-center"
         >
           Book Now
         </a>

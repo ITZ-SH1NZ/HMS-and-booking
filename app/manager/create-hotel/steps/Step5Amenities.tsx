@@ -138,7 +138,7 @@ export default function Step5Amenities({ draftContext }: Step5AmenitiesProps) {
             onClick={() => setViewSelectedOnly((prev) => !prev)}
             className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${
               viewSelectedOnly
-                ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
+                ? "bg-brand-700 text-white border-brand-700 hover:bg-brand-800"
                 : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
             }`}
           >
@@ -158,9 +158,9 @@ export default function Step5Amenities({ draftContext }: Step5AmenitiesProps) {
                 <div
                   key={amenity}
                   onClick={() => handleToggleAmenity(amenity)}
-                  className="flex items-center gap-2.5 p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-950 text-xs font-semibold cursor-pointer hover:bg-emerald-100/70 transition"
+                  className="flex items-center gap-2.5 p-3 rounded-xl border border-brand-200 bg-brand-50 text-brand-950 text-xs font-semibold cursor-pointer hover:bg-brand-100/70 transition"
                 >
-                  <span className="text-emerald-700 font-bold shrink-0">✓</span>
+                  <span className="text-brand-700 font-bold shrink-0">✓</span>
                   <span>{amenity}</span>
                 </div>
               ))}
@@ -182,13 +182,13 @@ export default function Step5Amenities({ draftContext }: Step5AmenitiesProps) {
                     onClick={() => setActiveCategory(cat.id)}
                     className={`pb-2.5 text-xs font-bold border-b-2 px-3 whitespace-nowrap transition flex items-center gap-1.5 ${
                       isActive
-                        ? "border-emerald-600 text-emerald-800"
+                        ? "border-brand-600 text-brand-800"
                         : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     {cat.label}
                     {count > 0 && (
-                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
+                      <span className="bg-brand-100 text-brand-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
                         {count}
                       </span>
                     )}
@@ -214,14 +214,14 @@ export default function Step5Amenities({ draftContext }: Step5AmenitiesProps) {
                           onClick={() => handleToggleAmenity(opt)}
                           className={`flex items-center gap-2.5 p-3 rounded-xl border text-left text-xs transition leading-normal w-full ${
                             isChecked
-                              ? "border-emerald-600 bg-emerald-50 text-emerald-950 font-bold"
+                              ? "border-brand-600 bg-brand-50 text-brand-950 font-bold"
                               : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-medium"
                           }`}
                         >
                           <div
                             className={`h-4.5 w-4.5 rounded flex items-center justify-center shrink-0 border border-slate-300 transition ${
                               isChecked
-                                ? "bg-emerald-600 border-emerald-600 text-white"
+                                ? "bg-brand-600 border-brand-600 text-white"
                                 : "bg-white"
                             }`}
                           >

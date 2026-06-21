@@ -81,7 +81,7 @@ export function PoliciesSection({ hotel }: PoliciesSectionProps) {
         {/* House Rules */}
         <div>
           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <CheckCircleIcon className="h-4.5 w-4.5 text-rose-500" />
+            <CheckCircleIcon className="h-4.5 w-4.5 text-brand-500" />
             House Rules
           </h3>
           <div className="space-y-4">
@@ -136,7 +136,7 @@ export function PoliciesSection({ hotel }: PoliciesSectionProps) {
           {/* Cancellation */}
           <div>
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <BanIcon className="h-4.5 w-4.5 text-rose-500" />
+              <BanIcon className="h-4.5 w-4.5 text-brand-500" />
               Cancellation Policy
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
@@ -147,7 +147,7 @@ export function PoliciesSection({ hotel }: PoliciesSectionProps) {
           {/* Payment */}
           <div>
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <ShieldIcon className="h-4.5 w-4.5 text-rose-500" />
+              <ShieldIcon className="h-4.5 w-4.5 text-brand-500" />
               Payment Policy
             </h3>
             <p className="text-sm text-slate-600 leading-relaxed bg-white border border-slate-200 rounded-xl p-4 shadow-sm">

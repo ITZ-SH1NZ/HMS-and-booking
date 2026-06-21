@@ -35,7 +35,6 @@ import {
   CookingPot,
   Flame,
   Baby,
-  Users,
   Droplets,
   Home,
   Presentation,

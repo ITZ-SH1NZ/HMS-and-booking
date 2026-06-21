@@ -63,7 +63,7 @@ export default async function BookingsPage({
         {bookings.length === 0 ? (
           <div className="grid place-items-center rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center">
             <p className="font-medium text-slate-700">No bookings here yet</p>
-            <Link href="/" className="mt-2 text-sm font-semibold text-rose-600">
+            <Link href="/" className="mt-2 text-sm font-semibold text-brand-600">
               Browse hotels
             </Link>
           </div>

@@ -147,7 +147,7 @@ export function BookingWidget({
 
         {avgRating && (
           <div className="flex items-center gap-1 text-sm font-bold text-slate-700">
-            <StarIcon className="h-4 w-4 text-amber-500" filled />
+            <StarIcon className="h-4 w-4 text-gold-500" filled />
             <span>{avgRating.toFixed(1)}</span>
             <span className="text-slate-400 font-semibold">·</span>
             <span className="text-slate-500 font-medium text-xs">
@@ -177,7 +177,7 @@ export function BookingWidget({
         <button
           type="button"
           onClick={() => setShowGuestDropdown(!showGuestDropdown)}
-          className="flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3.5 text-left text-sm font-bold text-slate-900 bg-white hover:border-rose-300 transition"
+          className="flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3.5 text-left text-sm font-bold text-slate-900 bg-white hover:border-brand-300 transition"
         >
           <div className="flex items-center gap-2">
             <UsersIcon className="h-4.5 w-4.5 text-slate-400 shrink-0" />
@@ -205,7 +205,7 @@ export function BookingWidget({
                   type="button"
                   onClick={() => setAdults((a) => Math.max(1, a - 1))}
                   disabled={adults <= 1}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-rose-500 hover:text-rose-600 disabled:opacity-30"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600 disabled:opacity-30"
                 >
                   <MinusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -213,7 +213,7 @@ export function BookingWidget({
                 <button
                   type="button"
                   onClick={() => setAdults((a) => a + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-rose-500 hover:text-rose-600"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600"
                 >
                   <PlusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -231,7 +231,7 @@ export function BookingWidget({
                   type="button"
                   onClick={() => setChildren((c) => Math.max(0, c - 1))}
                   disabled={children <= 0}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-rose-500 hover:text-rose-600 disabled:opacity-30"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600 disabled:opacity-30"
                 >
                   <MinusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -239,7 +239,7 @@ export function BookingWidget({
                 <button
                   type="button"
                   onClick={() => setChildren((c) => c + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-rose-500 hover:text-rose-600"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600"
                 >
                   <PlusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -257,7 +257,7 @@ export function BookingWidget({
                   type="button"
                   onClick={() => setNumRooms((r) => Math.max(1, r - 1))}
                   disabled={numRooms <= 1}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-rose-500 hover:text-rose-600 disabled:opacity-30"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600 disabled:opacity-30"
                 >
                   <MinusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -265,7 +265,7 @@ export function BookingWidget({
                 <button
                   type="button"
                   onClick={() => setNumRooms((r) => r + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-rose-500 hover:text-rose-600"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600"
                 >
                   <PlusIcon className="h-3.5 w-3.5" />
                 </button>
@@ -277,7 +277,7 @@ export function BookingWidget({
 
       {/* Error Message */}
       {error && (
-        <div className="mt-4 rounded-xl bg-rose-50 border border-rose-100 p-3 text-xs text-rose-700 font-semibold leading-relaxed">
+        <div className="mt-4 rounded-xl bg-brand-50 border border-brand-100 p-3 text-xs text-brand-700 font-semibold leading-relaxed">
           {error}
         </div>
       )}
@@ -287,7 +287,7 @@ export function BookingWidget({
         type="button"
         onClick={handleCheckAvailability}
         disabled={checking}
-        className="mt-5 w-full rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 py-3.5 text-sm font-bold text-white shadow-md hover:shadow-lg hover:scale-[1.01] transition-all disabled:opacity-50 disabled:scale-100 cursor-pointer text-center"
+        className="mt-5 w-full rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 py-3.5 text-sm font-bold text-white shadow-md hover:shadow-lg hover:scale-[1.01] transition-all disabled:opacity-50 disabled:scale-100 cursor-pointer text-center"
       >
         {checking ? "Checking availability..." : "Check availability"}
       </button>
@@ -300,7 +300,7 @@ export function BookingWidget({
       <div className="mt-6 pt-5 border-t border-slate-100 space-y-3">
         {cancelDate && (
           <div className="flex items-center gap-2.5 text-xs text-slate-600 font-semibold">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-50 text-brand-600">
               <BoltIcon className="h-3.5 w-3.5" />
             </span>
             <span>Free cancellation before {cancelDate}</span>
@@ -309,7 +309,7 @@ export function BookingWidget({
         
         {hotel.payment_policy === "pay_at_property" && (
           <div className="flex items-center gap-2.5 text-xs text-slate-600 font-semibold">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-50 text-brand-600">
               <ShieldIcon className="h-3.5 w-3.5" />
             </span>
             <span>No prepayment needed — pay at arrival</span>
@@ -317,10 +317,10 @@ export function BookingWidget({
         )}
 
         <div className="flex items-center gap-2.5 text-xs text-slate-600 font-semibold">
-          <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-50 text-brand-600">
             <LockIcon className="h-3.5 w-3.5" />
           </span>
-          <span>Secure booking with HMS protection</span>
+          <span>Secure booking with BookNest protection</span>
         </div>
       </div>
     </div>

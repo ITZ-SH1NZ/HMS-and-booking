@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { StarIcon, CameraIcon } from "@/components/icons";
 import type { HotelPhoto } from "@/lib/types";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 interface PhotoCollageProps {
   photos: HotelPhoto[];
@@ -78,11 +79,11 @@ export function PhotoCollage({
           }}
           role="button"
           tabIndex={0}
-          className="relative group cursor-pointer overflow-hidden h-full outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-l-2xl md:col-span-2 md:row-span-2 md:col-start-1 md:row-start-1"
+          className="relative group cursor-pointer overflow-hidden h-full outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-l-2xl md:col-span-2 md:row-span-2 md:col-start-1 md:row-start-1"
         >
           {mainImage && !imgErrors.has("cover") ? (
             <Image
-              src={mainImage}
+              src={getOptimizedImageUrl(mainImage, 1200, 85)}
               alt={hotelName}
               fill
               sizes="(max-width: 768px) 100vw, 60vw"
@@ -100,13 +101,13 @@ export function PhotoCollage({
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             {avgRating !== null && (
               <span className="flex items-center gap-1.5 rounded-lg bg-black/60 backdrop-blur-sm px-3 py-1.5 text-sm font-semibold text-white">
-                <StarIcon className="h-4 w-4 text-amber-400" filled />
+                <StarIcon className="h-4 w-4 text-gold-500" filled />
                 {avgRating} ({reviewCount} review{reviewCount === 1 ? "" : "s"})
               </span>
             )}
             {isGuestFavourite && (
               <span className="flex items-center gap-1.5 rounded-lg bg-white/90 backdrop-blur-sm px-3 py-1.5 text-sm font-bold text-slate-900 shadow-sm">
-                <svg className="h-4 w-4 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="h-4 w-4 text-brand-500" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
                 Guest favourite
@@ -148,7 +149,7 @@ export function PhotoCollage({
             >
               {!imgErrors.has(photo.id) ? (
                 <Image
-                  src={photo.url}
+                  src={getOptimizedImageUrl(photo.url, 400, 80)}
                   alt={`${hotelName} — ${CATEGORY_LABELS[photo.category] || photo.category}`}
                   fill
                   sizes="(max-width: 768px) 50vw, 20vw"

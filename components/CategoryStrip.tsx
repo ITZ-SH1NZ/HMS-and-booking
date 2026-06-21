@@ -1,59 +1,121 @@
-import Link from "next/link";
-import Image from "next/image";
-import {
-  UmbrellaIcon,
-  MountainIcon,
-  BuildingIcon,
-  TreeIcon,
-  GemIcon,
-  WalletIcon,
-} from "@/components/icons";
+"use client";
 
-// Static, decorative category shortcuts (not hotel data). Each links into the
-// hotel grid below.
+import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  Building2,
+  Palmtree,
+  Home,
+  Gem,
+  Briefcase,
+  Leaf,
+  Umbrella,
+  Wallet,
+  ChevronDown,
+} from "lucide-react";
+
 const CATEGORIES = [
-  { label: "Beachfront", Icon: UmbrellaIcon, image: "1507525428034-b723cf961d3e" },
-  { label: "Mountain", Icon: MountainIcon, image: "1464822759023-fed622ff2c3b" },
-  { label: "City", Icon: BuildingIcon, image: "1480714378408-67cf0d13bc1b" },
-  { label: "Countryside", Icon: TreeIcon, image: "1500382017468-9049fed747ef" },
-  { label: "Luxury", Icon: GemIcon, image: "1582719478250-c89cae4dc85b" },
-  { label: "Budget", Icon: WalletIcon, image: "1505693416388-ac5ce068fe85" },
+  { label: "Hotels", Icon: Building2 },
+  { label: "Resorts", Icon: Palmtree },
+  { label: "Villas", Icon: Home },
+  { label: "Luxury", Icon: Gem },
+  { label: "Business", Icon: Briefcase },
+  { label: "Nature", Icon: Leaf },
+  { label: "Beachfront", Icon: Umbrella },
+  { label: "Budget", Icon: Wallet },
+  { label: "More", Icon: ChevronDown },
 ];
+
+function CategoryStripInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const activeType = searchParams.get("type");
+
+  const handleCategoryClick = (label: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Map categories to the database PropertyType options
+    const typeMap: Record<string, string> = {
+      "Hotels": "Hotel",
+      "Resorts": "Resort",
+      "Villas": "Villa",
+      "Nature": "Homestay",
+      "Beachfront": "Apartment",
+      "Budget": "Hostel"
+    };
+
+    const targetType = typeMap[label];
+    if (!targetType) return;
+
+    if (activeType?.toLowerCase() === targetType.toLowerCase()) {
+      params.delete("type");
+    } else {
+      params.set("type", targetType);
+    }
+
+    // Retain page hash to anchor to the hotel section
+    router.push(`/?${params.toString()}#hotels`);
+  };
+
+  return (
+    <section id="categories" className="mx-auto max-w-7xl px-4 py-8">
+      <div className="flex gap-4 overflow-x-auto pb-4 pt-2 scrollbar-none justify-between items-center -mx-4 px-4 lg:mx-0 lg:px-0">
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.Icon;
+          const typeMap: Record<string, string> = {
+            "Hotels": "Hotel",
+            "Resorts": "Resort",
+            "Villas": "Villa",
+            "Nature": "Homestay",
+            "Beachfront": "Apartment",
+            "Budget": "Hostel"
+          };
+          const catType = typeMap[cat.label];
+          const isActive = catType && activeType?.toLowerCase() === catType.toLowerCase();
+
+          return (
+            <button
+              key={cat.label}
+              type="button"
+              onClick={() => handleCategoryClick(cat.label)}
+              className={`group hover-target-parent flex flex-col items-center justify-center shrink-0 w-24 h-24 rounded-2xl bg-white border transition-all duration-300 cursor-pointer text-center gap-2 select-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                isActive
+                  ? "border-brand-600 shadow-md ring-1 ring-brand-600"
+                  : "border-slate-200/60 shadow-xs hover:border-brand-500 hover:shadow-md"
+              }`}
+            >
+              <div
+                className={`grid h-10 w-10 place-items-center rounded-full transition duration-200 ${
+                  isActive
+                    ? "bg-brand-600 text-white"
+                    : "bg-slate-50 text-brand-600 group-hover:bg-brand-50 group-hover:text-brand-700"
+                }`}
+              >
+                <Icon
+                  className={`h-5 w-5 transition-all duration-300 ${
+                    isActive ? "scale-110" : "animate-hover-wiggle-child group-hover:scale-110"
+                  }`}
+                />
+              </div>
+              <span
+                className={`text-xs font-black transition truncate max-w-[84px] ${
+                  isActive ? "text-brand-700 font-extrabold" : "text-slate-700 group-hover:text-slate-900"
+                }`}
+              >
+                {cat.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 export function CategoryStrip() {
   return (
-    <section id="categories" className="mx-auto max-w-7xl px-4 py-10">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-slate-900">Explore by category</h2>
-        <Link href="#hotels" className="text-sm font-semibold text-rose-600">
-          View all
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {CATEGORIES.map((cat) => (
-          <Link
-            key={cat.label}
-            href="#hotels"
-            className="group flex items-center gap-2 rounded-2xl bg-white p-2 pl-3 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <cat.Icon className="h-5 w-5 shrink-0 text-rose-500" />
-            <span className="flex-1 truncate text-sm font-semibold text-slate-800">
-              {cat.label}
-            </span>
-            <span className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl">
-              <Image
-                src={`https://images.unsplash.com/photo-${cat.image}?auto=format&fit=crop&w=240&q=70`}
-                alt=""
-                aria-hidden
-                fill
-                sizes="80px"
-                className="object-cover transition duration-300 group-hover:scale-110"
-              />
-            </span>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <Suspense fallback={<div className="h-24 animate-pulse bg-slate-100 rounded-2xl mx-auto max-w-7xl px-4 py-8" />}>
+      <CategoryStripInner />
+    </Suspense>
   );
 }

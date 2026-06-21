@@ -67,7 +67,7 @@ export default function PayoutsPage() {
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
               placeholder="acc_XXXXXXXXXXXX"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             />
             <p className="mt-2 text-xs text-slate-400">
               Create a linked account in Razorpay (Route → Linked Accounts) and
@@ -76,10 +76,10 @@ export default function PayoutsPage() {
             </p>
 
             {error && (
-              <p className="mt-3 text-sm text-rose-700">{error}</p>
+              <p className="mt-3 text-sm text-brand-700">{error}</p>
             )}
             {saved && (
-              <p className="mt-3 flex items-center gap-1 text-sm text-emerald-700">
+              <p className="mt-3 flex items-center gap-1 text-sm text-green-700">
                 <BoltIcon className="h-4 w-4" /> Saved
               </p>
             )}
@@ -87,7 +87,7 @@ export default function PayoutsPage() {
             <button
               onClick={save}
               disabled={saving}
-              className="mt-4 rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+              className="mt-4 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save"}
             </button>

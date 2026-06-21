@@ -11,16 +11,16 @@ interface LocationSectionProps {
 // Icon mapper for different landmark types
 function getLandmarkIcon(type: string) {
   const t = type.toLowerCase();
-  if (t.includes("airport")) return <Plane className="h-4.5 w-4.5 text-rose-500 shrink-0" />;
+  if (t.includes("airport")) return <Plane className="h-4.5 w-4.5 text-brand-500 shrink-0" />;
   if (t.includes("railway") || t.includes("station") || t.includes("metro"))
-    return <Train className="h-4.5 w-4.5 text-rose-500 shrink-0" />;
+    return <Train className="h-4.5 w-4.5 text-brand-500 shrink-0" />;
   if (t.includes("beach") || t.includes("sea") || t.includes("lake") || t.includes("river"))
-    return <Waves className="h-4.5 w-4.5 text-rose-500 shrink-0" />;
+    return <Waves className="h-4.5 w-4.5 text-brand-500 shrink-0" />;
   if (t.includes("mall") || t.includes("market") || t.includes("shop"))
-    return <ShoppingBag className="h-4.5 w-4.5 text-rose-500 shrink-0" />;
+    return <ShoppingBag className="h-4.5 w-4.5 text-brand-500 shrink-0" />;
   if (t.includes("hospital") || t.includes("clinic") || t.includes("medical"))
-    return <HeartPulse className="h-4.5 w-4.5 text-rose-500 shrink-0" />;
-  return <Landmark className="h-4.5 w-4.5 text-rose-500 shrink-0" />;
+    return <HeartPulse className="h-4.5 w-4.5 text-brand-500 shrink-0" />;
+  return <Landmark className="h-4.5 w-4.5 text-brand-500 shrink-0" />;
 }
 
 export function LocationSection({ hotel }: LocationSectionProps) {
@@ -36,7 +36,7 @@ export function LocationSection({ hotel }: LocationSectionProps) {
       <div className="space-y-6">
         {/* Address text */}
         <div className="flex items-start gap-2.5 bg-slate-50 border border-slate-200 rounded-xl p-4">
-          <MapPinIcon className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+          <MapPinIcon className="h-5 w-5 text-brand-600 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-slate-800">Property Address</p>
             <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{fullAddress || hotel.location}</p>

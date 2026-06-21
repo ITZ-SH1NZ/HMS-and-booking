@@ -7,6 +7,7 @@ import { HeartIcon } from "@/components/icons";
 // (Persisting favourites would need a `favorites` table — not wired up yet.)
 export function HeartButton() {
   const [saved, setSaved] = useState(false);
+  const [pop, setPop] = useState(false);
 
   return (
     <button
@@ -16,12 +17,17 @@ export function HeartButton() {
         e.preventDefault();
         e.stopPropagation();
         setSaved((s) => !s);
+        setPop(true);
+        setTimeout(() => setPop(false), 300);
       }}
-      className={`grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow transition hover:scale-110 ${
-        saved ? "text-rose-600" : "text-slate-600"
-      }`}
+      className={`grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow transition-all duration-300 hover:scale-110 active:scale-95 ${
+        saved ? "text-rose-500" : "text-slate-500 hover:text-slate-700"
+      } ${pop ? "scale-125" : ""}`}
     >
-      <HeartIcon className="h-4 w-4" filled={saved} />
+      <HeartIcon 
+        className={`h-4 w-4 transition-transform ${pop ? "animate-pop-active" : ""}`} 
+        filled={saved} 
+      />
     </button>
   );
 }

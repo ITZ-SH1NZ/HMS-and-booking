@@ -62,7 +62,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="flex flex-col items-center gap-2">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-brand-600" />
           <span className="text-sm font-medium text-slate-500">Loading your draft...</span>
         </div>
       </div>
@@ -72,11 +72,11 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
   if (!draft) {
     return (
       <div className="mx-auto max-w-md py-16 text-center">
-        <p className="text-rose-600 font-bold">Failed to load property draft.</p>
+        <p className="text-brand-600 font-bold">Failed to load property draft.</p>
         <button
           type="button"
           onClick={reload}
-          className="mt-4 rounded-lg bg-emerald-700 px-4 py-2 text-sm text-white font-semibold"
+          className="mt-4 rounded-lg bg-brand-700 px-4 py-2 text-sm text-white font-semibold"
         >
           Retry
         </button>
@@ -232,7 +232,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
       {isNavigating && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-[4px] z-[9999] flex items-center justify-center animate-fadeIn">
           <div className="bg-white/95 p-8 rounded-3xl border border-slate-200/50 shadow-2xl backdrop-blur-xl flex flex-col items-center gap-4 max-w-xs w-full mx-4 text-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-700" />
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-brand-700" />
             <div className="space-y-1">
               <span className="text-sm font-extrabold text-slate-800 block">Saving draft...</span>
               <span className="text-xs text-slate-500 block font-semibold">Uploading changes to server</span>
@@ -244,7 +244,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
       <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
         {/* Error Alert Box */}
         {error && (
-          <div className="mb-6 rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm text-rose-700 font-semibold shadow-sm flex items-start gap-2 animate-fadeIn">
+          <div className="mb-6 rounded-xl bg-brand-50 border border-brand-200 p-4 text-sm text-brand-700 font-semibold shadow-sm flex items-start gap-2 animate-fadeIn">
             <span className="shrink-0 mt-0.5 font-bold text-base">&times;</span>
             <div>{error}</div>
           </div>
@@ -272,14 +272,14 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
               <div className="mb-4">
                 <div className="flex justify-between items-center text-xs font-bold text-slate-500 mb-1.5">
                   <span>Listing progress</span>
-                  <span className="text-rose-600">Step {activeStep} of 9</span>
+                  <span className="text-brand-600">Step {activeStep} of 9</span>
                 </div>
                 <div className="flex gap-1 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                   {Array.from({ length: 9 }).map((_, i) => (
                     <div
                       key={i}
                       className={`h-full flex-1 rounded-full transition-all duration-300 ${
-                        i < activeStep ? "bg-rose-600" : "bg-slate-200"
+                        i < activeStep ? "bg-brand-600" : "bg-slate-200"
                       }`}
                     />
                   ))}
@@ -295,13 +295,13 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
             </div>
 
             {/* Need Help Card */}
-            <div className="bg-[#f0fdf4] border border-emerald-100 rounded-2xl p-5 shadow-sm flex items-start gap-4">
-              <div className="p-2.5 bg-emerald-600 rounded-xl text-white">
+            <div className="bg-[#f0fdf4] border border-brand-100 rounded-2xl p-5 shadow-sm flex items-start gap-4">
+              <div className="p-2.5 bg-brand-600 rounded-xl text-white">
                 <HeadphonesIcon className="h-5 w-5" />
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-bold text-emerald-950">Need help?</span>
-                <span className="text-xs text-emerald-800 leading-normal">
+                <span className="text-sm font-bold text-brand-950">Need help?</span>
+                <span className="text-xs text-brand-800 leading-normal">
                   Our support team is here to help you get your listing live.
                 </span>
               </div>
@@ -339,7 +339,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
                     <button
                       type="button"
                       onClick={handleSaveAndContinue}
-                      className="rounded-lg bg-emerald-700 hover:bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white transition shadow-sm flex items-center gap-1.5 animate-button"
+                      className="rounded-lg bg-brand-700 hover:bg-brand-800 px-4 py-2.5 text-xs font-bold text-white transition shadow-sm flex items-center gap-1.5 animate-button"
                     >
                       Save & continue
                       <ArrowRightIcon className="h-3.5 w-3.5" />
@@ -370,7 +370,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
               <div className="text-xs text-slate-400 font-semibold px-3 py-1 bg-slate-50 border border-slate-100 rounded-full flex items-center gap-1.5">
                 {saving ? (
                   <>
-                    <span className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="h-2 w-2 bg-brand-500 rounded-full animate-pulse" />
                     Saving...
                   </>
                 ) : (
@@ -385,7 +385,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
                 <button
                   type="button"
                   onClick={handleSaveAndContinue}
-                  className="rounded-lg bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 text-xs font-bold text-white transition shadow-sm flex items-center gap-1.5 animate-button"
+                  className="rounded-lg bg-brand-700 hover:bg-brand-800 px-5 py-2.5 text-xs font-bold text-white transition shadow-sm flex items-center gap-1.5 animate-button"
                 >
                   Save & continue
                   <ArrowRightIcon className="h-3.5 w-3.5" />

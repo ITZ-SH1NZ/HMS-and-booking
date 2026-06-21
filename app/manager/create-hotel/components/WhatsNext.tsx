@@ -38,7 +38,7 @@ export default function WhatsNext({ currentStep }: WhatsNextProps) {
             <div
               className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${
                 item.completed
-                  ? "bg-emerald-600 border-emerald-600 text-white"
+                  ? "bg-brand-600 border-brand-600 text-white"
                   : "border-slate-300 bg-white"
               }`}
             >

@@ -15,7 +15,7 @@ export default function CreateHotelPage() {
       fallback={
         <div className="flex h-[80vh] items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-brand-600" />
             <span className="text-sm font-medium text-slate-500">
               Loading your draft...
             </span>

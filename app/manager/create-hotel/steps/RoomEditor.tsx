@@ -156,11 +156,11 @@ export default function RoomEditor({
           {/* Room Name */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-semibold text-slate-700">
-              Room name <span className="text-rose-500">*</span>
+              Room name <span className="text-brand-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Deluxe Room"
@@ -180,7 +180,7 @@ export default function RoomEditor({
             </div>
             <textarea
               rows={2}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
               placeholder="Brief summary of room highlights..."
@@ -192,7 +192,7 @@ export default function RoomEditor({
             {/* Bedroom Type */}
             <div className="flex flex-col">
               <label className="mb-1 text-sm font-semibold text-slate-700">
-                Bedroom type <span className="text-rose-500">*</span>
+                Bedroom type <span className="text-brand-500">*</span>
               </label>
               <select
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
@@ -214,7 +214,7 @@ export default function RoomEditor({
               <input
                 type="number"
                 min={0}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                 value={roomSize}
                 onChange={(e) => setRoomSize(e.target.value)}
                 placeholder="e.g. 280"
@@ -285,12 +285,12 @@ export default function RoomEditor({
             {/* Nightly Price */}
             <div className="flex flex-col">
               <label className="mb-1 text-sm font-semibold text-slate-700">
-                Price / night (₹) <span className="text-rose-500">*</span>
+                Price / night (₹) <span className="text-brand-500">*</span>
               </label>
               <input
                 type="number"
                 min={1}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="e.g. 3500"
@@ -347,7 +347,7 @@ export default function RoomEditor({
           {/* Room Photos */}
           <div className="border-t border-slate-100 pt-4">
             <span className="text-sm font-semibold text-slate-700 block mb-2">
-              Room photos <span className="text-rose-500">*</span>
+              Room photos <span className="text-brand-500">*</span>
             </span>
             {loadingPhotos ? (
               <span className="text-xs text-slate-400">Loading photos...</span>
@@ -377,7 +377,7 @@ export default function RoomEditor({
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-lg bg-emerald-700 hover:bg-emerald-800 px-5 py-2 text-sm font-semibold text-white transition"
+            className="rounded-lg bg-brand-700 hover:bg-brand-800 px-5 py-2 text-sm font-semibold text-white transition"
           >
             Save room
           </button>

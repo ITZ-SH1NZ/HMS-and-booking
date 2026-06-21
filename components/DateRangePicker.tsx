@@ -119,7 +119,7 @@ function Card({
       type="button"
       onClick={onClick}
       className={`relative flex-1 rounded-xl border p-4 text-left transition ${
-        active ? "border-rose-500 ring-1 ring-rose-200" : "border-slate-200 hover:border-rose-300"
+        active ? "border-brand-500 ring-1 ring-brand-200" : "border-slate-200 hover:border-brand-300"
       }`}
     >
       <span className="text-xs text-slate-500">{label}</span>

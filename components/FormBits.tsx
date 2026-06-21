@@ -7,7 +7,7 @@ export function Stepper({ step, total }: { step: number; total: number }) {
         <div
           key={i}
           className={`h-1.5 flex-1 rounded-full ${
-            i < step ? "bg-rose-600" : "bg-slate-200"
+            i < step ? "bg-brand-600" : "bg-slate-200"
           }`}
         />
       ))}

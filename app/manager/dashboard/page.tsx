@@ -6,9 +6,9 @@ import type { Hotel } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 const statusStyles: Record<string, string> = {
-  approved: "bg-emerald-50 text-emerald-700 border border-emerald-300",
+  approved: "bg-green-50 text-green-700 border border-green-300",
   pending: "bg-amber-50 text-amber-700 border border-amber-300",
-  rejected: "bg-rose-50 text-rose-700 border border-rose-300",
+  rejected: "bg-brand-50 text-brand-700 border border-brand-300",
   draft: "bg-slate-100 text-slate-700 border border-slate-300",
 };
 
@@ -37,7 +37,7 @@ export default async function ManagerDashboardPage({ searchParams }: DashboardPr
     <div className="mx-auto max-w-5xl px-4 py-10 relative">
       {/* Success Publish Toast */}
       {showToast && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-2xl bg-emerald-700 text-white shadow-xl border border-emerald-800 p-4 flex items-center gap-3 animate-slideUp">
+        <div className="fixed bottom-6 right-6 z-50 rounded-2xl bg-brand-700 text-white shadow-xl border border-brand-800 p-4 flex items-center gap-3 animate-slideUp">
           <CheckCircleIcon className="h-5 w-5 shrink-0" />
           <div className="flex flex-col">
             <span className="text-sm font-bold">Successfully Published!</span>
@@ -55,7 +55,7 @@ export default async function ManagerDashboardPage({ searchParams }: DashboardPr
         </div>
         <Link
           href="/manager/create-hotel"
-          className="rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+          className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
         >
           + Create Hotel
         </Link>
@@ -87,7 +87,7 @@ export default async function ManagerDashboardPage({ searchParams }: DashboardPr
                       <div>
                         <h3 className="font-semibold text-slate-900">{hotel.name}</h3>
                         <p className="flex items-center gap-1 text-sm text-slate-500">
-                          <MapPinIcon className="h-4 w-4 text-rose-500" /> {hotel.location}
+                          <MapPinIcon className="h-4 w-4 text-brand-500" /> {hotel.location}
                         </p>
                       </div>
                       <span
@@ -107,7 +107,7 @@ export default async function ManagerDashboardPage({ searchParams }: DashboardPr
                       </span>
                       <Link
                         href={stepUrl}
-                        className="text-emerald-700 font-bold hover:text-emerald-800"
+                        className="text-green-700 font-bold hover:text-emerald-800"
                       >
                         Resume Draft &rarr;
                       </Link>

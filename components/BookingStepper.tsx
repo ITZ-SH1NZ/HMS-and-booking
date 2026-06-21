@@ -30,7 +30,7 @@ export function BookingStepper({ current }: { current: number }) {
               </motion.div>
               <span
                 className={`mt-2 whitespace-nowrap text-xs font-semibold ${
-                  active ? "text-rose-600" : done ? "text-slate-700" : "text-slate-400"
+                  active ? "text-brand-600" : done ? "text-slate-700" : "text-slate-400"
                 }`}
               >
                 {label}
@@ -39,7 +39,7 @@ export function BookingStepper({ current }: { current: number }) {
             {i < STEPS.length - 1 && (
               <div className="mx-2 mt-[18px] h-0.5 flex-1 overflow-hidden rounded-full bg-slate-200">
                 <motion.div
-                  className="h-full rounded-full bg-rose-500"
+                  className="h-full rounded-full bg-brand-500"
                   initial={false}
                   animate={{ width: done ? "100%" : "0%" }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}

@@ -87,11 +87,11 @@ export default function RichTextEditor({
     <div className="flex flex-col">
       {label && (
         <label className="mb-1 text-sm font-medium text-slate-700">
-          {label} {required && <span className="text-rose-500">*</span>}
+          {label} {required && <span className="text-brand-500">*</span>}
         </label>
       )}
 
-      <div className="flex flex-col rounded-lg border border-slate-300 overflow-hidden focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100">
+      <div className="flex flex-col rounded-lg border border-slate-300 overflow-hidden focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
         {/* Toolbar */}
         <div className="flex flex-wrap gap-1 border-b border-slate-200 bg-slate-50 p-2">
           <button
@@ -173,7 +173,7 @@ export default function RichTextEditor({
         </span>
         <span
           className={`text-xs ${
-            charCount > maxChars ? "font-semibold text-rose-500" : "text-slate-400"
+            charCount > maxChars ? "font-semibold text-brand-500" : "text-slate-400"
           }`}
         >
           {charCount}/{maxChars}

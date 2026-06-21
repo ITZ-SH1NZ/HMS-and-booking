@@ -131,7 +131,7 @@ export default function Step4Rooms({ draftContext }: Step4RoomsProps) {
               onClick={() => setActiveTab("types")}
               className={`pb-3 text-sm font-bold border-b-2 px-1 transition ${
                 activeTab === "types"
-                  ? "border-emerald-600 text-emerald-800"
+                  ? "border-brand-600 text-brand-800"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
@@ -142,7 +142,7 @@ export default function Step4Rooms({ draftContext }: Step4RoomsProps) {
               onClick={() => setActiveTab("rates")}
               className={`pb-3 text-sm font-bold border-b-2 px-1 ml-6 transition ${
                 activeTab === "rates"
-                  ? "border-emerald-600 text-emerald-800"
+                  ? "border-brand-600 text-brand-800"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
@@ -177,7 +177,7 @@ export default function Step4Rooms({ draftContext }: Step4RoomsProps) {
                             <span className="text-xs text-slate-500">
                               {room.bedroom_type || "Standard Bed"} · {room.capacity || 2} Guests
                             </span>
-                            <span className="text-xs font-semibold text-emerald-700 mt-0.5">
+                            <span className="text-xs font-semibold text-brand-700 mt-0.5">
                               ₹{room.price}/night
                             </span>
                           </div>
@@ -219,7 +219,7 @@ export default function Step4Rooms({ draftContext }: Step4RoomsProps) {
                           <button
                             type="button"
                             onClick={() => removeRoom(room.id)}
-                            className="p-2 border border-slate-200 rounded-lg text-rose-600 hover:bg-rose-50 hover:border-rose-100 transition"
+                            className="p-2 border border-slate-200 rounded-lg text-brand-600 hover:bg-brand-50 hover:border-brand-100 transition"
                             title="Delete room"
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -238,7 +238,7 @@ export default function Step4Rooms({ draftContext }: Step4RoomsProps) {
               <button
                 type="button"
                 onClick={handleAddNewRoom}
-                className="w-full py-3 border border-dashed border-emerald-300 text-emerald-800 rounded-xl bg-emerald-50/40 hover:bg-emerald-50 font-bold text-xs transition flex items-center justify-center gap-1.5 mt-4"
+                className="w-full py-3 border border-dashed border-brand-300 text-brand-800 rounded-xl bg-brand-50/40 hover:bg-brand-50 font-bold text-xs transition flex items-center justify-center gap-1.5 mt-4"
               >
                 + Add new room
               </button>
@@ -281,7 +281,7 @@ export default function Step4Rooms({ draftContext }: Step4RoomsProps) {
                               <input
                                 type="number"
                                 min={1}
-                                className="w-full border border-slate-200 rounded px-2 py-1 outline-none focus:border-emerald-600 text-xs"
+                                className="w-full border border-slate-200 rounded px-2 py-1 outline-none focus:border-brand-600 text-xs"
                                 value={room.price || ""}
                                 onChange={(e) => handleRateChange(room, e.target.value)}
                               />

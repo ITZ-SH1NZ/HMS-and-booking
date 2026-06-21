@@ -51,7 +51,7 @@ async function fetchReverseGeocode(lat: number, lng: number): Promise<NominatimR
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
-      { headers: { "User-Agent": "HMS-Booking-App/1.0" } }
+      { headers: { "User-Agent": "BookNest-Booking-App/1.0" } }
     );
     if (!res.ok) throw new Error("Reverse geocode failed");
     return await res.json();
@@ -270,7 +270,7 @@ export default function LeafletMap({
         // Custom Emerald SVG Marker Icon
         const customIcon = Leaflet.divIcon({
           html: `
-            <div class="text-emerald-700 drop-shadow-lg">
+            <div class="text-brand-700 drop-shadow-lg">
                <svg class="h-9 w-9 filter drop-shadow-md" viewBox="0 0 24 24" fill="currentColor">
                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
                </svg>
@@ -369,12 +369,12 @@ export default function LeafletMap({
       {/* Map Header with Geolocation Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <span className="text-sm font-extrabold text-slate-800">
-          Pin property location <span className="text-rose-500">*</span>
+          Pin property location <span className="text-brand-500">*</span>
         </span>
         <button
           type="button"
           onClick={handleUseMyLocation}
-          className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 hover:bg-emerald-100 transition shrink-0"
+          className="flex items-center gap-1.5 text-xs font-bold text-brand-800 bg-brand-50 px-3.5 py-2 rounded-xl border border-brand-200 hover:bg-brand-100 transition shrink-0"
         >
           <NavigationIcon className="h-3.5 w-3.5" />
           Use my current location
@@ -386,7 +386,7 @@ export default function LeafletMap({
         <div className="relative">
           <input
             type="text"
-            className="w-full rounded-xl border border-slate-300 pl-10 pr-10 py-2.5 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 shadow-sm"
+            className="w-full rounded-xl border border-slate-300 pl-10 pr-10 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 shadow-sm"
             placeholder="Search address, school, landmarks, cities..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
@@ -403,7 +403,7 @@ export default function LeafletMap({
           {/* Spinner or Clear Icon */}
           <div className="absolute inset-y-0 right-3 flex items-center">
             {searching ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-emerald-700" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-700" />
             ) : searchQuery ? (
               <button
                 type="button"
@@ -469,7 +469,7 @@ export default function LeafletMap({
           <input
             type="number"
             step="0.000001"
-            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-semibold"
+            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 font-semibold"
             value={latitude !== null ? latitude : ""}
             onChange={(e) => {
               const val = parseFloat(e.target.value);
@@ -486,7 +486,7 @@ export default function LeafletMap({
           <input
             type="number"
             step="0.000001"
-            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-semibold"
+            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 font-semibold"
             value={longitude !== null ? longitude : ""}
             onChange={(e) => {
               const val = parseFloat(e.target.value);

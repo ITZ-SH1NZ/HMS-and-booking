@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { Price } from "@/components/Price";
+import { getOptimizedImageUrl } from "@/lib/image";
 import {
   MapPinIcon,
   StarIcon,
@@ -54,7 +55,7 @@ export function BookingSummary({
       <div className="relative h-40 bg-slate-100">
         {hotel.image_url ? (
           <Image
-            src={hotel.image_url}
+            src={getOptimizedImageUrl(hotel.image_url, 400, 80)}
             alt={hotel.name}
             fill
             sizes="(max-width: 768px) 100vw, 400px"
@@ -70,18 +71,18 @@ export function BookingSummary({
       <div className="p-5">
         <h2 className="text-lg font-bold text-slate-900">{hotel.name}</h2>
         <p className="flex items-center gap-1 text-sm text-slate-500">
-          <MapPinIcon className="h-4 w-4 text-rose-500" /> {hotel.location}
+          <MapPinIcon className="h-4 w-4 text-brand-500" /> {hotel.location}
         </p>
         {rating !== null && (
           <p className="mt-1 flex items-center gap-1 text-sm text-slate-700">
-            <StarIcon className="h-4 w-4 text-amber-400" filled />
+            <StarIcon className="h-4 w-4 text-gold-500" filled />
             <span className="font-semibold">{rating.toFixed(1)}</span>
             <span className="text-slate-400">({reviewCount} reviews)</span>
           </p>
         )}
 
         {roomName ? (
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-rose-50 px-3 py-2 text-sm">
+          <div className="mt-4 flex items-center justify-between rounded-lg bg-brand-50 px-3 py-2 text-sm">
             <span className="font-semibold text-slate-800">{roomName}</span>
             {pricePerNight !== null && (
               <span className="text-slate-600">
@@ -109,7 +110,7 @@ export function BookingSummary({
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="text-sm font-semibold text-rose-600 hover:underline"
+                className="text-sm font-semibold text-brand-600 hover:underline"
               >
                 Edit
               </button>
@@ -164,7 +165,7 @@ export function BookingSummary({
         )}
 
         <div className="mt-4 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
-          <ShieldIcon className="h-5 w-5 text-emerald-500" />
+          <ShieldIcon className="h-5 w-5 text-brand-500" />
           <span>
             <span className="font-semibold text-slate-700">Secure booking</span> —
             your data is safe and encrypted.

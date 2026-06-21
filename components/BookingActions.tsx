@@ -88,7 +88,7 @@ export function BookingActions({
         {cancellable && !open && (
           <button
             onClick={() => setOpen(true)}
-            className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50"
+            className="rounded-lg border border-brand-300 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50"
           >
             Cancel booking
           </button>
@@ -96,7 +96,7 @@ export function BookingActions({
       </div>
 
       {open && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4">
+        <div className="rounded-xl border border-brand-200 bg-brand-50/50 p-4">
           <p className="text-sm font-semibold text-slate-800">Cancellation policy</p>
           <ul className="mt-1 space-y-0.5 text-xs text-slate-600">
             <li>• Full refund if cancelled 48h+ before check-in</li>
@@ -116,10 +116,10 @@ export function BookingActions({
             onChange={(e) => setReason(e.target.value)}
             rows={2}
             placeholder="Reason for cancellation (optional)"
-            className="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-rose-400"
+            className="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-400"
           />
 
-          {error && <p className="mt-2 text-sm text-rose-700">{error}</p>}
+          {error && <p className="mt-2 text-sm text-brand-700">{error}</p>}
 
           <div className="mt-3 flex gap-2">
             <button
@@ -131,7 +131,7 @@ export function BookingActions({
             <button
               onClick={cancel}
               disabled={loading}
-              className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
             >
               {loading ? "Cancelling…" : "Confirm cancellation"}
             </button>

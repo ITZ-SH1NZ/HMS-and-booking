@@ -131,7 +131,7 @@ setTotalManagers(managersCount.count ?? 0);
     </div>
   </div>
 
-  <div className="rounded-xl border border-slate-200 bg-emerald-50 p-5 shadow-sm">
+  <div className="rounded-xl border border-slate-200 bg-brand-50 p-5 shadow-sm">
     <div className="flex items-center justify-between">
       <div>
         <h3 className="text-sm text-slate-600">Hotels</h3>
@@ -151,7 +151,7 @@ setTotalManagers(managersCount.count ?? 0);
     </div>
   </div>
 
-  <div className="rounded-xl border border-slate-200 bg-rose-50 p-5 shadow-sm">
+  <div className="rounded-xl border border-slate-200 bg-brand-50 p-5 shadow-sm">
     <div className="flex items-center justify-between">
       <div>
         <h3 className="text-sm text-slate-600">Managers</h3>
@@ -189,7 +189,7 @@ setTotalManagers(managersCount.count ?? 0);
                     {m.document_url && (
                       <button
                         onClick={() => viewDocument(m.document_url!)}
-                        className="mt-1 text-sm font-semibold text-rose-600 underline"
+                        className="mt-1 text-sm font-semibold text-brand-600 underline"
                       >
                         View document
                       </button>
@@ -199,7 +199,7 @@ setTotalManagers(managersCount.count ?? 0);
                     <button
                       disabled={busy === m.id}
                       onClick={() => reviewManager(m.id, "approved")}
-                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                      className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -209,7 +209,7 @@ setTotalManagers(managersCount.count ?? 0);
                         const reason = window.prompt("Reason for rejection:");
                         if (reason !== null) reviewManager(m.id, "rejected", reason);
                       }}
-                      className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+                      className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
                     >
                       Reject
                     </button>
@@ -238,21 +238,21 @@ setTotalManagers(managersCount.count ?? 0);
                 <div>
                   <p className="font-semibold text-slate-900">{h.name}</p>
                   <p className="flex items-center gap-1 text-sm text-slate-500">
-                    <MapPinIcon className="h-4 w-4 text-rose-500" /> {h.location}
+                    <MapPinIcon className="h-4 w-4 text-brand-500" /> {h.location}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <button
                     disabled={busy === h.id}
                     onClick={() => reviewHotel(h.id, "approved")}
-                    className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                    className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
                   >
                     Approve
                   </button>
                   <button
                     disabled={busy === h.id}
                     onClick={() => reviewHotel(h.id, "rejected")}
-                    className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
+                    className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
                   >
                     Reject
                   </button>

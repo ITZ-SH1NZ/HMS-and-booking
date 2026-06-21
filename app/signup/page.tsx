@@ -102,7 +102,7 @@ export default function GuestSignupPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="mb-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
           {error}
         </div>
       )}
@@ -209,7 +209,7 @@ export default function GuestSignupPage() {
               type="checkbox"
               checked={terms}
               onChange={(e) => setTerms(e.target.checked)}
-              className="mt-0.5 accent-rose-600"
+              className="mt-0.5 accent-brand-600"
             />
             I accept the Terms &amp; Conditions
           </label>
@@ -230,7 +230,7 @@ export default function GuestSignupPage() {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-rose-600">
+        <Link href="/login" className="font-semibold text-brand-600">
           Log in
         </Link>
       </p>

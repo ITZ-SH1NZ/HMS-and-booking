@@ -5,6 +5,8 @@ import { BuildingIcon, MapPinIcon, CalendarIcon } from "@/components/icons";
 import { BOOKING_STATUS_STYLES, BOOKING_STATUS_LABELS } from "@/lib/booking";
 import type { BookingDetail } from "@/lib/types";
 
+import { getOptimizedImageUrl } from "@/lib/image";
+
 const fmt = (s: string) =>
   new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", {
     day: "numeric",
@@ -22,7 +24,7 @@ export function BookingCard({ booking }: { booking: BookingDetail }) {
       <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-xl bg-slate-100">
         {hotel?.image_url ? (
           <Image
-            src={hotel.image_url}
+            src={getOptimizedImageUrl(hotel.image_url, 300, 80)}
             alt={hotel.name}
             fill
             sizes="128px"
@@ -42,7 +44,7 @@ export function BookingCard({ booking }: { booking: BookingDetail }) {
               {hotel?.name ?? "Hotel"}
             </h3>
             <p className="flex items-center gap-1 truncate text-sm text-slate-500">
-              <MapPinIcon className="h-4 w-4 text-rose-500" /> {hotel?.location}
+              <MapPinIcon className="h-4 w-4 text-brand-500" /> {hotel?.location}
             </p>
           </div>
           <span

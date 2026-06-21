@@ -18,10 +18,16 @@ interface CurrencyState {
 
 const CurrencyContext = createContext<{
   format: (amount: number) => string;
+  currency: string;
+  locale: string;
+  setCurrencyAndLocale: (currency: string, locale: string) => Promise<void>;
 }>({
   // Default before the client has detected locale / loaded rates. Deterministic
   // so server and first client render match (avoids hydration mismatch).
   format: (amount) => formatMoney(amount, DEFAULT_LOCALE, BASE_CURRENCY),
+  currency: BASE_CURRENCY,
+  locale: DEFAULT_LOCALE,
+  setCurrencyAndLocale: async () => {},
 });
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
@@ -60,6 +66,32 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  async function setCurrencyAndLocale(newCurrency: string, newLocale: string) {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "hms_money_locale",
+          JSON.stringify({ currency: newCurrency, locale: newLocale, ts: Date.now() }),
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (newCurrency === BASE_CURRENCY) {
+      setState({ locale: newLocale, currency: newCurrency, rate: 1, ready: true });
+      return;
+    }
+
+    const rates = await getRates();
+    const rate = rates?.[newCurrency];
+    if (rate && rate > 0) {
+      setState({ locale: newLocale, currency: newCurrency, rate, ready: true });
+    } else {
+      setState({ locale: newLocale, currency: newCurrency, rate: 1, ready: true });
+    }
+  }
+
   function format(amount: number) {
     if (!state.ready) {
       return formatMoney(amount, DEFAULT_LOCALE, BASE_CURRENCY);
@@ -68,7 +100,14 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <CurrencyContext.Provider value={{ format }}>
+    <CurrencyContext.Provider
+      value={{
+        format,
+        currency: state.currency,
+        locale: state.locale,
+        setCurrencyAndLocale,
+      }}
+    >
       {children}
     </CurrencyContext.Provider>
   );

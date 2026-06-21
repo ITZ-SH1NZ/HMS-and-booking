@@ -35,7 +35,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
               key={a.label}
               className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
             >
-              <Icon className="h-4.5 w-4.5 text-rose-500 shrink-0" />
+              <Icon className="h-4.5 w-4.5 text-brand-500 shrink-0" />
               <span className="text-slate-700 font-medium">{a.label}</span>
             </div>
           );
@@ -48,7 +48,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
           <button
             type="button"
             onClick={() => setShowAll(!showAll)}
-            className="flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:text-rose-700 transition mb-4"
+            className="flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 transition mb-4"
           >
             {showAll ? (
               <>

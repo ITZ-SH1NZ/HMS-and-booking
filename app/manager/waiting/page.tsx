@@ -26,7 +26,7 @@ export default async function ManagerWaitingPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
         {status === "rejected" ? (
           <>
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-rose-50 text-rose-600">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-600">
               <BanIcon className="h-7 w-7" />
             </div>
             <h1 className="mt-4 text-xl font-bold text-slate-900">
@@ -35,12 +35,12 @@ export default async function ManagerWaitingPage() {
             <p className="mt-2 text-sm text-slate-600">
               Your application was rejected:
             </p>
-            <p className="mt-1 rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
+            <p className="mt-1 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
               {mv?.rejection_reason ?? "No reason provided."}
             </p>
             <Link
               href="/signup/manager"
-              className="mt-6 inline-block rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+              className="mt-6 inline-block rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
             >
               Apply again
             </Link>

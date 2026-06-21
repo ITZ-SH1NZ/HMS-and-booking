@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-  BedIcon,
   ShieldIcon,
   BuildingIcon,
   UsersIcon,
@@ -70,17 +70,17 @@ export function AuthShell({
           </ul>
 
           <figure className="max-w-md rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <div className="flex gap-0.5 text-amber-400">
+            <div className="flex gap-0.5 text-gold-500">
               {Array.from({ length: 5 }).map((_, i) => (
                 <StarIcon key={i} className="h-4 w-4" filled />
               ))}
             </div>
             <blockquote className="mt-2 text-sm text-slate-100">
-              “HMS made our vacation amazing. Best hotel booking experience
+              “BookNest made our vacation amazing. Best hotel booking experience
               ever!”
             </blockquote>
             <figcaption className="mt-3 flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-rose-600 text-xs font-bold text-white">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-brand-600 text-xs font-bold text-white">
                 PS
               </span>
               <span className="text-sm">
@@ -101,10 +101,14 @@ export function AuthShell({
             href="/"
             className="mb-6 flex items-center justify-center gap-2 lg:hidden"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-rose-600 text-white">
-              <BedIcon className="h-5 w-5" />
-            </span>
-            <span className="text-2xl font-extrabold text-rose-600">HMS</span>
+            <Image
+              src="/logo.png"
+              alt="BookNest Logo"
+              width={210}
+              height={53}
+              className="h-14 w-auto object-contain"
+              priority
+            />
           </Link>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -122,13 +126,13 @@ function AuthFooter() {
   return (
     <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-slate-500">
       <span className="flex items-center gap-1">
-        <LockIcon className="h-4 w-4 text-emerald-500" /> SSL Secured
+        <LockIcon className="h-4 w-4 text-brand-500" /> SSL Secured
       </span>
       <span className="flex items-center gap-1">
-        <ShieldIcon className="h-4 w-4 text-emerald-500" /> Privacy Protected
+        <ShieldIcon className="h-4 w-4 text-brand-500" /> Privacy Protected
       </span>
       <span className="flex items-center gap-1">
-        <HeadphonesIcon className="h-4 w-4 text-emerald-500" /> 24/7 Support
+        <HeadphonesIcon className="h-4 w-4 text-brand-500" /> 24/7 Support
       </span>
     </div>
   );

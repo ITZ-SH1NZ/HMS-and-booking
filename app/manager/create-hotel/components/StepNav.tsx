@@ -77,7 +77,7 @@ export default function StepNav({
             onClick={() => onStepClick(step.num)}
             className={`flex items-start gap-3.5 p-3 rounded-xl text-left transition w-full ${
               isActive
-                ? "bg-emerald-50 text-emerald-900 border border-emerald-100"
+                ? "bg-brand-50 text-brand-900 border border-brand-100"
                 : isUnlocked
                   ? "hover:bg-slate-50 text-slate-700 cursor-pointer"
                   : "text-slate-400 cursor-not-allowed opacity-60"
@@ -86,17 +86,17 @@ export default function StepNav({
             {/* Step Status Badge */}
             <div className="shrink-0 mt-0.5">
               {isCompleted ? (
-                <div className="h-6 w-6 rounded-full bg-emerald-600 border border-emerald-600 text-white flex items-center justify-center">
+                <div className="h-6 w-6 rounded-full bg-brand-600 border border-brand-600 text-white flex items-center justify-center">
                   <CheckIcon className="h-3.5 w-3.5" />
                 </div>
               ) : isActive ? (
-                <div className="h-6 w-6 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">
+                <div className="h-6 w-6 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs">
                   {step.num}
                 </div>
               ) : (
                 <div className={`h-6 w-6 rounded-full border flex items-center justify-center font-bold text-xs bg-white ${
                   isUnlocked
-                    ? "border-emerald-600 text-emerald-700"
+                    ? "border-brand-600 text-brand-700"
                     : "border-slate-300 text-slate-400"
                 }`}>
                   {step.num}

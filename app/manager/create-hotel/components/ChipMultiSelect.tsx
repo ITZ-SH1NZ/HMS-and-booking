@@ -47,17 +47,17 @@ export default function ChipMultiSelect({
       )}
 
       {/* Chip Box Container */}
-      <div className="flex flex-wrap gap-2 items-center min-h-[42px] p-1.5 border border-slate-300 rounded-lg bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100">
+      <div className="flex flex-wrap gap-2 items-center min-h-[42px] p-1.5 border border-slate-300 rounded-lg bg-white focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
         {selected.map((item) => (
           <span
             key={item}
-            className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full px-3 py-1 text-sm font-medium"
+            className="flex items-center gap-1 bg-brand-50 border border-brand-200 text-brand-800 rounded-full px-3 py-1 text-sm font-medium"
           >
             {item}
             <button
               type="button"
               onClick={() => handleRemove(item)}
-              className="text-emerald-600 hover:text-emerald-800 text-xs font-bold leading-none w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-100 transition"
+              className="text-brand-600 hover:text-brand-800 text-xs font-bold leading-none w-4 h-4 flex items-center justify-center rounded-full hover:bg-brand-100 transition"
             >
               ×
             </button>
@@ -100,7 +100,7 @@ export default function ChipMultiSelect({
                 <input
                   type="text"
                   placeholder={placeholder}
-                  className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs outline-none focus:border-emerald-600"
+                  className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs outline-none focus:border-brand-600"
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
                   onKeyDown={(e) => {
@@ -126,7 +126,7 @@ export default function ChipMultiSelect({
                     }
                     setDropdownOpen(false);
                   }}
-                  className="flex items-center justify-center p-1.5 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition"
+                  className="flex items-center justify-center p-1.5 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition"
                 >
                   <PlusIcon className="h-4 w-4" />
                 </button>

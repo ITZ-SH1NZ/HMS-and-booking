@@ -194,7 +194,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                   type="button"
                   onClick={() => handleRuleChange("advance_days", isUnlimitedAdvance ? 365 : null)}
                   className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
-                    isUnlimitedAdvance ? "bg-emerald-600" : "bg-slate-300"
+                    isUnlimitedAdvance ? "bg-brand-600" : "bg-slate-300"
                   }`}
                 >
                   <span
@@ -216,7 +216,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                   <input
                     type="number"
                     min={1}
-                    className="w-24 rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-emerald-600"
+                    className="w-24 rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-brand-600"
                     value={advanceDays ?? 365}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
@@ -237,7 +237,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                   <input
                     type="number"
                     min={1}
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-brand-600"
                     value={minStayWeekday}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
@@ -251,7 +251,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                   <input
                     type="number"
                     min={1}
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-emerald-600"
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-brand-600"
                     value={minStayWeekend}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
@@ -272,7 +272,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                 <input
                   type="number"
                   min={1}
-                  className="w-24 rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-emerald-600"
+                  className="w-24 rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-brand-600"
                   value={maxStay}
                   onChange={(e) => {
                     const val = parseInt(e.target.value, 10);
@@ -293,14 +293,14 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-1.5">
-              <CalendarIcon className="h-5 w-5 text-emerald-700" />
+              <CalendarIcon className="h-5 w-5 text-brand-700" />
               Calendar blocking
             </h3>
             {(rangeStart || rangeEnd) && (
               <button
                 type="button"
                 onClick={clearSelection}
-                className="text-[11px] font-semibold text-slate-500 hover:text-rose-600 transition px-2 py-1 rounded-lg hover:bg-rose-50"
+                className="text-[11px] font-semibold text-slate-500 hover:text-brand-600 transition px-2 py-1 rounded-lg hover:bg-brand-50"
               >
                 Clear selection
               </button>
@@ -314,12 +314,12 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
           {/* Selection indicator */}
           {(rangeStart || rangeEnd) && (
             <div className="flex items-center gap-2 mt-2 mb-4">
-              <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1">
-                <span className="text-[10px] font-bold text-emerald-800">
+              <div className="flex items-center gap-1.5 rounded-full bg-brand-50 border border-brand-200 px-3 py-1">
+                <span className="text-[10px] font-bold text-brand-800">
                   {rangeStart ? fmtRange(rangeStart) : "—"}
                 </span>
-                <span className="text-emerald-400">→</span>
-                <span className="text-[10px] font-bold text-emerald-800">
+                <span className="text-brand-400">→</span>
+                <span className="text-[10px] font-bold text-brand-800">
                   {rangeEnd ? fmtRange(rangeEnd) : effEnd ? fmtRange(effEnd) : "Select end"}
                 </span>
               </div>
@@ -381,7 +381,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
           {/* Legend */}
           <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-slate-100 pt-4 mt-5 text-[10px] font-bold text-slate-500 justify-center">
             <div className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-emerald-50 border border-emerald-200 block" />
+              <span className="h-3 w-3 rounded-full bg-brand-50 border border-brand-200 block" />
               <span>Available</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -395,11 +395,11 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
               <span>Seasonal</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full bg-emerald-600 block" />
+              <span className="h-3 w-3 rounded-full bg-brand-600 block" />
               <span>Selected</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="h-3 w-6 rounded bg-emerald-100 block" />
+              <span className="h-3 w-6 rounded bg-brand-100 block" />
               <span>Range</span>
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
         {/* Bulk Availability Manager */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4 flex items-center gap-1.5">
-            <BanIcon className="h-5 w-5 text-emerald-700" />
+            <BanIcon className="h-5 w-5 text-brand-700" />
             Bulk Availability Manager
           </h3>
           <p className="text-xs text-slate-500 mb-4">
@@ -428,7 +428,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                   }}
                   className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs text-left transition ${
                     miniCalOpen === "start"
-                      ? "border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50/50"
+                      ? "border-brand-500 ring-1 ring-brand-500 bg-brand-50/50"
                       : "border-slate-300 hover:border-slate-400 bg-white"
                   }`}
                 >
@@ -475,7 +475,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                   }}
                   className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs text-left transition ${
                     miniCalOpen === "end"
-                      ? "border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50/50"
+                      ? "border-brand-500 ring-1 ring-brand-500 bg-brand-50/50"
                       : "border-slate-300 hover:border-slate-400 bg-white"
                   }`}
                 >
@@ -517,7 +517,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
               <input
                 type="text"
                 placeholder="e.g. Renovation, Seasonal closure"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-xs outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-xs outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition"
                 value={rangeReason}
                 onChange={(e) => {
                   setRangeReason(e.target.value);
@@ -528,10 +528,10 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
             </div>
 
             {bulkError && (
-              <p className="text-xs text-rose-600 font-semibold">{bulkError}</p>
+              <p className="text-xs text-brand-600 font-semibold">{bulkError}</p>
             )}
             {bulkSuccess && (
-              <p className="text-xs text-emerald-700 font-semibold">{bulkSuccess}</p>
+              <p className="text-xs text-brand-700 font-semibold">{bulkSuccess}</p>
             )}
 
             <div className="grid grid-cols-2 gap-4 pt-2">
@@ -547,7 +547,7 @@ export default function Step8Availability({ draftContext }: Step8AvailabilityPro
                 type="button"
                 onClick={handleBulkBlock}
                 disabled={bulkLoading || !rangeStart || !rangeEnd}
-                className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 py-2.5 text-xs font-bold text-white transition hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {bulkLoading ? "Updating..." : "Block Range"}
               </button>
@@ -629,16 +629,16 @@ function CalMonth({
           if (isPast) {
             cellClass = "cursor-not-allowed text-slate-300";
           } else if (endpoint) {
-            cellClass = "bg-emerald-600 text-white font-bold shadow-sm";
+            cellClass = "bg-brand-600 text-white font-bold shadow-sm";
           } else if (blocked) {
             cellClass = "bg-slate-200 text-slate-400 line-through";
           } else if (inRange) {
-            cellClass = "text-emerald-800 font-semibold";
+            cellClass = "text-brand-800 font-semibold";
           } else if (seasonal) {
             cellClass = "bg-amber-50 border border-amber-300 text-amber-800";
           } else {
             cellClass =
-              "text-slate-800 hover:ring-2 hover:ring-emerald-400 hover:bg-emerald-50";
+              "text-slate-800 hover:ring-2 hover:ring-brand-400 hover:bg-brand-50";
           }
 
           return (
@@ -649,7 +649,7 @@ function CalMonth({
             >
               {/* Connecting range bar */}
               {bar && (
-                <span className={`absolute inset-y-1 ${bar} bg-emerald-100 rounded-sm`} />
+                <span className={`absolute inset-y-1 ${bar} bg-brand-100 rounded-sm`} />
               )}
               <button
                 type="button"
@@ -661,7 +661,7 @@ function CalMonth({
               </button>
               {/* Today dot indicator */}
               {isToday && !endpoint && (
-                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 z-20 h-1 w-1 rounded-full bg-emerald-600" />
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 z-20 h-1 w-1 rounded-full bg-brand-600" />
               )}
             </div>
           );
@@ -729,14 +729,14 @@ function MiniCalMonth({
                   disabled
                     ? "cursor-not-allowed text-slate-300"
                     : isSel
-                      ? "bg-emerald-600 text-white font-bold shadow-sm"
-                      : "text-slate-700 hover:bg-emerald-50 hover:ring-2 hover:ring-emerald-400"
+                      ? "bg-brand-600 text-white font-bold shadow-sm"
+                      : "text-slate-700 hover:bg-brand-50 hover:ring-2 hover:ring-brand-400"
                 }`}
               >
                 {cell.getDate()}
               </button>
               {isToday && !isSel && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 h-0.5 w-0.5 rounded-full bg-emerald-600" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 h-0.5 w-0.5 rounded-full bg-brand-600" />
               )}
             </div>
           );

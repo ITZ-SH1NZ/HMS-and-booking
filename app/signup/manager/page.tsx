@@ -102,7 +102,7 @@ export default function ManagerSignupPage() {
       side={{
         title: "Become a Host",
         subtitle:
-          "List your property on HMS and reach travelers around the world.",
+          "List your property on BookNest and reach travelers around the world.",
         image:
           "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
       }}
@@ -118,7 +118,7 @@ export default function ManagerSignupPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="mb-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
           {error}
         </div>
       )}
@@ -205,7 +205,7 @@ export default function ManagerSignupPage() {
           <div>
             <FieldLabel>Business address</FieldLabel>
             <textarea
-              className={`${bareInput} rounded-lg border border-slate-300 bg-slate-50 px-3 focus:border-rose-400 focus:bg-white focus:ring-2 focus:ring-rose-100`}
+              className={`${bareInput} rounded-lg border border-slate-300 bg-slate-50 px-3 focus:border-brand-400 focus:bg-white focus:ring-2 focus:ring-brand-100`}
               rows={3}
               value={businessAddress}
               onChange={(e) => setBusinessAddress(e.target.value)}
@@ -235,7 +235,7 @@ export default function ManagerSignupPage() {
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
               onChange={(e) => setDocument(e.target.files?.[0] ?? null)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-rose-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-rose-600 hover:file:bg-rose-100"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand-600 hover:file:bg-brand-100"
               required
             />
           </div>
@@ -248,7 +248,7 @@ export default function ManagerSignupPage() {
               type="checkbox"
               checked={terms}
               onChange={(e) => setTerms(e.target.checked)}
-              className="mt-0.5 accent-rose-600"
+              className="mt-0.5 accent-brand-600"
             />
             I accept the Terms &amp; Conditions
           </label>
@@ -269,7 +269,7 @@ export default function ManagerSignupPage() {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Booking a stay instead?{" "}
-        <Link href="/signup" className="font-semibold text-rose-600">
+        <Link href="/signup" className="font-semibold text-brand-600">
           Sign up as a guest
         </Link>
       </p>

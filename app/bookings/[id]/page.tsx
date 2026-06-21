@@ -80,7 +80,7 @@ export default async function BookingDetailPage({
     <div className="mx-auto max-w-2xl px-4 py-10">
       <Link
         href="/dashboard/bookings"
-        className="text-sm font-semibold text-rose-600"
+        className="text-sm font-semibold text-brand-600"
       >
         ← All bookings
       </Link>
@@ -91,7 +91,7 @@ export default async function BookingDetailPage({
             {booking.hotels?.name}
           </h1>
           <p className="flex items-center gap-1 text-sm text-slate-500">
-            <MapPinIcon className="h-4 w-4 text-rose-500" /> {booking.hotels?.location}
+            <MapPinIcon className="h-4 w-4 text-brand-500" /> {booking.hotels?.location}
           </p>
         </div>
         <span
@@ -139,7 +139,7 @@ export default async function BookingDetailPage({
             <p className="mt-1 text-xs text-slate-400">Ref: {payment.transaction_id}</p>
           )}
           {booking.status === "cancelled" && booking.refund_amount != null && (
-            <p className="mt-2 text-sm text-emerald-700">
+            <p className="mt-2 text-sm text-brand-700">
               Refund: <Price amount={booking.refund_amount} />
               {booking.cancellation_reason && (
                 <span className="text-slate-400"> · {booking.cancellation_reason}</span>

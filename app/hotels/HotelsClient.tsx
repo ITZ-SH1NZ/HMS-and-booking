@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Hotel } from "@/lib/types";
+import { parsePostgresArray } from "@/lib/hotelDraft";
 
-export default function HotelsClient({ hotels }: { hotels: any[] }) {
+interface HotelsClientHotel extends Hotel {
+  rating?: number | string | null;
+}
+
+export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }) {
   const [search, setSearch] = useState("");
   const [rating, setRating] = useState("");
   const [sortBy, setSortBy] = useState("");
@@ -14,132 +20,183 @@ export default function HotelsClient({ hotels }: { hotels: any[] }) {
       hotel.location.toLowerCase().includes(search.toLowerCase());
 
     const matchesRating =
-      !rating || Number(hotel.rating) >= Number(rating);
+      !rating || Number(hotel.rating ?? 0) >= Number(rating);
 
-      const matchesAmenity =
-  selectedAmenities.length === 0 ||
-  selectedAmenities.every((item) =>
-    hotel.amenities?.includes(item)
-  );
+    const parsedAmenities = parsePostgresArray(hotel.amenities);
+    const matchesAmenity =
+      selectedAmenities.length === 0 ||
+      selectedAmenities.every((item) =>
+        parsedAmenities.includes(item)
+      );
 
     return matchesSearch && matchesRating && matchesAmenity;
   });
 
-
   const sortedHotels = [...filteredHotels];
 
-if (sortBy === "rating-high") {
-  sortedHotels.sort((a, b) => b.rating - a.rating);
-}
+  if (sortBy === "rating-high") {
+    sortedHotels.sort((a, b) => Number(b.rating ?? 0) - Number(a.rating ?? 0));
+  }
 
-if (sortBy === "rating-low") {
-  sortedHotels.sort((a, b) => a.rating - b.rating);
-}
+  if (sortBy === "rating-low") {
+    sortedHotels.sort((a, b) => Number(a.rating ?? 0) - Number(b.rating ?? 0));
+  }
 
-if (sortBy === "name-asc") {
-  sortedHotels.sort((a, b) => a.name.localeCompare(b.name));
-}
+  if (sortBy === "name-asc") {
+    sortedHotels.sort((a, b) => a.name.localeCompare(b.name));
+  }
 
-if (sortBy === "name-desc") {
-  sortedHotels.sort((a, b) => b.name.localeCompare(a.name));
-}
+  if (sortBy === "name-desc") {
+    sortedHotels.sort((a, b) => b.name.localeCompare(a.name));
+  }
 
   return (
-    <div>
-      <div className="mb-6 flex gap-4">
-        <input
-          type="text"
-          placeholder="Search hotels..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 p-3 border rounded-lg"
-        />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl p-6 shadow-sm mb-8 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="Search hotels by name or location..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-800 placeholder-slate-400"
+          />
 
-        <select
-          value={rating}
-          onChange={(e) => setRating(e.target.value)}
-          className="p-3 border rounded-lg"
-        >
-          <option value="">All Ratings</option>
-          <option value="4">4.0+</option>
-          <option value="4.5">4.5+</option>
-          <option value="4.8">4.8+</option>
-        </select>
+          <select
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-700"
+          >
+            <option value="">All Ratings</option>
+            <option value="4">⭐ 4.0+</option>
+            <option value="4.5">⭐ 4.5+</option>
+            <option value="4.8">⭐ 4.8+</option>
+          </select>
 
-        <select
-  value={sortBy}
-  onChange={(e) => setSortBy(e.target.value)}
-  className="p-3 border rounded-lg"
->
-  <option value="">Sort By</option>
-  <option value="rating-high">Highest Rated</option>
-  <option value="rating-low">Lowest Rated</option>
-  <option value="name-asc">A-Z</option>
-  <option value="name-desc">Z-A</option>
-</select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-700"
+          >
+            <option value="">Sort By</option>
+            <option value="rating-high">Highest Rated</option>
+            <option value="rating-low">Lowest Rated</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+          </select>
+        </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-  {["WiFi", "Pool", "Gym", "Spa", "Parking"].map((item) => (
-    <label key={item} className="flex items-center gap-1">
-      <input
-        type="checkbox"
-        checked={selectedAmenities.includes(item)}
-        onChange={(e) => {
-          if (e.target.checked) {
-            setSelectedAmenities([...selectedAmenities, item]);
-          } else {
-            setSelectedAmenities(
-              selectedAmenities.filter((a) => a !== item)
-            );
-          }
-        }}
-      />
-      {item}
-    </label>
-  ))}
-</div>
+        <div className="border-t border-slate-100 pt-4">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">Filter by Amenities</span>
+          <div className="flex items-center gap-4 flex-wrap">
+            {["WiFi", "Pool", "Gym", "Spa", "Parking"].map((item) => (
+              <label key={item} className="flex items-center gap-2 cursor-pointer group text-slate-600 hover:text-brand-700 text-sm select-none">
+                <input
+                  type="checkbox"
+                  checked={selectedAmenities.includes(item)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedAmenities([...selectedAmenities, item]);
+                    } else {
+                      setSelectedAmenities(
+                        selectedAmenities.filter((a) => a !== item)
+                      );
+                    }
+                  }}
+                  className="rounded border-slate-300 text-brand-600 focus:ring-brand-500/20 w-4 h-4"
+                />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-200">{item}</span>
+              </label>
+            ))}
+          </div>
+        </div>
       </div>
 
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-slate-500 font-medium text-sm">
+          Showing <span className="text-slate-800 font-semibold">{filteredHotels.length}</span> {filteredHotels.length === 1 ? "hotel" : "hotels"}
+        </p>
+      </div>
 
-        <p className="mb-4 text-gray-600 font-medium">
-  {filteredHotels.length} hotel(s) found
-</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedHotels.map((hotel) => (
-          <div
-            key={hotel.id}
-            className="border rounded-lg p-4 shadow-lg bg-white"
-          >
-            <img
-              src={hotel.image_url}
-              alt={hotel.name}
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-
-            <h2 className="text-xl font-semibold">{hotel.name}</h2>
-
-            <p className="text-gray-600">📍 {hotel.location}</p>
-
-            <p className="mt-2">{hotel.description}</p>
-
-            <p className="mt-2 font-semibold">
-              ⭐ {hotel.rating}
-            </p>
-
-            <p className="text-sm text-gray-600">
-              {hotel.amenities
-                ?.replace(/[{}"]/g, "")
-                .replace(/,/g, " • ")}
-            </p>
-
-            <a
-              href={`/hotels/${hotel.id}`}
-              className="inline-block mt-4 px-4 py-2 bg-pink-600 text-white rounded"
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {sortedHotels.map((hotel) => {
+          const parsedAmenities = parsePostgresArray(hotel.amenities);
+          return (
+            <div
+              key={hotel.id}
+              className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200/60 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
-              View Details
-            </a>
-          </div>
-        ))}
+              <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                <img
+                  src={hotel.image_url || "/placeholder-hotel.jpg"}
+                  alt={hotel.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                {hotel.rating && (
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-xs font-bold text-slate-800 flex items-center gap-1 shadow-xs border border-slate-100">
+                    <span className="text-gold-500">★</span>
+                    <span>{Number(hotel.rating).toFixed(1)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col flex-1 p-6">
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold text-slate-800 line-clamp-1 group-hover:text-brand-700 transition-colors duration-200">
+                    {hotel.name}
+                  </h2>
+
+                  <p className="text-slate-500 text-sm flex items-center gap-1 mt-1">
+                    <span className="text-slate-400">📍</span> {hotel.location}
+                  </p>
+
+                  <p className="mt-3 text-slate-600 text-sm line-clamp-2 leading-relaxed">
+                    {hotel.description}
+                  </p>
+                </div>
+
+                {parsedAmenities.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <div className="flex flex-wrap gap-1.5">
+                      {parsedAmenities.slice(0, 3).map((amenity) => (
+                        <span
+                          key={amenity}
+                          className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200/70 text-slate-600 rounded text-xs transition-colors duration-150"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                      {parsedAmenities.length > 3 && (
+                        <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-xs font-medium">
+                          +{parsedAmenities.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    {hotel.star_rating && (
+                      <div className="flex items-center gap-0.5 text-xs text-gold-500">
+                        {Array.from({ length: hotel.star_rating }).map((_, i) => (
+                          <span key={i}>★</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <a
+                    href={`/hotels/${hotel.id}`}
+                    className="inline-flex items-center justify-center px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-xs hover:shadow-md transition-all duration-200"
+                  >
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

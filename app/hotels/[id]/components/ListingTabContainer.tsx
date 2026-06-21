@@ -130,7 +130,7 @@ export function ListingTabContainer({
                   onClick={() => handleTabChange(section.id)}
                   className={`shrink-0 border-b-2 px-4 py-3 text-sm font-bold transition whitespace-nowrap cursor-pointer ${
                     isActive
-                      ? "border-rose-600 text-rose-600"
+                      ? "border-brand-600 text-brand-600"
                       : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
                   }`}
                 >
@@ -217,7 +217,7 @@ export function ListingTabContainer({
             <button
               type="button"
               onClick={() => handleTabChange("location")}
-              className="w-full text-center text-xs font-bold text-rose-600 hover:underline transition cursor-pointer"
+              className="w-full text-center text-xs font-bold text-brand-600 hover:underline transition cursor-pointer"
             >
               View full map & nearby places
             </button>

@@ -116,7 +116,7 @@ export default function LocationMap({
         // Loading / SSR Skeleton
         <div className="h-full w-full bg-slate-50 flex items-center justify-center animate-pulse">
           <div className="text-center text-slate-400 space-y-2">
-            <div className="h-6 w-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="h-6 w-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
             <span className="text-xs font-semibold text-slate-400">Loading map...</span>
           </div>
         </div>

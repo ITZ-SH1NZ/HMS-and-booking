@@ -72,7 +72,7 @@ export function ReviewsSection({
           <StarIcon
             key={star}
             className={`${sizeClass} ${
-              star <= rating ? "text-amber-500" : "text-slate-200"
+              star <= rating ? "text-gold-500" : "text-slate-200"
             }`}
             filled={star <= rating}
           />
@@ -105,10 +105,10 @@ export function ReviewsSection({
             return (
               <div key={rating} className="flex items-center gap-3 text-xs font-semibold">
                 <span className="w-3 text-slate-600 text-right">{rating}</span>
-                <StarIcon className="h-3.5 w-3.5 text-amber-500" filled />
+                <StarIcon className="h-3.5 w-3.5 text-gold-500" filled />
                 <div className="h-2 flex-1 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-gold-400 to-gold-500 transition-all duration-500"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -147,7 +147,7 @@ export function ReviewsSection({
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <div className="flex items-center gap-3">
                         {/* Reviewer Avatar */}
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600 font-bold text-sm border border-rose-100">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600 font-bold text-sm border border-brand-100">
                           {initials}
                         </div>
                         <div>
@@ -209,7 +209,7 @@ export function ReviewsSection({
         {user ? (
           loadingBookingCheck ? (
             <div className="flex items-center gap-2 justify-center py-4">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-rose-600" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-600" />
               <span className="text-xs text-slate-500 font-bold">Verifying booking status...</span>
             </div>
           ) : hasCompletedBooking ? (
@@ -231,7 +231,7 @@ export function ReviewsSection({
           <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 text-center">
             <p className="text-xs text-slate-500 font-bold">
               Please{" "}
-              <a href={`/login?redirect=/hotels/${hotelId}`} className="text-rose-600 hover:underline">
+              <a href={`/login?redirect=/hotels/${hotelId}`} className="text-brand-600 hover:underline">
                 log in
               </a>{" "}
               to write a review. Gated to verified guests only.

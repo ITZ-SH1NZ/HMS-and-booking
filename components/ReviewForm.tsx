@@ -67,7 +67,7 @@ export default function ReviewForm({
               key={star}
               type="button"
               onClick={() => setRating(star)}
-              className="text-amber-500 hover:scale-110 transition duration-150 p-1"
+              className="text-gold-500 hover:scale-110 transition duration-150 p-1"
             >
               <StarIcon className="h-7 w-7" filled={star <= rating} />
             </button>
@@ -91,7 +91,7 @@ export default function ReviewForm({
       <button
   onClick={submitReview}
   disabled={loading}
-  className="rounded-lg bg-rose-600 px-4 py-2 text-white disabled:opacity-50"
+  className="rounded-lg bg-brand-600 px-4 py-2 text-white disabled:opacity-50"
 >
   {loading ? "Submitting..." : "Submit Review"}
 </button>

@@ -37,10 +37,10 @@ export function computeQuote(
 
 export const BOOKING_STATUS_STYLES: Record<BookingStatus, string> = {
   pending: "bg-amber-50 text-amber-700",
-  confirmed: "bg-emerald-50 text-emerald-700",
+  confirmed: "bg-green-50 text-green-700",
   checked_in: "bg-sky-50 text-sky-700",
   completed: "bg-slate-100 text-slate-600",
-  cancelled: "bg-rose-50 text-rose-700",
+  cancelled: "bg-brand-50 text-brand-700",
 };
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {

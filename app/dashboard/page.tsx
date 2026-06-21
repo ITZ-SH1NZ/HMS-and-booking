@@ -30,7 +30,7 @@ export default async function GuestDashboardPage() {
           <h2 className="text-lg font-semibold text-slate-800">My bookings</h2>
           <div className="mt-4 grid place-items-center rounded-xl border border-dashed border-slate-300 py-10 text-center text-sm text-slate-500">
             <p>You have no bookings yet.</p>
-            <Link href="/" className="mt-2 font-semibold text-rose-600">
+            <Link href="/" className="mt-2 font-semibold text-brand-600">
               Browse hotels
             </Link>
           </div>
