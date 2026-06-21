@@ -15,7 +15,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 
 const NAV_LINKS = [
   { label: "Stays", href: "/" },
-  { label: "Experiences", href: "/#categories" },
+  { label: "Explore", href: "/hotels" },
   { label: "Offers", href: "/#offers" },
   { label: "Business Travel", href: "/#hotels" },
   { label: "Gift Cards", href: "#" },
@@ -176,7 +176,6 @@ export function Navbar() {
                 href={link.href}
                 onMouseEnter={() => {
                   if (link.label === "Stays") handleMouseEnter("stays");
-                  else if (link.label === "Experiences") handleMouseEnter("experiences");
                   else handleMouseLeave();
                 }}
                 className="text-sm font-bold text-slate-650 hover:text-brand-600 transition-colors duration-200 relative py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md px-1"
@@ -243,33 +242,6 @@ export function Navbar() {
                 <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
                 <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 grid grid-cols-1 gap-4 text-left animate-pop-in">
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Language</p>
-                    <div className="grid grid-cols-1 gap-1">
-                      {[
-                        { code: "en-IN", name: "English (IN)" },
-                        { code: "en-US", name: "English (US)" },
-                        { code: "de-DE", name: "Deutsch (DE)" },
-                        { code: "es-ES", name: "Español (ES)" },
-                      ].map((lang) => (
-                        <button
-                          key={lang.code}
-                          onClick={() => {
-                            setCurrencyAndLocale(currency, lang.code);
-                            setPickerOpen(false);
-                          }}
-                          className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition text-left cursor-pointer"
-                        >
-                          <span>{lang.name}</span>
-                          {locale === lang.code && (
-                            <svg className="h-3.5 w-3.5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t border-slate-100 pt-3">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Currency</p>
                     <div className="grid grid-cols-2 gap-1">
                       {[
@@ -589,7 +561,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/40 backdrop-blur-xs pt-20 px-4"
+            className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/40 backdrop-blur-xs pt-20 px-4 pointer-events-auto"
             onClick={() => setSearchModalOpen(false)}
           >
             <motion.div
