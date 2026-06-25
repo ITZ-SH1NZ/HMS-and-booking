@@ -355,6 +355,12 @@ export function Navbar() {
                               Create New Hotel
                             </MenuLink>
                             <MenuLink
+                              href="/manager/reservations"
+                              onClick={() => setMenuOpen(false)}
+                            >
+                              Reservations
+                            </MenuLink>
+                            <MenuLink
                               href="/manager/earnings"
                               onClick={() => setMenuOpen(false)}
                             >
@@ -513,6 +519,13 @@ export function Navbar() {
                       className="block py-2.5 px-3 rounded-xl text-sm font-black text-slate-800 hover:bg-brand-50/50 hover:text-brand-700 transition"
                     >
                       Create New Hotel
+                    </Link>
+                    <Link
+                      href="/manager/reservations"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block py-2.5 px-3 rounded-xl text-sm font-black text-slate-800 hover:bg-brand-50/50 hover:text-brand-700 transition"
+                    >
+                      Reservations
                     </Link>
                     <Link
                       href="/manager/earnings"
