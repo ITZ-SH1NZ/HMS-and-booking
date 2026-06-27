@@ -1,6 +1,35 @@
 // Shared TypeScript types for the BookNest app.
 
-export type UserRole = "guest" | "manager" | "admin";
+export type UserRole = "guest" | "manager" | "admin" | "staff";
+
+// What an assigned staff member is allowed to do on a hotel.
+export type StaffPermission = "offline_booking" | "view_occupancy" | "manage_rooms";
+
+export type StaffInviteStatus = "pending" | "accepted" | "revoked" | "expired";
+
+// A staff member's assignment to a single hotel.
+export interface HotelStaff {
+  id: string;
+  hotel_id: string;
+  staff_id: string;
+  permissions: StaffPermission[];
+  invited_by: string | null;
+  created_at: string;
+}
+
+// A pending email invitation for a staff member.
+export interface StaffInvite {
+  id: string;
+  email: string;
+  hotel_id: string;
+  permissions: StaffPermission[];
+  token: string;
+  status: StaffInviteStatus;
+  invited_by: string;
+  created_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+}
 
 export type VerificationStatus = "pending" | "approved" | "rejected";
 
@@ -167,6 +196,10 @@ export interface Hotel {
   other_tax_percent?: number;
   terms_accepted?: boolean;
   published_at?: string | null;
+  deleted_at?: string | null;
+  deactivated_at?: string | null;
+  deleted_reason?: string | null;
+  deleted_note?: string | null;
 }
 
 export type HotelDraft = Hotel;
@@ -252,11 +285,13 @@ export type BookingStatus =
 
 export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 
-export type PaymentMethod = "upi" | "card" | "wallet";
+export type PaymentMethod = "upi" | "card" | "wallet" | "cash";
+
+export type BookingSource = "online" | "offline";
 
 export interface Booking {
   id: string;
-  guest_id: string;
+  guest_id: string | null;
   hotel_id: string;
   room_id: string;
   check_in: string;
@@ -275,6 +310,12 @@ export interface Booking {
   cancelled_at: string | null;
   refund_amount: number | null;
   created_at: string;
+  // Offline / walk-in bookings
+  source?: BookingSource;
+  guest_name?: string | null;
+  guest_phone?: string | null;
+  guest_email?: string | null;
+  created_by?: string | null;
 }
 
 // Booking joined with hotel/room/payment for display.

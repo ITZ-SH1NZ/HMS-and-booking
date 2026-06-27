@@ -132,8 +132,16 @@ export function Navbar() {
 
   const role = profile?.role;
 
+  // The manager/staff dashboard has its own shell chrome — hide the marketing
+  // navbar there (but keep it on the create-hotel wizard and waiting screens).
+  const inDashboardShell =
+    pathname?.startsWith("/manager") &&
+    !pathname.startsWith("/manager/create-hotel") &&
+    !pathname.startsWith("/manager/waiting");
+  if (inDashboardShell) return null;
+
   return (
-    <header 
+    <header
       className="sticky top-0 z-40 w-full px-4 pt-4 bg-transparent pointer-events-none transition-all duration-300"
       onMouseLeave={handleMouseLeave}
     >
@@ -368,6 +376,14 @@ export function Navbar() {
                             </MenuLink>
                           </>
                         )}
+                        {role === "staff" && (
+                          <MenuLink
+                            href="/manager/manage"
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            Manage Hotels
+                          </MenuLink>
+                        )}
                         {role === "admin" && (
                           <MenuLink
                             href="/admin/dashboard"
@@ -529,6 +545,15 @@ export function Navbar() {
                       Payout Settings
                     </Link>
                   </>
+                )}
+                {role === "staff" && (
+                  <Link
+                    href="/manager/manage"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-2.5 px-3 rounded-xl text-sm font-black text-slate-800 hover:bg-brand-50/50 hover:text-brand-700 transition"
+                  >
+                    Manage Hotels
+                  </Link>
                 )}
                 {role === "admin" && (
                   <Link

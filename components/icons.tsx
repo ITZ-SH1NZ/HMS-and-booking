@@ -7,6 +7,7 @@ import {
   Calendar,
   User,
   Users,
+  MoreHorizontal,
   Check,
   CircleCheck,
   ChevronDown,
@@ -96,6 +97,7 @@ export const ShareIcon = Share2;
 export const ImageIcon = Image;
 export const GridIcon = LayoutGrid;
 export const XIcon = X;
+export const MoreIcon = MoreHorizontal;
 
 // Star / Heart support a `filled` convenience prop.
 export function StarIcon({

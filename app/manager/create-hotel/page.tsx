@@ -1,11 +1,14 @@
 "use client";
 
 import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useHotelDraft } from "./useHotelDraft";
 import WizardShell from "./WizardShell";
 
 function WizardLoader() {
-  const draftContext = useHotelDraft();
+  const searchParams = useSearchParams();
+  const hotelId = searchParams.get("hotelId") ?? undefined;
+  const draftContext = useHotelDraft(hotelId);
   return <WizardShell draftContext={draftContext} />;
 }
 

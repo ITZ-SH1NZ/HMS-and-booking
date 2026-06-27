@@ -47,16 +47,27 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
   // Initialize/sync URL query parameter "?step=" with the draft's step progress
   const urlStepStr = searchParams.get("step");
   const currentStep = urlStepStr ? parseInt(urlStepStr, 10) : null;
+  const editHotelId = searchParams.get("hotelId");
+
+  // Build a wizard URL that preserves the ?hotelId= edit context (without it,
+  // navigation would drop the target hotel and fall back to a generic draft).
+  const stepUrl = (step: number) => {
+    const q = new URLSearchParams();
+    if (editHotelId) q.set("hotelId", editHotelId);
+    q.set("step", String(step));
+    return `/manager/create-hotel?${q.toString()}`;
+  };
 
   useEffect(() => {
     if (!loading && draft) {
       const step = currentStep || draft.wizard_step || 1;
       // If no step in URL, set it
       if (!urlStepStr) {
-        router.replace(`/manager/create-hotel?step=${step}`);
+        router.replace(stepUrl(step));
       }
     }
-  }, [loading, draft, currentStep, urlStepStr, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, draft, currentStep, urlStepStr, router, editHotelId]);
 
   if (loading) {
     return (
@@ -103,7 +114,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
 
   const handleStepClick = async (stepNum: number) => {
     setError(null);
-    router.push(`/manager/create-hotel?step=${stepNum}`);
+    router.push(stepUrl(stepNum));
     await navigateToStep(stepNum);
   };
 
@@ -120,7 +131,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
     // 2. Save progress
     const nextStep = activeStep + 1;
     if (activeStep < 9) {
-      router.push(`/manager/create-hotel?step=${nextStep}`);
+      router.push(stepUrl(nextStep));
       await navigateToStep(nextStep);
     } else {
       // Step 9 triggers final publish flow inside Step9Review component
@@ -131,7 +142,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
     setError(null);
     if (activeStep > 1) {
       const prevStep = activeStep - 1;
-      router.push(`/manager/create-hotel?step=${prevStep}`);
+      router.push(stepUrl(prevStep));
       await navigateToStep(prevStep);
     }
   };
@@ -139,7 +150,7 @@ export default function WizardShell({ draftContext }: WizardShellProps) {
   const handleSaveAndContinueLater = async () => {
     setError(null);
     await flush(); // Force immediate database flush
-    router.push("/manager/dashboard");
+    router.push("/manager/hotels");
   };
 
   // Step Validation logic before advancing

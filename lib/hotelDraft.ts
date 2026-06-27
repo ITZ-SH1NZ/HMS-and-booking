@@ -102,7 +102,24 @@ export function normalizeHotelDraft(hotel: any): HotelDraft {
  * 1. Get or create the most recent draft hotel for a manager.
  * Never creates duplicate drafts.
  */
-export async function getOrCreateDraft(managerId: string): Promise<HotelDraft> {
+export async function getOrCreateDraft(
+  managerId: string,
+  hotelId?: string,
+): Promise<HotelDraft> {
+  // Editing a specific hotel (draft or published): load it directly. RLS keeps
+  // this scoped to the manager's own hotels.
+  if (hotelId) {
+    const { data: target } = await supabase
+      .from("hotels")
+      .select("*")
+      .eq("id", hotelId)
+      .eq("manager_id", managerId)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (target) return normalizeHotelDraft(target);
+  }
+
   const { data: existing } = await supabase
     .from("hotels")
     .select("*")

@@ -37,7 +37,7 @@ import type {
 
 const supabase = createClient();
 
-export function useHotelDraft() {
+export function useHotelDraft(hotelId?: string) {
   const [draft, setDraft] = useState<HotelDraft | null>(null);
   const [rooms, setRooms] = useState<RoomDraft[]>([]);
   const [photos, setPhotos] = useState<HotelPhoto[]>([]);
@@ -72,7 +72,7 @@ export function useHotelDraft() {
         throw new Error("User not authenticated");
       }
 
-      const hotelDraft = await getOrCreateDraft(user.id);
+      const hotelDraft = await getOrCreateDraft(user.id, hotelId);
       setDraft(hotelDraft);
 
       // Load all sub-resources in parallel
@@ -106,7 +106,7 @@ export function useHotelDraft() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [hotelId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
