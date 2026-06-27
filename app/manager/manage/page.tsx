@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import useSWR, { preload } from "swr";
 import { BuildingIcon, ArrowRightIcon } from "@/components/icons";
 import { fetcher } from "@/lib/swr";
+import { SkeletonHeader, SkeletonList } from "@/components/Skeleton";
 import type { ManagePickerData } from "./types";
 
 export default function ManagePickerPage() {
@@ -23,11 +24,9 @@ export default function ManagePickerPage() {
   if ((isLoading && !data) || (data && hotels.length === 1)) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <div className="h-7 w-32 animate-pulse rounded bg-slate-100" />
-        <div className="mt-6 space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-100" />
-          ))}
+        <SkeletonHeader />
+        <div className="mt-6">
+          <SkeletonList count={3} />
         </div>
       </div>
     );

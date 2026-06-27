@@ -54,7 +54,14 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
 
-  const showSearchPill = pathname !== "/" || isScrolled;
+  // Auth/utility pages where a floating search bar would feel out of place.
+  const isAuthPage =
+    ["/login", "/signup", "/verify-email"].some((p) => pathname?.startsWith(p)) ||
+    Boolean(pathname?.startsWith("/auth"));
+
+  // The compact search pill now floats *below* the header (links always stay
+  // visible). Show it once scrolled on the homepage, or on content pages.
+  const showSearchPill = !isAuthPage && (isScrolled || (pathname !== "/" && pathname !== "/hotels"));
 
   // Load dynamic data from Supabase for mega-menus
   useEffect(() => {
@@ -140,6 +147,24 @@ export function Navbar() {
     !pathname.startsWith("/manager/waiting");
   if (inDashboardShell) return null;
 
+  // Auth/utility pages get a clean, minimal header (logo + back to home) instead
+  // of the full marketing bar, which looked cluttered against the auth card.
+  if (isAuthPage) {
+    return (
+      <header className="pointer-events-none sticky top-0 z-40 w-full px-4 pt-4">
+        <div className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full border border-slate-250 bg-white/90 px-6 py-3 shadow-xs backdrop-blur-md">
+          <Link href="/" className="flex select-none items-center gap-2">
+            <Image src="/logo-mark.png" alt="BookNest" width={40} height={40} className="h-10 w-auto object-contain" priority />
+            <span className="text-xl font-black tracking-tight text-brand-750">BookNest</span>
+          </Link>
+          <Link href="/" className="text-sm font-bold text-slate-600 transition-colors hover:text-brand-600">
+            Back to home
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header
       className="sticky top-0 z-40 w-full px-4 pt-4 bg-transparent pointer-events-none transition-all duration-300"
@@ -168,16 +193,9 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Center Desktop Navigation — Morph between links and Search Pill */}
-        <div className="hidden lg:flex flex-1 justify-center items-center relative h-10 min-w-[340px]">
-          {/* Nav Links */}
-          <nav
-            className={`absolute transition-all duration-300 flex items-center gap-6 ${
-              showSearchPill
-                ? "opacity-0 pointer-events-none scale-95 translate-y-2"
-                : "opacity-100 pointer-events-auto scale-100 translate-y-0"
-            }`}
-          >
+        {/* Center Desktop Navigation — links stay visible at all times */}
+        <div className="hidden lg:flex flex-1 justify-center items-center h-10 min-w-[340px]">
+          <nav className="flex items-center gap-6">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
@@ -195,28 +213,6 @@ export function Navbar() {
               </Link>
             ))}
           </nav>
-
-          {/* Search Pill */}
-          <button
-            onClick={() => setSearchModalOpen(true)}
-            className={`absolute transition-all duration-300 flex items-center gap-2 border border-slate-250 hover:border-slate-350 shadow-xs hover:shadow-sm bg-white rounded-full py-1.5 pl-4 pr-2.5 font-sans cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
-              showSearchPill
-                ? "opacity-100 pointer-events-auto scale-100 translate-y-0"
-                : "opacity-0 pointer-events-none scale-95 -translate-y-2"
-            }`}
-          >
-            <span className="text-xs font-black text-slate-800 tracking-tight">Anywhere</span>
-            <span className="h-3 w-px bg-slate-200" />
-            <span className="text-xs font-black text-slate-800 tracking-tight">Any week</span>
-            <span className="h-3 w-px bg-slate-200" />
-            <span className="text-xs font-medium text-slate-500 tracking-tight">Add guests</span>
-            <span className="ml-2 grid h-6.5 w-6.5 place-items-center rounded-full bg-brand-600 text-white shadow-xs">
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-            </span>
-          </button>
         </div>
 
         {/* Right Action Bar */}
@@ -442,6 +438,30 @@ export function Navbar() {
             </>
           )}
         </div>
+      </div>
+
+      {/* Floating compact search — sits BELOW the header so the nav links stay visible */}
+      <div
+        className={`pointer-events-none mx-auto hidden max-w-7xl justify-center transition-all duration-300 lg:flex ${
+          showSearchPill ? "mt-3 translate-y-0 opacity-100" : "h-0 -translate-y-2 overflow-hidden opacity-0"
+        }`}
+      >
+        <button
+          onClick={() => setSearchModalOpen(true)}
+          className="pointer-events-auto flex items-center gap-2 rounded-full border border-slate-250 bg-white py-2 pl-5 pr-3 text-left shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <span className="text-xs font-black tracking-tight text-slate-800">Anywhere</span>
+          <span className="h-3 w-px bg-slate-200" />
+          <span className="text-xs font-black tracking-tight text-slate-800">Any week</span>
+          <span className="h-3 w-px bg-slate-200" />
+          <span className="text-xs font-medium tracking-tight text-slate-500">Add guests</span>
+          <span className="ml-2 grid h-6.5 w-6.5 place-items-center rounded-full bg-brand-600 text-white shadow-xs">
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+        </button>
       </div>
 
       {/* Mobile Menu Drawer */}

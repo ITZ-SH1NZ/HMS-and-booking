@@ -4,6 +4,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { PlusIcon } from "@/components/icons";
 import { HotelsGrid } from "./HotelsGrid";
+import { SkeletonCardGrid } from "@/components/Skeleton";
 import type { ManagerHotelCard } from "./types";
 
 export default function ManagerHotelsPage() {
@@ -25,22 +26,7 @@ export default function ManagerHotelsPage() {
       </div>
 
       <div className="mt-6">
-        {isLoading && !data ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                <div className="aspect-[16/10] w-full animate-pulse bg-slate-100" />
-                <div className="space-y-2 p-4">
-                  <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
-                  <div className="h-3 w-1/2 animate-pulse rounded bg-slate-100" />
-                  <div className="mt-3 h-9 w-full animate-pulse rounded-lg bg-slate-100" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <HotelsGrid hotels={data ?? []} />
-        )}
+        {isLoading && !data ? <SkeletonCardGrid count={6} /> : <HotelsGrid hotels={data ?? []} />}
       </div>
     </div>
   );

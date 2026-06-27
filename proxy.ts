@@ -7,10 +7,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Run on everything except API routes (they self-authenticate), static
-    // assets and image files. Excluding /api keeps SWR data fetches off the
-    // session-refresh path.
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  // Only run on the protected route groups. Public pages (home, /hotels,
+  // listings, auth) skip middleware entirely — no auth round-trip — and the
+  // browser Supabase client refreshes its own token. API routes self-auth.
+  matcher: ["/dashboard/:path*", "/manager/:path*", "/admin/:path*"],
 };

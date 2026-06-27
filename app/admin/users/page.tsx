@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { SkeletonTable } from "@/components/Skeleton";
+import { EmptyState } from "@/components/EmptyState";
+import { UsersIcon } from "@/components/icons";
 
 interface UserProfile {
   id: string;
@@ -12,6 +15,7 @@ interface UserProfile {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -21,9 +25,11 @@ export default function UsersPage() {
         .select("id, full_name, role, phone");
       if (error) {
         console.error(error);
+        setLoading(false);
         return;
       }
       setUsers(data ?? []);
+      setLoading(false);
     })();
   }, []);
 
@@ -37,6 +43,15 @@ export default function UsersPage() {
   View all registered users.
 </p>
 
+      {loading ? (
+        <div className="mt-8">
+          <SkeletonTable rows={6} />
+        </div>
+      ) : users.length === 0 ? (
+        <div className="mt-8">
+          <EmptyState icon={<UsersIcon className="h-6 w-6" />} title="No users yet" description="Registered users will appear here." />
+        </div>
+      ) : (
       <div className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
   <table className="w-full">
         <thead className="bg-slate-50">
@@ -76,6 +91,7 @@ export default function UsersPage() {
         </tbody>
       </table>
       </div>
+      )}
 </div>
   );
 }

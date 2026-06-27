@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { revalidateHotels } from "@/app/actions/hotels";
 import { MapPinIcon } from "@/components/icons";
+import { Skeleton, SkeletonHeader, SkeletonStats, SkeletonList } from "@/components/Skeleton";
 import type { Hotel, ManagerVerification, Profile } from "@/lib/types";
 
 type ManagerRow = ManagerVerification & { profiles: Pick<Profile, "full_name"> | null };
@@ -110,7 +111,18 @@ setTotalManagers(managersCount.count ?? 0);
   }
 
   if (loading) {
-    return <div className="p-10 text-center text-slate-400">Loading…</div>;
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-10">
+        <SkeletonHeader />
+        <div className="mt-6">
+          <SkeletonStats count={4} />
+        </div>
+        <div className="mt-8 space-y-3">
+          <Skeleton className="h-5 w-48" />
+          <SkeletonList count={3} />
+        </div>
+      </div>
+    );
   }
 
   return (

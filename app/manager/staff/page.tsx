@@ -2,6 +2,7 @@
 
 import useSWR from "swr";
 import { StaffClient } from "./StaffClient";
+import { SkeletonHeader, SkeletonList } from "@/components/Skeleton";
 import type { StaffData } from "./types";
 
 export default function StaffPage() {
@@ -10,11 +11,9 @@ export default function StaffPage() {
   if (isLoading && !data) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <div className="h-7 w-24 animate-pulse rounded bg-slate-100" />
-        <div className="mt-8 space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-100" />
-          ))}
+        <SkeletonHeader />
+        <div className="mt-8">
+          <SkeletonList count={3} />
         </div>
       </div>
     );

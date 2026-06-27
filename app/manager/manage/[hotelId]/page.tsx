@@ -3,6 +3,7 @@
 import { use } from "react";
 import useSWR from "swr";
 import { FrontDesk } from "./FrontDesk";
+import { Skeleton, SkeletonStats } from "@/components/Skeleton";
 import type { FrontDeskData } from "./types";
 
 export default function FrontDeskPage({ params }: { params: Promise<{ hotelId: string }> }) {
@@ -21,13 +22,11 @@ export default function FrontDeskPage({ params }: { params: Promise<{ hotelId: s
   if ((isLoading && !data) || !data) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
-        <div className="h-6 w-48 animate-pulse rounded bg-slate-100" />
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-slate-100" />
-          ))}
+        <Skeleton className="h-6 w-48" />
+        <div className="mt-4">
+          <SkeletonStats count={4} />
         </div>
-        <div className="mt-6 h-64 animate-pulse rounded-xl bg-slate-100" />
+        <Skeleton className="mt-6 h-64 w-full rounded-xl" />
       </div>
     );
   }

@@ -19,15 +19,17 @@ export default async function HotelDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
 
-  // Get current user if authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Fetch full details for public view
-  const detail = await getPublicHotel(id, user?.id);
+  // Fast path: approved listings come straight from the cached query — no auth
+  // round-trip needed (the common case). Only if that misses do we resolve the
+  // user, to allow an owner/admin to preview their own non-approved draft.
+  let detail = await getPublicHotel(id);
+  if (!detail) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getClaims();
+    const uid = data?.claims?.sub as string | undefined;
+    if (uid) detail = await getPublicHotel(id, uid);
+  }
 
   if (!detail) notFound();
 
