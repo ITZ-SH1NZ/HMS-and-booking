@@ -24,6 +24,14 @@ export async function checkOutBooking(hotelId: string, bookingId: string): Promi
   return { ok: true };
 }
 
+export async function confirmBookingPayment(hotelId: string, bookingId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_booking_payment", { p_booking_id: bookingId });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/manager/manage/${hotelId}`);
+  return { ok: true };
+}
+
 export async function cancelHotelBooking(
   hotelId: string,
   bookingId: string,

@@ -33,7 +33,8 @@ export async function GET() {
     roomsByHotel.set(r.hotel_id, e);
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const roomIds = (rooms ?? []).map((r) => r.id);
   const { data: inv } = roomIds.length
     ? await supabase.from("room_inventory").select("room_id, booked_count").eq("date", today).in("room_id", roomIds)

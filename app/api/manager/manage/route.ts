@@ -33,23 +33,26 @@ export async function GET() {
     hotels = (data as HotelLite[] | null) ?? [];
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Local calendar date (not UTC) so "today" matches the booking dates.
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const ids = hotels.map((h) => h.id);
+  const ACTIVE = ["pending", "confirmed", "checked_in"];
   const { data: bookings } = ids.length
     ? await supabase
         .from("bookings")
-        .select("hotel_id, num_rooms, check_in, check_out, status")
+        .select("hotel_id, num_rooms, guest_count, check_in, check_out, status")
         .in("hotel_id", ids)
-        .in("status", ["confirmed", "checked_in"])
+        .in("status", ACTIVE)
         .gte("check_out", today)
-    : { data: [] as { hotel_id: string; num_rooms: number; check_in: string; check_out: string; status: string }[] };
+    : { data: [] as { hotel_id: string; num_rooms: number; guest_count: number; check_in: string; check_out: string; status: string }[] };
 
   const stats = new Map<string, { arrivals: number; departures: number; inHouse: number }>();
   for (const b of bookings ?? []) {
     const s = stats.get(b.hotel_id) ?? { arrivals: 0, departures: 0, inHouse: 0 };
-    if (b.check_in === today && b.status === "confirmed") s.arrivals += b.num_rooms;
-    if (b.check_out === today && b.status === "checked_in") s.departures += b.num_rooms;
-    if (b.status === "checked_in" && b.check_in <= today && today < b.check_out) s.inHouse += b.num_rooms;
+    if (b.check_in === today) s.arrivals += b.num_rooms;
+    if (b.check_out === today) s.departures += b.num_rooms;
+    if (b.check_in <= today && today < b.check_out) s.inHouse += b.guest_count;
     stats.set(b.hotel_id, s);
   }
 

@@ -8,8 +8,8 @@ import { BOOKING_STATUS_STYLES, BOOKING_STATUS_LABELS } from "@/lib/booking";
 import type { Booking, BookingStatus, StaffPermission } from "@/lib/types";
 import { Panel } from "@/components/manager/Panel";
 import { NewBookingForm } from "./NewBookingForm";
-import { checkInBooking, checkOutBooking, cancelHotelBooking } from "../actions";
-import type { FrontDeskRoom } from "./types";
+import { checkInBooking, checkOutBooking, cancelHotelBooking, confirmBookingPayment } from "../actions";
+import type { FrontDeskRoom, FrontDeskBooking } from "./types";
 
 const TABS = ["today", "occupancy", "bookings"] as const;
 type Tab = (typeof TABS)[number];
@@ -17,13 +17,25 @@ const TAB_LABELS: Record<Tab, string> = { today: "Today", occupancy: "Occupancy"
 
 const inr = (n: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
-const todayStr = new Date().toISOString().slice(0, 10);
-const fmtDate = (s: string) => new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-const guestLabel = (b: Booking) => b.guest_name || (b.source === "offline" ? "Walk-in" : "Online guest");
 
-// A booking occupies room-nights if active on the given date.
-const occupiesOn = (b: Booking, date: string) =>
-  (b.status === "confirmed" || b.status === "checked_in") && b.check_in <= date && date < b.check_out;
+// Local calendar date (YYYY-MM-DD) — NOT UTC, so "today" matches the booking
+// dates the way the user reads them.
+function localDate(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+const todayStr = localDate();
+
+const fmtDate = (s: string) => new Date(`${s}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+const guestLabel = (b: FrontDeskBooking) => b.display_name || "Guest";
+
+// A booking is "active" (holds a room) unless it's cancelled or completed —
+// this includes pending (awaiting payment), so held rooms are tracked.
+const isActive = (b: Booking) => b.status === "pending" || b.status === "confirmed" || b.status === "checked_in";
+
+// Active stay that spans the given date (room is occupied that night).
+const occupiesOn = (b: Booking, date: string) => isActive(b) && b.check_in <= date && date < b.check_out;
+const isArrival = (b: Booking) => b.check_in === todayStr && isActive(b);
+const isDeparture = (b: Booking) => b.check_out === todayStr && isActive(b);
 
 export function FrontDesk({
   hotel,
@@ -34,13 +46,13 @@ export function FrontDesk({
 }: {
   hotel: { id: string; name: string; location: string };
   rooms: FrontDeskRoom[];
-  bookings: Booking[];
+  bookings: FrontDeskBooking[];
   permissions: StaffPermission[];
   isManager: boolean;
 }) {
   const [tab, setTab] = useState<Tab>("today");
   const [newOpen, setNewOpen] = useState(false);
-  const [detail, setDetail] = useState<Booking | null>(null);
+  const [detail, setDetail] = useState<FrontDeskBooking | null>(null);
 
   const canBook = isManager || permissions.includes("offline_booking");
   const capacity = rooms.reduce((s, r) => s + r.total_units, 0);
@@ -51,10 +63,13 @@ export function FrontDesk({
       inHouse = 0,
       occupied = 0;
     for (const b of bookings) {
-      if (b.check_in === todayStr && b.status === "confirmed") arrivals += b.num_rooms;
-      if (b.check_out === todayStr && b.status === "checked_in") departures += b.num_rooms;
-      if (b.status === "checked_in" && b.check_in <= todayStr && todayStr < b.check_out) inHouse += b.num_rooms;
-      if (occupiesOn(b, todayStr)) occupied += b.num_rooms;
+      if (isArrival(b)) arrivals += b.num_rooms;
+      if (isDeparture(b)) departures += b.num_rooms;
+      // In-house tonight = active stay spanning today (guests staying over).
+      if (occupiesOn(b, todayStr)) {
+        occupied += b.num_rooms;
+        inHouse += b.guest_count;
+      }
     }
     const pct = capacity > 0 ? Math.round((occupied / capacity) * 100) : 0;
     return { arrivals, departures, inHouse, pct };
@@ -145,9 +160,9 @@ function StatusBadge({ status }: { status: BookingStatus }) {
 }
 
 // ---- Today -----------------------------------------------------------------
-function TodayView({ bookings, onOpen }: { bookings: Booking[]; onOpen: (b: Booking) => void }) {
-  const arrivals = bookings.filter((b) => b.check_in === todayStr && b.status === "confirmed");
-  const departures = bookings.filter((b) => b.check_out === todayStr && b.status === "checked_in");
+function TodayView({ bookings, onOpen }: { bookings: FrontDeskBooking[]; onOpen: (b: FrontDeskBooking) => void }) {
+  const arrivals = bookings.filter(isArrival);
+  const departures = bookings.filter(isDeparture);
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -180,7 +195,7 @@ function Column({ title, count, children }: { title: string; count: number; chil
   );
 }
 
-function Row({ b, onOpen }: { b: Booking; onOpen: (b: Booking) => void }) {
+function Row({ b, onOpen }: { b: FrontDeskBooking; onOpen: (b: FrontDeskBooking) => void }) {
   return (
     <button
       onClick={() => onOpen(b)}
@@ -202,7 +217,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 }
 
 // ---- Occupancy -------------------------------------------------------------
-function OccupancyView({ rooms, bookings }: { rooms: FrontDeskRoom[]; bookings: Booking[] }) {
+function OccupancyView({ rooms, bookings }: { rooms: FrontDeskRoom[]; bookings: FrontDeskBooking[] }) {
   const [date, setDate] = useState(todayStr);
   const [grid, setGrid] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -317,23 +332,45 @@ function OccupancyView({ rooms, bookings }: { rooms: FrontDeskRoom[]; bookings: 
 // ---- Bookings --------------------------------------------------------------
 const STATUS_FILTERS: (BookingStatus | "all")[] = ["all", "confirmed", "checked_in", "completed", "cancelled", "pending"];
 
-function BookingsView({ bookings, onOpen }: { bookings: Booking[]; onOpen: (b: Booking) => void }) {
+type SortKey = "checkin_desc" | "checkin_asc" | "total_desc" | "total_asc";
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "checkin_desc", label: "Check-in: newest" },
+  { key: "checkin_asc", label: "Check-in: oldest" },
+  { key: "total_desc", label: "Total: high → low" },
+  { key: "total_asc", label: "Total: low → high" },
+];
+
+function BookingsView({ bookings, onOpen }: { bookings: FrontDeskBooking[]; onOpen: (b: FrontDeskBooking) => void }) {
   const [status, setStatus] = useState<BookingStatus | "all">("all");
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState<SortKey>("checkin_desc");
 
-  const filtered = bookings.filter((b) => {
-    if (status !== "all" && b.status !== status) return false;
-    if (q) {
-      const hay = `${b.guest_name ?? ""} ${b.guest_phone ?? ""}`.toLowerCase();
-      if (!hay.includes(q.toLowerCase())) return false;
-    }
-    return true;
-  });
+  const filtered = bookings
+    .filter((b) => {
+      if (status !== "all" && b.status !== status) return false;
+      if (q) {
+        const hay = `${b.display_name ?? ""} ${b.display_phone ?? ""} ${b.guest_email ?? ""}`.toLowerCase();
+        if (!hay.includes(q.toLowerCase())) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sort) {
+        case "checkin_asc":
+          return a.check_in.localeCompare(b.check_in);
+        case "total_desc":
+          return b.total_price - a.total_price;
+        case "total_asc":
+          return a.total_price - b.total_price;
+        default:
+          return b.check_in.localeCompare(a.check_in);
+      }
+    });
 
   return (
     <div>
-      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-1.5">
+      <div className="mb-3 flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {STATUS_FILTERS.map((s) => (
             <button
               key={s}
@@ -346,14 +383,27 @@ function BookingsView({ bookings, onOpen }: { bookings: Booking[]; onOpen: (b: B
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5">
-          <SearchIcon className="h-4 w-4 text-slate-400" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search guest…"
-            className="w-full bg-transparent text-sm outline-none sm:w-40"
-          />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5">
+            <SearchIcon className="h-4 w-4 text-slate-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search name, phone, email…"
+              className="w-full bg-transparent text-sm outline-none sm:w-56"
+            />
+          </div>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm text-slate-600 outline-none"
+          >
+            {SORTS.map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -417,7 +467,7 @@ function BookingDetail({
   onClose,
 }: {
   hotelId: string;
-  booking: Booking | null;
+  booking: FrontDeskBooking | null;
   rooms: FrontDeskRoom[];
   onClose: () => void;
 }) {
@@ -448,9 +498,9 @@ function BookingDetail({
             <h3 className="text-lg font-bold text-slate-900">{guestLabel(booking)}</h3>
             <StatusBadge status={booking.status} />
           </div>
-          {(booking.guest_phone || booking.guest_email) && (
+          {(booking.display_phone || booking.guest_email) && (
             <p className="mt-0.5 text-sm text-slate-500">
-              {[booking.guest_phone, booking.guest_email].filter(Boolean).join(" · ")}
+              {[booking.display_phone, booking.guest_email].filter(Boolean).join(" · ")}
             </p>
           )}
         </div>
@@ -472,6 +522,15 @@ function BookingDetail({
         {error && <div className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">{error}</div>}
 
         <div className="space-y-2">
+          {booking.status === "pending" && (
+            <button
+              onClick={() => run(() => confirmBookingPayment(hotelId, booking.id))}
+              disabled={pending}
+              className="w-full rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              {pending ? "Working…" : "Mark as paid · Confirm"}
+            </button>
+          )}
           {booking.status === "confirmed" && (
             <button
               onClick={() => run(() => checkInBooking(hotelId, booking.id))}
