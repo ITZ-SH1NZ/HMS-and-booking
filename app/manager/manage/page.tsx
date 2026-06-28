@@ -4,10 +4,13 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useSWR, { preload } from "swr";
+import { motion } from "motion/react";
 import { BuildingIcon, ArrowRightIcon } from "@/components/icons";
 import { fetcher } from "@/lib/swr";
 import { SkeletonHeader, SkeletonList } from "@/components/Skeleton";
 import type { ManagePickerData } from "./types";
+
+const MotionLink = motion(Link);
 
 export default function ManagePickerPage() {
   const router = useRouter();
@@ -34,7 +37,7 @@ export default function ManagePickerPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-slate-900">Manage</h1>
+      <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-serif">Manage</h1>
       <p className="text-sm text-slate-500">Choose a hotel to open its front desk.</p>
 
       {hotels.length === 0 ? (
@@ -48,13 +51,27 @@ export default function ManagePickerPage() {
           )}
         </div>
       ) : (
-        <div className="mt-6 space-y-3">
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.04 } }
+          }}
+          className="mt-6 space-y-3"
+        >
           {hotels.map((h) => (
-            <Link
+            <MotionLink
               key={h.id}
               href={`/manager/manage/${h.id}`}
               onMouseEnter={() => preload(`/api/manager/manage/${h.id}`, fetcher)}
-              className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:border-brand-300 hover:shadow-sm"
+              variants={{
+                hidden: { opacity: 0, y: 8 },
+                show: { opacity: 1, y: 0 }
+              }}
+              whileHover={{ y: -2, scale: 1.005, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.04)" }}
+              transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
+              className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:border-brand-300 transition-colors cursor-pointer"
             >
               <div className="min-w-0">
                 <h3 className="truncate font-semibold text-slate-900">{h.name}</h3>
@@ -66,10 +83,11 @@ export default function ManagePickerPage() {
                 </div>
               </div>
               <ArrowRightIcon className="h-5 w-5 shrink-0 text-slate-400" />
-            </Link>
+            </MotionLink>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );
 }
+

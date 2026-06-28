@@ -10,3 +10,11 @@ export async function getManagerContext() {
   const userId = (data?.claims?.sub as string | undefined) ?? null;
   return { supabase, userId };
 }
+
+// Like getManagerContext, but also resolves whether the caller is an admin.
+export async function getAdminContext() {
+  const { supabase, userId } = await getManagerContext();
+  if (!userId) return { supabase, userId: null, isAdmin: false };
+  const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
+  return { supabase, userId, isAdmin: data?.role === "admin" };
+}

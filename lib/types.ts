@@ -31,7 +31,7 @@ export interface StaffInvite {
   accepted_at: string | null;
 }
 
-export type VerificationStatus = "pending" | "approved" | "rejected";
+export type VerificationStatus = "pending" | "approved" | "rejected" | "more_info";
 
 export interface Profile {
   id: string;
@@ -41,6 +41,9 @@ export interface Profile {
   dob: string | null;
   location: string | null;
   created_at: string;
+  suspended?: boolean;
+  suspended_reason?: string | null;
+  suspended_at?: string | null;
 }
 
 export interface ManagerVerification {
@@ -54,6 +57,18 @@ export interface ManagerVerification {
   rejection_reason: string | null;
   created_at: string;
   reviewed_at: string | null;
+  reviewed_by?: string | null;
+  review_note?: string | null;
+}
+
+export interface AdminAuditEntry {
+  id: string;
+  admin_id: string | null;
+  action: string;
+  target_type: string;
+  target_id: string | null;
+  details: Record<string, unknown> | null;
+  created_at: string;
 }
 
 export type PropertyType = "Hotel" | "Resort" | "Villa" | "Apartment" | "Homestay" | "Guest house" | "Hostel";
@@ -200,6 +215,9 @@ export interface Hotel {
   deactivated_at?: string | null;
   deleted_reason?: string | null;
   deleted_note?: string | null;
+  rejection_reason?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
 }
 
 export type HotelDraft = Hotel;

@@ -16,9 +16,9 @@ import { useCurrency } from "@/components/CurrencyProvider";
 const NAV_LINKS = [
   { label: "Stays", href: "/" },
   { label: "Explore", href: "/hotels" },
-  { label: "Offers", href: "/#offers" },
-  { label: "Business Travel", href: "/#hotels" },
-  { label: "Gift Cards", href: "#" },
+  { label: "Offers", href: "/offers" },
+  { label: "Business Travel", href: "/business-travel" },
+  { label: "Gift Cards", href: "/gift-cards" },
 ];
 
 export function Navbar() {
@@ -141,10 +141,11 @@ export function Navbar() {
 
   // The manager/staff dashboard has its own shell chrome — hide the marketing
   // navbar there (but keep it on the create-hotel wizard and waiting screens).
-  const inDashboardShell =
+  const inManagerShell =
     pathname?.startsWith("/manager") &&
     !pathname.startsWith("/manager/create-hotel") &&
     !pathname.startsWith("/manager/waiting");
+  const inDashboardShell = inManagerShell || Boolean(pathname?.startsWith("/admin"));
   if (inDashboardShell) return null;
 
   // Auth/utility pages get a clean, minimal header (logo + back to home) instead
@@ -196,22 +197,31 @@ export function Navbar() {
         {/* Center Desktop Navigation — links stay visible at all times */}
         <div className="hidden lg:flex flex-1 justify-center items-center h-10 min-w-[340px]">
           <nav className="flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onMouseEnter={() => {
-                  if (link.label === "Stays") handleMouseEnter("stays");
-                  else handleMouseLeave();
-                }}
-                className="text-sm font-bold text-slate-650 hover:text-brand-600 transition-colors duration-200 relative py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md px-1"
-              >
-                {link.label}
-                {link.label === "Stays" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full" />
-                )}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = link.href === "/" ? pathname === "/" : pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onMouseEnter={() => {
+                    if (link.label === "Stays") handleMouseEnter("stays");
+                    else handleMouseLeave();
+                  }}
+                  className={`text-sm font-bold transition-colors duration-200 relative py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md px-1 ${
+                    isActive ? "text-slate-900" : "text-slate-650 hover:text-brand-600"
+                  }`}
+                >
+                  {link.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -476,16 +486,23 @@ export function Navbar() {
               </div>
             )}
 
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2.5 px-3 rounded-xl text-sm font-black text-slate-800 hover:bg-brand-50/50 hover:text-brand-700 transition"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = link.href === "/" ? pathname === "/" : pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block py-2.5 px-3 rounded-xl text-sm font-black transition ${
+                    isActive
+                      ? "bg-brand-50 text-brand-700 font-extrabold"
+                      : "text-slate-800 hover:bg-brand-50/50 hover:text-brand-700"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
 
             <div className="border-t border-slate-150/80 my-2" />
 

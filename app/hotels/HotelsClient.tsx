@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "motion/react";
 import { Hotel } from "@/lib/types";
 import { parsePostgresArray } from "@/lib/hotelDraft";
+import { StarIcon, MapPinIcon } from "@/components/icons";
 
 interface HotelsClientHotel extends Hotel {
   rating?: number | string | null;
@@ -15,9 +17,14 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
   const filteredHotels = hotels.filter((hotel) => {
+    const searchTerms = search.replace(/[,()]/g, " ").toLowerCase().split(/\s+/).filter(Boolean);
     const matchesSearch =
-      hotel.name.toLowerCase().includes(search.toLowerCase()) ||
-      hotel.location.toLowerCase().includes(search.toLowerCase());
+      searchTerms.length === 0 ||
+      searchTerms.every(
+        (term) =>
+          hotel.name.toLowerCase().includes(term) ||
+          hotel.location.toLowerCase().includes(term)
+      );
 
     const matchesRating =
       !rating || Number(hotel.rating ?? 0) >= Number(rating);
@@ -65,12 +72,12 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
           <select
             value={rating}
             onChange={(e) => setRating(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-700"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-755"
           >
             <option value="">All Ratings</option>
-            <option value="4">⭐ 4.0+</option>
-            <option value="4.5">⭐ 4.5+</option>
-            <option value="4.8">⭐ 4.8+</option>
+            <option value="4">4.0+ Stars</option>
+            <option value="4.5">4.5+ Stars</option>
+            <option value="4.8">4.8+ Stars</option>
           </select>
 
           <select
@@ -118,13 +125,27 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.04 } }
+        }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
         {sortedHotels.map((hotel) => {
           const parsedAmenities = parsePostgresArray(hotel.amenities);
           return (
-            <div
+            <motion.div
               key={hotel.id}
-              className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200/60 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              variants={{
+                hidden: { opacity: 0, y: 12 },
+                show: { opacity: 1, y: 0 }
+              }}
+              whileHover={{ y: -4 }}
+              transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
+              className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200/60 shadow-xs hover:shadow-lg transition-shadow duration-300"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                 <img
@@ -135,7 +156,7 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
                 />
                 {hotel.rating && (
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-xs font-bold text-slate-800 flex items-center gap-1 shadow-xs border border-slate-100">
-                    <span className="text-gold-500">★</span>
+                    <StarIcon className="h-3.5 w-3.5 text-gold-500" filled />
                     <span>{Number(hotel.rating).toFixed(1)}</span>
                   </div>
                 )}
@@ -148,7 +169,7 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
                   </h2>
 
                   <p className="text-slate-500 text-sm flex items-center gap-1 mt-1">
-                    <span className="text-slate-400">📍</span> {hotel.location}
+                    <MapPinIcon className="h-4 w-4 text-brand-500 shrink-0" /> {hotel.location}
                   </p>
 
                   <p className="mt-3 text-slate-600 text-sm line-clamp-2 leading-relaxed">
@@ -179,9 +200,9 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
                   <div>
                     {hotel.star_rating && (
-                      <div className="flex items-center gap-0.5 text-xs text-gold-500">
+                      <div className="flex items-center gap-0.5 text-xs">
                         {Array.from({ length: hotel.star_rating }).map((_, i) => (
-                          <span key={i}>★</span>
+                          <StarIcon key={i} className="h-3.5 w-3.5 text-gold-500" filled />
                         ))}
                       </div>
                     )}
@@ -194,10 +215,10 @@ export default function HotelsClient({ hotels }: { hotels: HotelsClientHotel[] }
                   </a>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }

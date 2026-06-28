@@ -301,11 +301,16 @@ export function AirbnbSearch() {
                         <li key={s}>
                           <button
                             type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault(); // Prevent input focus loss from closing dropdown
+                              setLocation(s);
+                              setActive("when");
+                            }}
                             onClick={() => {
                               setLocation(s);
                               setActive("when");
                             }}
-                            className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 cursor-pointer"
                           >
                             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500">
                               <MapPinIcon className="h-5 w-5" />

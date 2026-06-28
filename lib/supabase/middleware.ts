@@ -55,9 +55,10 @@ export async function updateSession(request: NextRequest) {
   // Logged in but on a public page: nothing to gate.
   if (!isProtected) return response;
 
-  // Fetch role (and, for the manager area, the latest verification) in parallel.
+  // Fetch role + suspension (and, for the manager area, the latest
+  // verification) in parallel.
   const [{ data: profile }, { data: mv }] = await Promise.all([
-    supabase.from("profiles").select("role").eq("id", userId).single(),
+    supabase.from("profiles").select("role, suspended").eq("id", userId).single(),
     isManagerArea
       ? supabase
           .from("manager_verifications")
@@ -71,12 +72,15 @@ export async function updateSession(request: NextRequest) {
 
   const role = profile?.role as UserRole | undefined;
 
-  const redirectTo = (pathname: string) => {
+  const redirectTo = (pathname: string, search = "") => {
     const url = request.nextUrl.clone();
     url.pathname = pathname;
-    url.search = "";
+    url.search = search;
     return NextResponse.redirect(url);
   };
+
+  // Suspended accounts lose access to all protected areas.
+  if ((profile as { suspended?: boolean } | null)?.suspended) return redirectTo("/", "?suspended=1");
 
   if (isAdminArea && role !== "admin") return redirectTo("/");
   if (isGuestArea && role !== "guest") return redirectTo("/");

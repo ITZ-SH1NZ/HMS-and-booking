@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { ClockIcon, BanIcon } from "@/components/icons";
+import { ClockIcon, BanIcon, MailIcon } from "@/components/icons";
 import type { VerificationStatus } from "@/lib/types";
+import { ResubmitButton } from "./ResubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export default async function ManagerWaitingPage() {
 
   const { data: mv } = await supabase
     .from("manager_verifications")
-    .select("status, rejection_reason, business_name")
+    .select("status, rejection_reason, review_note, business_name")
     .eq("user_id", user?.id ?? "")
     .order("created_at", { ascending: false })
     .limit(1)
@@ -24,7 +25,19 @@ export default async function ManagerWaitingPage() {
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-4 py-10">
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        {status === "rejected" ? (
+        {status === "more_info" ? (
+          <>
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sky-50 text-sky-600">
+              <MailIcon className="h-7 w-7" />
+            </div>
+            <h1 className="mt-4 text-xl font-bold text-slate-900">More information needed</h1>
+            <p className="mt-2 text-sm text-slate-600">An admin needs more details before approving:</p>
+            <p className="mt-1 rounded-lg bg-sky-50 px-3 py-2 text-sm font-medium text-sky-700">
+              {mv?.review_note ?? "Please review and resubmit."}
+            </p>
+            <ResubmitButton label="Resubmit for review" />
+          </>
+        ) : status === "rejected" ? (
           <>
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-600">
               <BanIcon className="h-7 w-7" />
@@ -38,12 +51,7 @@ export default async function ManagerWaitingPage() {
             <p className="mt-1 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
               {mv?.rejection_reason ?? "No reason provided."}
             </p>
-            <Link
-              href="/signup/manager"
-              className="mt-6 inline-block rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
-            >
-              Apply again
-            </Link>
+            <ResubmitButton label="Resubmit for review" />
           </>
         ) : (
           <>

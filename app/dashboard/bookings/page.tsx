@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BookingCard } from "@/components/BookingCard";
+import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ScrollReveal";
 import type { BookingDetail } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -40,37 +41,49 @@ export default async function BookingsPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-slate-900">My bookings</h1>
-      <p className="text-sm text-slate-500">View and manage your reservations.</p>
+      <ScrollReveal duration={0.4}>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight font-serif">My Bookings</h1>
+          <p className="text-sm text-slate-500 font-medium">View and manage your reservations.</p>
+        </div>
+      </ScrollReveal>
 
-      <div className="mt-6 flex gap-2">
-        {FILTERS.map((f) => (
-          <Link
-            key={f.key}
-            href={`/dashboard/bookings${f.key === "all" ? "" : `?status=${f.key}`}`}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-              status === f.key
-                ? "bg-slate-900 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            {f.label}
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-6 space-y-4">
-        {bookings.length === 0 ? (
-          <div className="grid place-items-center rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center">
-            <p className="font-medium text-slate-700">No bookings here yet</p>
-            <Link href="/" className="mt-2 text-sm font-semibold text-brand-600">
-              Browse hotels
+      <ScrollReveal delay={0.1} duration={0.4}>
+        <div className="mt-6 flex flex-wrap gap-1.5">
+          {FILTERS.map((f) => (
+            <Link
+              key={f.key}
+              href={`/dashboard/bookings${f.key === "all" ? "" : `?status=${f.key}`}`}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                status === f.key
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "bg-white border border-slate-250/60 text-slate-650 hover:bg-slate-50"
+              }`}
+            >
+              {f.label}
             </Link>
-          </div>
+          ))}
+        </div>
+      </ScrollReveal>
+
+      <StaggerContainer className="mt-8 space-y-4">
+        {bookings.length === 0 ? (
+          <StaggerItem>
+            <div className="grid place-items-center rounded-3xl border border-dashed border-slate-200 bg-white py-16 text-center shadow-xs">
+              <p className="font-bold text-slate-700 text-sm">No bookings here yet</p>
+              <Link href="/" className="mt-2 text-xs font-black text-brand-700 hover:underline">
+                Browse hotels
+              </Link>
+            </div>
+          </StaggerItem>
         ) : (
-          bookings.map((b) => <BookingCard key={b.id} booking={b} />)
+          bookings.map((b) => (
+            <StaggerItem key={b.id}>
+              <BookingCard booking={b} />
+            </StaggerItem>
+          ))
         )}
-      </div>
+      </StaggerContainer>
     </div>
   );
 }
