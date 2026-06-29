@@ -11,6 +11,7 @@ import { NewBookingForm } from "./NewBookingForm";
 import { checkInBooking, checkOutBooking, cancelHotelBooking, confirmBookingPayment } from "../actions";
 import type { FrontDeskRoom, FrontDeskBooking } from "./types";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { QrCode, Camera, Keyboard } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 
@@ -106,6 +107,7 @@ export function FrontDesk({
   permissions: StaffPermission[];
   isManager: boolean;
 }) {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("today");
   const [newOpen, setNewOpen] = useState(false);
   const [portalOpen, setPortalOpen] = useState(false);
@@ -255,7 +257,7 @@ export function FrontDesk({
                     setPortalOpen(false);
                     setIsScanning(false);
                     setPortalError(null);
-                    window.open(`/bookings/${matched.id}/check-in`, "_blank");
+                    router.push(`/bookings/${matched.id}/check-in`);
                   } else {
                     setPortalError("No active booking found for this scanned QR code.");
                   }
@@ -341,7 +343,7 @@ export function FrontDesk({
                     setPortalOpen(false);
                     setPortalSearch("");
                     setPortalError(null);
-                    window.open(`/bookings/${matched.id}/check-in`, "_blank");
+                    router.push(`/bookings/${matched.id}/check-in`);
                   } else {
                     setPortalError("No active booking found with this ID for this hotel.");
                   }

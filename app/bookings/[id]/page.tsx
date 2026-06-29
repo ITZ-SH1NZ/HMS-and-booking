@@ -104,17 +104,10 @@ export default async function BookingDetailPage({
         </ScrollReveal>
       </div>
 
-      {/* Interactive QR Code Card (Hidden during Print) */}
-      <div className="no-print mb-6">
-        <ScrollReveal delay={0.05} duration={0.4}>
-          <CheckInQrCard qrCodeUrl={qrCodeUrl} />
-        </ScrollReveal>
-      </div>
-
       {/* Unified Receipt Print Area */}
       <div id="receipt-print-area" className="space-y-6">
         
-        {/* Receipt Header (Hotel Details & Booking ID) */}
+        {/* Receipt Header (Hotel Details, Booking ID, Status & QR Code) */}
         <div className="flex items-start justify-between gap-3 border-b border-slate-200/60 pb-5">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight font-serif leading-tight">
@@ -132,11 +125,17 @@ export default async function BookingDetailPage({
               <p className="text-[10px] font-mono text-slate-400">UUID: {booking.id}</p>
             </div>
           </div>
-          <span
-            className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${BOOKING_STATUS_STYLES[booking.status]}`}
-          >
-            {BOOKING_STATUS_LABELS[booking.status]}
-          </span>
+          
+          <div className="flex flex-col items-end gap-3 shrink-0">
+            <span
+              className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${BOOKING_STATUS_STYLES[booking.status]}`}
+            >
+              {BOOKING_STATUS_LABELS[booking.status]}
+            </span>
+            
+            {/* Click-to-fullscreen QR code in receipt (visible on screen and in print PDF) */}
+            <CheckInQrCard qrCodeUrl={qrCodeUrl} variant="compact" />
+          </div>
         </div>
 
         <StaggerContainer className="space-y-5">
