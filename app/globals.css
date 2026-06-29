@@ -235,7 +235,7 @@ html {
 /* ---- Print Styles for Receipts/Invoices ---- */
 @media print {
   /* Hide navbar, footer, background elements, navigation links, and action buttons */
-  header, footer, nav, aside, .no-print, button, a {
+  header, footer, nav, aside, .no-print {
     display: none !important;
   }
 

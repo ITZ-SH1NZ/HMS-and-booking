@@ -116,6 +116,22 @@ export function FrontDesk({
   const [isScanning, setIsScanning] = useState(false);
   const [detail, setDetail] = useState<FrontDeskBooking | null>(null);
 
+  const [checkoutQrBooking, setCheckoutQrBooking] = useState<FrontDeskBooking | null>(null);
+  const [checkoutQrUrl, setCheckoutQrUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (checkoutQrBooking) {
+      const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+      import("qrcode").then((QRCode) => {
+        QRCode.toDataURL(`${origin}/bookings/${checkoutQrBooking.id}/review`)
+          .then(setCheckoutQrUrl)
+          .catch((err) => console.error("Failed to generate checkout QR:", err));
+      });
+    } else {
+      setCheckoutQrUrl("");
+    }
+  }, [checkoutQrBooking]);
+
   const canBook = isManager || permissions.includes("offline_booking");
   const capacity = rooms.reduce((s, r) => s + r.total_units, 0);
 
@@ -386,7 +402,49 @@ export function FrontDesk({
         booking={detail}
         rooms={rooms}
         onClose={() => setDetail(null)}
+        onShowCheckoutQr={setCheckoutQrBooking}
       />
+
+      <Panel
+        open={!!checkoutQrBooking}
+        onClose={() => setCheckoutQrBooking(null)}
+        title="Guest Checkout & Review QR"
+      >
+        {checkoutQrBooking && (
+          <div className="space-y-5 py-4 text-center">
+            <p className="text-xs text-slate-550 leading-relaxed max-w-xs mx-auto">
+              Ask the guest to scan this QR code on their phone to complete their checkout, rate their stay, and write a review.
+            </p>
+            
+            {checkoutQrUrl ? (
+              <div className="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200/60 rounded-2xl max-w-xs mx-auto">
+                <img
+                  src={checkoutQrUrl}
+                  alt="Checkout & Review QR Code"
+                  className="w-48 h-48 border border-slate-200 rounded-xl p-2 bg-white shadow-sm"
+                />
+                <p className="text-[10px] text-brand-700 font-black mt-3 uppercase tracking-wider">
+                  {checkoutQrBooking.display_name || "Guest"} · Room {rooms.find((r) => r.id === checkoutQrBooking.room_id)?.name || "—"}
+                </p>
+              </div>
+            ) : (
+              <div className="h-48 flex items-center justify-center text-xs text-slate-450">
+                Generating QR Code...
+              </div>
+            )}
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setCheckoutQrBooking(null)}
+                className="w-full rounded-xl bg-slate-900 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+      </Panel>
     </div>
   );
 }
@@ -714,11 +772,13 @@ function BookingDetail({
   booking,
   rooms,
   onClose,
+  onShowCheckoutQr,
 }: {
   hotelId: string;
   booking: FrontDeskBooking | null;
   rooms: FrontDeskRoom[];
   onClose: () => void;
+  onShowCheckoutQr: (booking: FrontDeskBooking) => void;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -805,6 +865,14 @@ function BookingDetail({
               className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
             >
               {pending ? "Working…" : "Check out"}
+            </button>
+          )}
+          {(booking.status === "checked_in" || booking.status === "completed") && (
+            <button
+              onClick={() => onShowCheckoutQr(booking)}
+              className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+            >
+              <QrCode className="h-4 w-4 text-slate-400" /> Guest Checkout & Review QR
             </button>
           )}
           {(booking.status === "confirmed" || booking.status === "checked_in" || booking.status === "pending") && (
