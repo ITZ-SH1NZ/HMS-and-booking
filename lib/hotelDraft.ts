@@ -99,6 +99,21 @@ export function normalizeHotelDraft(hotel: any): HotelDraft {
 }
 
 /**
+ * Get a single hotel by its id, for editing an already-published listing
+ * (as opposed to getOrCreateDraft, which only ever touches draft rows).
+ */
+export async function getHotelById(hotelId: string): Promise<HotelDraft | null> {
+  const { data, error } = await supabase
+    .from("hotels")
+    .select("*")
+    .eq("id", hotelId)
+    .single();
+
+  if (error || !data) return null;
+  return normalizeHotelDraft(data);
+}
+
+/**
  * 1. Get or create the most recent draft hotel for a manager.
  * Never creates duplicate drafts.
  */

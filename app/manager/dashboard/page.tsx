@@ -100,7 +100,7 @@ export default async function ManagerDashboardPage({ searchParams }: DashboardPr
                     </div>
                   </div>
 
-                  {isDraft && (
+                  {isDraft ? (
                     <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
                       <span className="text-slate-400 font-medium">
                         Completed step {hotel.wizard_step || 1} of 9
@@ -110,6 +110,21 @@ export default async function ManagerDashboardPage({ searchParams }: DashboardPr
                         className="text-green-700 font-bold hover:text-emerald-800"
                       >
                         Resume Draft &rarr;
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end items-center gap-4 text-xs">
+                      <Link
+                        href={`/manager/hotel/${hotel.id}/edit`}
+                        className="text-slate-500 font-semibold hover:text-brand-600"
+                      >
+                        Edit hotel &rarr;
+                      </Link>
+                      <Link
+                        href="/manager/reservations"
+                        className="text-slate-500 font-semibold hover:text-brand-600"
+                      >
+                        View reservations &rarr;
                       </Link>
                     </div>
                   )}
