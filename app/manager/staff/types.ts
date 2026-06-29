@@ -20,7 +20,7 @@ export interface InviteRow {
   expiresAt: string;
 }
 export interface StaffData {
-  hotels: { id: string; name: string }[];
+  hotels: { id: string; name: string; location: string; image_url: string | null }[];
   staff: StaffMember[];
   invites: InviteRow[];
 }

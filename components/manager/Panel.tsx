@@ -14,12 +14,14 @@ export function Panel({
   title,
   children,
   footer,
+  widthClassName = "md:w-[28rem]",
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  widthClassName?: string;
 }) {
   const [desktop, setDesktop] = useState(true);
 
@@ -57,8 +59,8 @@ export function Panel({
           <motion.div
             {...slide}
             transition={{ type: "tween", ease: [0.22, 1, 0.36, 1], duration: 0.28 }}
-            className="absolute inset-x-0 bottom-0 flex max-h-[92vh] flex-col rounded-t-2xl bg-white shadow-xl
-                       md:inset-y-0 md:right-0 md:left-auto md:w-[28rem] md:max-h-none md:rounded-none md:rounded-l-2xl"
+            className={`absolute inset-x-0 bottom-0 flex max-h-[92vh] flex-col rounded-t-2xl bg-white shadow-xl
+                       md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:rounded-l-2xl ${widthClassName}`}
           >
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
               <h2 className="text-base font-bold text-slate-900">{title}</h2>

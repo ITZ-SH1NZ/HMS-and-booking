@@ -3,7 +3,7 @@
 export type UserRole = "guest" | "manager" | "admin" | "staff";
 
 // What an assigned staff member is allowed to do on a hotel.
-export type StaffPermission = "offline_booking" | "view_occupancy" | "manage_rooms";
+export type StaffPermission = string;
 
 export type StaffInviteStatus = "pending" | "accepted" | "revoked" | "expired";
 

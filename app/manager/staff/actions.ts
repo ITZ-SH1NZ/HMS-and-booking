@@ -11,11 +11,10 @@ export interface ActionResult {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Invite a person (by email) to one or more hotels with a set of permissions. */
+/** Invite a person (by email) to one or more hotels with custom permissions for each. */
 export async function inviteStaff(
   email: string,
-  hotelIds: string[],
-  permissions: StaffPermission[],
+  hotelAccess: { hotelId: string; permissions: string[] }[],
 ): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -25,12 +24,14 @@ export async function inviteStaff(
 
   const clean = email.trim().toLowerCase();
   if (!EMAIL_RE.test(clean)) return { ok: false, error: "Enter a valid email address." };
-  if (hotelIds.length === 0) return { ok: false, error: "Select at least one hotel." };
-  if (permissions.length === 0) return { ok: false, error: "Select at least one permission." };
+  if (hotelAccess.length === 0) return { ok: false, error: "Select at least one hotel." };
 
-  const rows = hotelIds.map((hotel_id) => ({
+  const hasEmptyPerms = hotelAccess.some((h) => h.permissions.length === 0);
+  if (hasEmptyPerms) return { ok: false, error: "Select at least one permission for each selected hotel." };
+
+  const rows = hotelAccess.map(({ hotelId, permissions }) => ({
     email: clean,
-    hotel_id,
+    hotel_id: hotelId,
     permissions,
     invited_by: user.id,
   }));
