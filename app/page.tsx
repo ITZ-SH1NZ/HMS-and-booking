@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { HotelCard } from "@/components/HotelCard";
 import { AirbnbSearch } from "@/components/AirbnbSearch";
 import { Footer } from "@/components/Footer";
@@ -8,6 +7,7 @@ import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/Scroll
 import { toHotelCard, getApprovedHotelsCached } from "@/lib/hotels";
 import type { HotelCardData, HotelWithStats } from "@/lib/types";
 import { getOptimizedImageUrl } from "@/lib/image";
+import { FeaturedStaysSection } from "@/components/FeaturedStaysSection";
 import {
   AnimatedShieldCheck,
   AnimatedTag,
@@ -15,7 +15,8 @@ import {
   AnimatedLock,
   AnimatedHeadphones,
 } from "@/components/AnimatedIcons";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import DestinationsMapWrapper from "@/components/DestinationsMapWrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -26,22 +27,6 @@ interface SearchParams {
   checkOut?: string;
   guests?: string;
 }
-
-const CITY_IMAGES: Record<string, string> = {
-  Goa: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&h=600&q=80",
-  Kerala: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=600&h=600&q=80",
-  Alleppey: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=600&h=600&q=80",
-  Kochi: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&h=600&q=80",
-  Ernakulam: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&h=600&q=80",
-  Udaipur: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=600&h=600&q=80",
-  Ladakh: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=600&h=600&q=80",
-  Manali: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=600&h=600&q=80",
-  Jaipur: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&h=600&q=80",
-  Munambam: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&h=600&q=80",
-  Mumbai: "https://images.unsplash.com/photo-1570168007244-df23658e183f?auto=format&fit=crop&w=600&h=600&q=80",
-  Delhi: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=600&h=600&q=80",
-  Bangalore: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&h=600&q=80",
-};
 
 export default async function HomePage({
   searchParams,
@@ -109,36 +94,45 @@ export default async function HomePage({
     topRatedAvg = topRatedHotel.reviews.reduce((s, r) => s + r.rating, 0) / topRatedHotel.reviews.length;
   }
 
-  // 1. Group hotels by city dynamically (Remove hardcoded stays count)
-  const cityCounts: Record<string, number> = {};
+  // 1. Group hotels by city dynamically and calculate average coordinates
+  const cityData: Record<string, { count: number; latSum: number; lngSum: number; coordCount: number }> = {};
   allApprovedHotels.forEach((h) => {
     const city = h.city || h.location?.split(",")[0];
     if (city) {
       const cityTitle = city.trim().replace(/\b\w/g, (c: string) => c.toUpperCase());
-      cityCounts[cityTitle] = (cityCounts[cityTitle] || 0) + 1;
+      if (!cityData[cityTitle]) {
+        cityData[cityTitle] = { count: 0, latSum: 0, lngSum: 0, coordCount: 0 };
+      }
+      cityData[cityTitle].count += 1;
+      if (h.latitude && h.longitude && !isNaN(Number(h.latitude)) && !isNaN(Number(h.longitude))) {
+        cityData[cityTitle].latSum += Number(h.latitude);
+        cityData[cityTitle].lngSum += Number(h.longitude);
+        cityData[cityTitle].coordCount += 1;
+      }
     }
   });
 
   // 2. Build destinations dynamically from cities in DB
-  const destinationsList = Object.entries(cityCounts).map(([name, count]) => {
+  const destinationsList = Object.entries(cityData).map(([name, data]) => {
+    const avgLat = data.coordCount > 0 ? data.latSum / data.coordCount : null;
+    const avgLng = data.coordCount > 0 ? data.lngSum / data.coordCount : null;
     return {
       name,
-      stays: `${count} ${count === 1 ? "stay" : "stays"}`,
-      image: CITY_IMAGES[name] || "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&h=600&q=80",
+      stays: `${data.count} ${data.count === 1 ? "stay" : "stays"}`,
+      count: data.count,
+      latitude: avgLat,
+      longitude: avgLng,
     };
   });
 
-  // 3. Supplement with popular destinations if list is short (less than 6) to keep visual balance
-  const normalizedDrafts = ["Goa", "Kerala", "Ladakh", "Udaipur", "Manali", "Jaipur"];
-  normalizedDrafts.forEach((name) => {
-    if (destinationsList.length < 6 && !cityCounts[name]) {
-      destinationsList.push({
-        name,
-        stays: "Explore stays",
-        image: CITY_IMAGES[name] || "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&h=600&q=80",
-      });
-    }
-  });
+  // 3. Sort and select top 10 featured stays based on weighted rating score
+  const sortedFeaturedStays = [...hotels]
+    .sort((a, b) => {
+      const scoreA = (a.rating || 0) * 10 + Math.min(a.reviewCount || 0, 20) * 0.5;
+      const scoreB = (b.rating || 0) * 10 + Math.min(b.reviewCount || 0, 20) * 0.5;
+      return scoreB - scoreA;
+    })
+    .slice(0, 10);
 
   return (
     <div className="relative flex flex-col min-h-screen bg-[#F8F7F4] overflow-hidden">
@@ -195,7 +189,7 @@ export default async function HomePage({
       {/* Recommended/Featured Stays */}
       <section id="hotels" className="relative z-10 mx-auto max-w-7xl w-full px-4 py-8 scroll-mt-20">
         <ScrollReveal>
-          <div className="mb-8 flex items-baseline justify-between border-b border-slate-200/60 pb-4">
+          <div className="mb-6 flex items-baseline justify-between border-b border-slate-200/60 pb-4">
             <div>
               <h2 className="text-2xl font-black text-slate-900 tracking-tight font-serif">
                 {location ? `Stays in “${location}”` : "Featured stays"}
@@ -212,7 +206,7 @@ export default async function HomePage({
               </span>
             ) : (
               <Link
-                href="#hotels"
+                href="/hotels"
                 className="text-sm font-black text-brand-700 hover:text-brand-600 transition flex items-center gap-1 group"
               >
                 View all properties
@@ -236,8 +230,9 @@ export default async function HomePage({
                 : "Once managers publish and approve hotels, they'll show up here."
             }
           />
-        ) : (
-          <div className="relative group/grid">
+        ) : location ? (
+          /* Grid Layout for Active Search Results */
+          <div className="relative">
             <StaggerContainer className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {hotels.map((hotel) => (
                 <StaggerItem key={hotel.id}>
@@ -245,15 +240,10 @@ export default async function HomePage({
                 </StaggerItem>
               ))}
             </StaggerContainer>
-            {/* Slider Next Arrow */}
-            <button 
-              type="button"
-              className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden xl:grid h-10 w-10 place-items-center rounded-full bg-white border border-slate-200 shadow-md text-slate-700 hover:text-brand-700 hover:shadow-lg transition cursor-pointer hover:scale-105 active:scale-95"
-              aria-label="Next featured stays"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
           </div>
+        ) : (
+          /* Horizontal Slider for Homepage Featured Stays */
+          <FeaturedStaysSection hotels={sortedFeaturedStays} totalCount={hotels.length} />
         )}
       </section>
 
@@ -277,13 +267,11 @@ export default async function HomePage({
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <div className="relative w-[38%] aspect-square rounded-2xl overflow-hidden shrink-0 shadow-sm">
-              <Image
-                src={getOptimizedImageUrl(cheapestHotel?.image_url || "https://images.unsplash.com/photo-1540553016722-983e48a2cd10", 400, 80)}
+            <div className="relative w-[38%] aspect-square rounded-2xl overflow-hidden shrink-0 shadow-sm opacity-90">
+              <img
+                src={cheapestHotel?.image_url || "https://images.unsplash.com/photo-1540553016722-983e48a2cd10"}
                 alt="Cheapest stay cover"
-                fill
-                sizes="150px"
-                className="object-cover transition duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition duration-500 group-hover:scale-105 rounded-2xl"
               />
             </div>
           </StaggerItem>
@@ -314,13 +302,11 @@ export default async function HomePage({
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <div className="relative w-[38%] aspect-square rounded-2xl overflow-hidden shrink-0 shadow-sm">
-              <Image
-                src={getOptimizedImageUrl(topRatedHotel?.image_url || "https://images.unsplash.com/photo-1497366216548-37526070297c", 400, 80)}
+            <div className="relative w-[38%] aspect-square rounded-2xl overflow-hidden shrink-0 shadow-sm opacity-90">
+              <img
+                src={topRatedHotel?.image_url || "https://images.unsplash.com/photo-1497366216548-37526070297c"}
                 alt="Top rated stay cover"
-                fill
-                sizes="150px"
-                className="object-cover transition duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition duration-500 group-hover:scale-105 rounded-2xl"
               />
             </div>
           </StaggerItem>
@@ -360,61 +346,8 @@ export default async function HomePage({
         </StaggerContainer>
       </section>
 
-      {/* Popular Destinations */}
-      <section className="relative z-10 mx-auto max-w-7xl w-full px-4 py-12 border-t border-slate-200/60">
-        <ScrollReveal>
-          <div className="mb-8 flex items-baseline justify-between">
-            <div>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight font-serif">Popular destinations</h2>
-              <p className="mt-1 text-sm text-slate-500 font-bold">
-                Explore stays in India&apos;s most popular travel getaways.
-              </p>
-            </div>
-            <Link
-              href="/hotels"
-              className="text-sm font-black text-brand-700 hover:text-brand-600 transition flex items-center gap-1 group"
-            >
-              Explore all destinations
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-        </ScrollReveal>
-        
-        <div className="relative">
-          <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
-            {destinationsList.map((dest) => (
-              <StaggerItem key={dest.name}>
-                <Link
-                  href={`/?location=${dest.name}#hotels`}
-                  className="relative group flex flex-col rounded-2xl overflow-hidden aspect-[4/5] bg-slate-900 shadow-xs hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                >
-                  <Image
-                    src={getOptimizedImageUrl(dest.image, 300, 80)}
-                    alt={dest.name}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 180px"
-                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/10 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-4 z-10">
-                    <p className="font-bold text-white leading-tight text-base sm:text-lg font-serif">{dest.name}</p>
-                    <p className="text-xs text-gold-300 font-bold mt-0.5">{dest.stays}</p>
-                  </div>
-                </Link>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-
-          {/* Slider Arrow overlay */}
-          <button 
-            type="button"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden xl:grid h-10 w-10 place-items-center rounded-full bg-white border border-slate-200 shadow-md text-slate-700 hover:text-brand-700 hover:shadow-lg transition cursor-pointer hover:scale-105 active:scale-95"
-            aria-label="Next destinations"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      </section>
+      {/* Popular Destinations Section (Interactive Global Map Widget) */}
+      <DestinationsMapWrapper destinations={destinationsList} />
 
       {/* Trust Section - Why book with BookNest */}
       <section className="relative z-10 mx-auto max-w-7xl w-full px-4 py-12">

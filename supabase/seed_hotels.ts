@@ -381,7 +381,7 @@ async function seed() {
           pets_policy: "Pets allowed on request. Charges may apply.",
           smoking_policy: "Non-smoking rooms. Designated smoking areas available.",
           parties_policy: "No loud parties allowed after 10 PM.",
-          payment_policy: "Pre-pay online or pay at hotel during check-in."
+          payment_policy: hotelCount % 4 === 0 ? "pay_at_property" : hotelCount % 4 === 1 ? "advance" : "both"
         });
 
       if (hotelInsertError) throw hotelInsertError;
