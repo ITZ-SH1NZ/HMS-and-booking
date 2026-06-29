@@ -7,7 +7,7 @@ import { Section } from "./SectionWrapper";
 import { createClient } from "@/lib/supabase/client";
 import ReviewForm from "@/components/ReviewForm";
 import type { User } from "@supabase/supabase-js";
-import { X, Search, CheckCircle2, MessageSquare, ShieldCheck } from "lucide-react";
+import { Search, CheckCircle2, MessageSquare, ShieldCheck, X } from "lucide-react";
 
 interface ReviewsSectionProps {
   hotelId: string;
@@ -24,9 +24,9 @@ export function ReviewsSection({
   reviewCount,
   ratingHistogram,
 }: ReviewsSectionProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   // Gating state
   const [user, setUser] = useState<User | null>(null);
@@ -69,12 +69,7 @@ export function ReviewsSection({
     checkEligibility();
   }, [hotelId]);
 
-  // Main page preview shows a maximum of 4 reviews (2x2 grid)
-  const previewReviews = useMemo(() => {
-    return reviews.slice(0, 4);
-  }, [reviews]);
-
-  // Filtered reviews for the modal
+  // Filtered reviews based on search term and rating selection
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) => {
       const matchesRating = selectedRating === null || review.rating === selectedRating;
@@ -87,6 +82,16 @@ export function ReviewsSection({
       return matchesRating && matchesSearch;
     });
   }, [reviews, selectedRating, searchTerm]);
+
+  // Paginated reviews to show
+  const displayedReviews = useMemo(() => {
+    return filteredReviews.slice(0, visibleCount);
+  }, [filteredReviews, visibleCount]);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [searchTerm, selectedRating]);
 
   // Helper to render stars
   const renderStars = (rating: number, sizeClass = "h-3.5 w-3.5") => {
@@ -189,11 +194,74 @@ export function ReviewsSection({
         </div>
       </div>
 
-      {/* 2. Reviews Preview Grid (Main Page) */}
-      {previewReviews.length > 0 ? (
+      {/* 2. Interactive Filter Bar (Directly on Page) */}
+      {reviews.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between border-b border-slate-100 pb-5 mb-6">
+          {/* Search Input */}
+          <div className="relative w-full sm:max-w-xs">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
+              <Search className="h-4 w-4" />
+            </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search reviews..."
+              className="w-full pl-10 pr-10 py-2.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Rating Filters (Pills) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto scrollbar-none py-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mr-1 shrink-0">
+              Stars:
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedRating(null)}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition cursor-pointer shrink-0 ${
+                selectedRating === null
+                  ? "bg-slate-900 border-slate-900 text-white shadow-sm"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              All
+            </button>
+            {[5, 4, 3, 2, 1].map((rating) => {
+              const isSelected = selectedRating === rating;
+              return (
+                <button
+                  key={rating}
+                  type="button"
+                  onClick={() => setSelectedRating(isSelected ? null : rating)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition flex items-center gap-1 cursor-pointer shrink-0 ${
+                    isSelected
+                      ? "bg-brand-600 border-brand-600 text-white shadow-sm"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <span>{rating}</span>
+                  <StarIcon className="h-2.5 w-2.5 text-gold-500" filled />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 3. Reviews Grid */}
+      {displayedReviews.length > 0 ? (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {previewReviews.map((review) => {
+            {displayedReviews.map((review) => {
               const initials = review.reviewer_name
                 ? review.reviewer_name
                     .split(" ")
@@ -220,7 +288,9 @@ export function ReviewsSection({
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 leading-tight">
-                            {review.reviewer_name || "Verified Guest"}
+                            {review.reviewer_name
+                              ? highlightText(review.reviewer_name, searchTerm)
+                              : "Verified Guest"}
                           </p>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 border border-emerald-100/60 uppercase tracking-wide">
@@ -247,7 +317,7 @@ export function ReviewsSection({
                     {/* Comment */}
                     {review.comment && (
                       <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                        &ldquo;{review.comment}&rdquo;
+                        &ldquo;{highlightText(review.comment, searchTerm)}&rdquo;
                       </p>
                     )}
                   </div>
@@ -256,18 +326,34 @@ export function ReviewsSection({
             })}
           </div>
 
-          {/* Show All Button */}
-          {reviews.length > 4 && (
+          {/* Show More Button */}
+          {filteredReviews.length > visibleCount && (
             <div className="flex justify-center pt-2">
               <button
                 type="button"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setVisibleCount((prev) => prev + 6)}
                 className="rounded-xl border border-slate-300 px-6 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm cursor-pointer"
               >
-                Show all {reviews.length} reviews
+                Show more reviews ({filteredReviews.length - visibleCount} remaining)
               </button>
             </div>
           )}
+        </div>
+      ) : reviews.length > 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center bg-slate-50/50 flex flex-col items-center justify-center">
+          <MessageSquare className="h-8 w-8 text-slate-300 mb-2" />
+          <p className="text-sm text-slate-500 font-bold">No matching reviews found</p>
+          <p className="text-xs text-slate-400 mt-1">Try adjusting your search keywords or star filters.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedRating(null);
+            }}
+            className="mt-4 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 transition shadow cursor-pointer"
+          >
+            Reset Filters
+          </button>
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center bg-slate-50/50">
@@ -277,7 +363,7 @@ export function ReviewsSection({
         </div>
       )}
 
-      {/* 3. Gated Review Submission Section */}
+      {/* 4. Gated Review Submission Section */}
       <div className="mt-8 border-t border-slate-100 pt-6">
         {user ? (
           loadingEligibility ? (
@@ -326,200 +412,6 @@ export function ReviewsSection({
           </div>
         )}
       </div>
-
-      {/* 4. Airbnb-style Review Explorer Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 animate-fade-in">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
-            onClick={() => setIsModalOpen(false)}
-          />
-
-          {/* Modal Container */}
-          <div className="relative w-full max-w-5xl h-[85vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row z-10 animate-scale-up border border-slate-200">
-            
-            {/* Left Pane (Aggregates & Filters) */}
-            <div className="w-full md:w-[320px] shrink-0 border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/50 p-6 flex flex-col justify-between">
-              <div>
-                {/* Modal Title & Close Button */}
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider">
-                    Reviews Explorer
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-1.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-
-                {/* Star Summary */}
-                <div className="flex items-center gap-4 mb-6">
-                  <span className="text-5xl font-black text-slate-900">
-                    {avgRating !== null ? avgRating.toFixed(1) : "0.0"}
-                  </span>
-                  <div>
-                    {renderStars(Math.round(avgRating ?? 0), "h-4 w-4")}
-                    <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wide">
-                      {reviewCount} reviews
-                    </p>
-                  </div>
-                </div>
-
-                {/* Search Input */}
-                <div className="relative mb-6">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
-                    <Search className="h-4 w-4" />
-                  </span>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search reviews..."
-                    className="w-full pl-10 pr-4 py-2.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm"
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm("")}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Rating Filter List */}
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
-                    Filter by Rating
-                  </p>
-                  {[5, 4, 3, 2, 1].map((rating) => {
-                    const count = ratingHistogram[rating] ?? 0;
-                    const isSelected = selectedRating === rating;
-                    return (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => setSelectedRating(isSelected ? null : rating)}
-                        className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                          isSelected
-                            ? "bg-brand-50 border-brand-200 text-brand-700 shadow-sm"
-                            : "bg-white border-slate-200/60 text-slate-600 hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <span>{rating} Star{rating > 1 ? "s" : ""}</span>
-                          <StarIcon className="h-3 w-3 text-gold-500" filled />
-                        </div>
-                        <span className="text-[10px] text-slate-400">{count}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Reset Filters button */}
-              {(selectedRating !== null || searchTerm.trim() !== "") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedRating(null);
-                    setSearchTerm("");
-                  }}
-                  className="w-full mt-4 rounded-xl bg-slate-900 py-2.5 text-xs font-bold text-white hover:bg-slate-800 transition shadow cursor-pointer"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </div>
-
-            {/* Right Pane (Scrollable Review List) */}
-            <div className="flex-1 p-6 overflow-y-auto min-h-0 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
-                <span className="text-xs font-bold text-slate-500">
-                  Showing {filteredReviews.length} of {reviews.length} reviews
-                </span>
-              </div>
-
-              {filteredReviews.length > 0 ? (
-                <div className="space-y-4">
-                  {filteredReviews.map((review) => {
-                    const initials = review.reviewer_name
-                      ? review.reviewer_name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .slice(0, 2)
-                          .join("")
-                          .toUpperCase()
-                      : "G";
-                    
-                    const stayText = formatStayDetails(review);
-
-                    return (
-                      <div
-                        key={review.id}
-                        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col justify-between hover:border-slate-300 transition"
-                      >
-                        <div>
-                          {/* Review Header */}
-                          <div className="flex items-start justify-between gap-3 mb-2.5">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-700 font-bold text-xs border border-brand-100">
-                                {initials}
-                              </div>
-                              <div>
-                                <p className="font-bold text-slate-900 text-xs leading-tight">
-                                  {review.reviewer_name
-                                    ? highlightText(review.reviewer_name, searchTerm)
-                                    : "Verified Guest"}
-                                </p>
-                                <div className="flex items-center gap-1 mt-0.5">
-                                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-50 px-1 py-0.5 text-[8px] font-bold text-emerald-700 border border-emerald-100/40 uppercase tracking-wide">
-                                    <CheckCircle2 className="h-2 w-2" /> Verified Stay
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0">
-                              {renderStars(review.rating, "h-3 w-3")}
-                              <p className="text-[9px] text-slate-400 mt-1 font-bold">
-                                {formatDate(review.created_at)}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Stay Context */}
-                          {stayText && (
-                            <p className="text-[10px] font-semibold text-slate-400 mb-2">
-                              {stayText}
-                            </p>
-                          )}
-
-                          {/* Comment */}
-                          {review.comment && (
-                            <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                              &ldquo;{highlightText(review.comment, searchTerm)}&rdquo;
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center bg-slate-50/50 flex flex-col items-center justify-center">
-                  <MessageSquare className="h-8 w-8 text-slate-300 mb-2" />
-                  <p className="text-xs text-slate-500 font-bold">No matching reviews found</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Try adjusting your search keywords or rating filters.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </Section>
   );
 }
