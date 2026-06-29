@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ReviewClient } from "./ReviewClient";
 
 export const dynamic = "force-dynamic";
@@ -21,8 +22,9 @@ export default async function BookingReviewPage({
     redirect(`/login?redirect=/bookings/${id}/review`);
   }
 
-  // 2. Fetch booking details
-  const { data: booking, error } = await supabase
+  // 2. Fetch booking details using the admin client to bypass RLS select limitations
+  const admin = createAdminClient();
+  const { data: booking, error } = await admin
     .from("bookings")
     .select(`
       *,

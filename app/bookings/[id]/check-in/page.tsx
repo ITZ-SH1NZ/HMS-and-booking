@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { CheckInPortalClient } from "./CheckInPortalClient";
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
@@ -14,14 +15,16 @@ export default async function CheckInPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  // 1. Authenticate
+  // 1. Authenticate the staff member/manager
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect(`/login?redirect=/bookings/${id}/check-in`);
 
-  // 2. Fetch booking details with hotel manager info
-  const { data: booking, error } = await supabase
+  // 2. Fetch booking details with hotel manager info using the admin client
+  // (This avoids RLS issues for staff members and allows querying the booking)
+  const admin = createAdminClient();
+  const { data: booking, error } = await admin
     .from("bookings")
     .select(`
       *,
@@ -39,7 +42,6 @@ export default async function CheckInPage({
       ),
       profiles!bookings_guest_id_fkey (
         full_name,
-        email,
         phone
       ),
       payments (*)
@@ -74,7 +76,7 @@ export default async function CheckInPage({
             <ShieldAlert className="h-8 w-8" />
           </div>
           <h1 className="text-xl font-black text-slate-950 font-serif">Access Denied</h1>
-          <p className="mt-2 text-xs text-slate-500 font-medium leading-relaxed">
+          <p className="mt-2 text-xs text-slate-550 font-medium leading-relaxed">
             Only authorized managers or staff members of <strong>{booking.hotels?.name}</strong> can access this check-in portal.
           </p>
           <div className="mt-6">
@@ -90,5 +92,24 @@ export default async function CheckInPage({
     );
   }
 
-  return <CheckInPortalClient booking={booking as any} />;
+  // 4. Resolve the guest's email from the Auth system (since profiles has no email column)
+  let guestEmail = booking.guest_email || "No email provided";
+  if (!booking.guest_email && booking.guest_id) {
+    try {
+      const { data: userData } = await admin.auth.admin.getUserById(booking.guest_id);
+      guestEmail = userData.user?.email || "No email provided";
+    } catch (e) {
+      console.error("Failed to fetch guest user email:", e);
+    }
+  }
+
+  // Inject the email into the profiles object for the client component
+  const bookingWithEmail = {
+    ...booking,
+    profiles: booking.profiles
+      ? { ...booking.profiles, email: guestEmail }
+      : { full_name: booking.guest_name || "Guest", email: guestEmail, phone: booking.guest_phone || "No phone provided" }
+  };
+
+  return <CheckInPortalClient booking={bookingWithEmail as any} />;
 }
