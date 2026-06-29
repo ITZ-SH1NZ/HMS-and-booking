@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, useEffect, useRef } from "react";
 import { mutate } from "swr";
 import { motion } from "motion/react";
 import { PlusIcon, SearchIcon, ChevronDownIcon } from "@/components/icons";
@@ -10,6 +10,9 @@ import { Panel } from "@/components/manager/Panel";
 import { NewBookingForm } from "./NewBookingForm";
 import { checkInBooking, checkOutBooking, cancelHotelBooking, confirmBookingPayment } from "../actions";
 import type { FrontDeskRoom, FrontDeskBooking } from "./types";
+import Link from "next/link";
+import { QrCode, Camera, Keyboard } from "lucide-react";
+import { Html5Qrcode } from "html5-qrcode";
 
 const TABS = ["today", "occupancy", "bookings"] as const;
 type Tab = (typeof TABS)[number];
@@ -37,6 +40,59 @@ const occupiesOn = (b: Booking, date: string) => isActive(b) && b.check_in <= da
 const isArrival = (b: Booking) => b.check_in === todayStr && isActive(b);
 const isDeparture = (b: Booking) => b.check_out === todayStr && isActive(b);
 
+// Camera QR Scanner Component
+function CameraScanner({
+  onScan,
+  onError,
+}: {
+  onScan: (text: string) => void;
+  onError?: (err: any) => void;
+}) {
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+
+  useEffect(() => {
+    const html5Qrcode = new Html5Qrcode("qr-reader");
+    scannerRef.current = html5Qrcode;
+
+    html5Qrcode
+      .start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: (width, height) => {
+            const size = Math.min(width, height) * 0.7;
+            return { width: size, height: size };
+          },
+        },
+        (decodedText) => {
+          onScan(decodedText);
+        },
+        () => {
+          // ignore scan failures (common when QR is not in frame)
+        }
+      )
+      .catch((err) => {
+        console.error("Failed to start scanner:", err);
+        if (onError) onError(err);
+      });
+
+    return () => {
+      if (html5Qrcode.isScanning) {
+        html5Qrcode
+          .stop()
+          .catch((err) => console.error("Failed to stop scanner:", err));
+      }
+    };
+  }, [onScan, onError]);
+
+  return (
+    <div className="relative w-full aspect-square max-w-xs mx-auto overflow-hidden rounded-2xl bg-black border border-slate-200">
+      <div id="qr-reader" className="w-full h-full" />
+      <div className="absolute inset-0 border-[3px] border-dashed border-brand-500/60 pointer-events-none rounded-2xl m-6 animate-pulse" />
+    </div>
+  );
+}
+
 export function FrontDesk({
   hotel,
   rooms,
@@ -52,6 +108,10 @@ export function FrontDesk({
 }) {
   const [tab, setTab] = useState<Tab>("today");
   const [newOpen, setNewOpen] = useState(false);
+  const [portalOpen, setPortalOpen] = useState(false);
+  const [portalSearch, setPortalSearch] = useState("");
+  const [portalError, setPortalError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const [detail, setDetail] = useState<FrontDeskBooking | null>(null);
 
   const canBook = isManager || permissions.includes("offline_booking");
@@ -82,14 +142,22 @@ export function FrontDesk({
           <h1 className="text-xl font-bold text-slate-900">{hotel.name}</h1>
           <p className="text-sm text-slate-500">{hotel.location}</p>
         </div>
-        {canBook && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setNewOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+            onClick={() => setPortalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
           >
-            <PlusIcon className="h-4 w-4" /> New booking
+            <QrCode className="h-4 w-4 text-slate-500" /> Check-In / Out
           </button>
-        )}
+          {canBook && (
+            <button
+              onClick={() => setNewOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+            >
+              <PlusIcon className="h-4 w-4" /> New booking
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary strip */}
@@ -130,6 +198,138 @@ export function FrontDesk({
 
       <Panel open={newOpen} onClose={() => setNewOpen(false)} title="New offline booking">
         <NewBookingForm hotelId={hotel.id} rooms={rooms} onDone={() => setNewOpen(false)} />
+      </Panel>
+      <Panel
+        open={portalOpen}
+        onClose={() => {
+          setPortalOpen(false);
+          setPortalSearch("");
+          setPortalError(null);
+          setIsScanning(false);
+        }}
+        title="Check-In / Out Portal"
+      >
+        <div className="space-y-4 py-4 text-left">
+          {isScanning ? (
+            <div className="space-y-4 text-center">
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Point your camera at the guest's booking QR code.
+              </p>
+              
+              <CameraScanner
+                onScan={(decodedText) => {
+                  setPortalError(null);
+                  // Extract UUID from scanned URL
+                  const match = decodedText.match(/bookings\/([a-f0-9-]{36})/i);
+                  const bookingId = match ? match[1] : decodedText.trim();
+
+                  const matched = bookings.find(
+                    (b) =>
+                      b.id.toLowerCase() === bookingId.toLowerCase() ||
+                      b.id.replace(/-/g, "").toLowerCase() === bookingId.toLowerCase()
+                  );
+
+                  if (matched) {
+                    setPortalOpen(false);
+                    setIsScanning(false);
+                    window.open(`/bookings/${matched.id}/check-in`, "_blank");
+                  } else {
+                    setPortalError("No active booking found for this scanned QR code.");
+                  }
+                }}
+                onError={(err) => {
+                  setPortalError("Could not access camera. Please type the ID manually.");
+                  setIsScanning(false);
+                }}
+              />
+
+              {portalError && (
+                <p className="text-xs text-red-600 font-semibold">{portalError}</p>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsScanning(false)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              >
+                <Keyboard className="h-4 w-4" /> Type Booking ID Instead
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Scan the guest's QR code or enter their Booking ID to launch the stay management portal.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setPortalError(null);
+                  setIsScanning(true);
+                }}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-50 border border-brand-200/50 py-3 text-sm font-bold text-brand-700 hover:bg-brand-100/60 transition mb-4"
+              >
+                <Camera className="h-5 w-5" /> Scan Guest QR Code
+              </button>
+
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-slate-255/70"></div>
+                <span className="flex-shrink mx-4 text-slate-400 text-[10px] font-black uppercase tracking-wider">Or</span>
+                <div className="flex-grow border-t border-slate-255/70"></div>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setPortalError(null);
+                  const searchId = portalSearch.trim();
+                  if (!searchId) return;
+
+                  const matched = bookings.find(
+                    (b) =>
+                      b.id.toLowerCase().startsWith(searchId.toLowerCase()) ||
+                      b.id.replace(/-/g, "").toLowerCase().startsWith(searchId.toLowerCase())
+                  );
+
+                  if (matched) {
+                    setPortalOpen(false);
+                    setPortalSearch("");
+                    window.open(`/bookings/${matched.id}/check-in`, "_blank");
+                  } else {
+                    setPortalError("No active booking found with this ID for this hotel.");
+                  }
+                }}
+                className="space-y-3"
+              >
+                <div>
+                  <label htmlFor="portalBookingId" className="block text-[10px] font-black uppercase tracking-wider text-slate-450 mb-1">
+                    Booking ID
+                  </label>
+                  <input
+                    id="portalBookingId"
+                    type="text"
+                    value={portalSearch}
+                    onChange={(e) => setPortalSearch(e.target.value)}
+                    placeholder="e.g. DE7E6751"
+                    className="w-full rounded-xl border border-slate-250 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500"
+                    autoFocus
+                  />
+                </div>
+
+                {portalError && (
+                  <p className="text-xs text-red-600 font-semibold">{portalError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700 transition"
+                >
+                  Open Stay Portal
+                </button>
+              </form>
+            </>
+          )}
+        </div>
       </Panel>
 
       <BookingDetail
@@ -522,6 +722,15 @@ function BookingDetail({
         {error && <div className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">{error}</div>}
 
         <div className="space-y-2">
+          {booking.status !== "completed" && booking.status !== "cancelled" && (
+            <Link
+              href={`/bookings/${booking.id}/check-in`}
+              target="_blank"
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition mb-3"
+            >
+              <QrCode className="h-4 w-4 text-slate-400" /> Open Stay Portal
+            </Link>
+          )}
           {booking.status === "pending" && (
             <button
               onClick={() => run(() => confirmBookingPayment(hotelId, booking.id))}

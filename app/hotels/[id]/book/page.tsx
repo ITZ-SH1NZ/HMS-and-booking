@@ -32,12 +32,12 @@ export default async function BookPage({
     await Promise.all([
       supabase
         .from("hotels")
-        .select("id, name, location, image_url, payment_policy, require_advance, advance_amount, advance_is_percent")
+        .select("id, name, location, image_url, payment_policy, require_advance, advance_amount, advance_is_percent, gst_percent, service_charge_percent, cancellation_policy, cancellation_policy_custom")
         .eq("id", id)
         .maybeSingle(),
       supabase
         .from("rooms")
-        .select("id, name, price, capacity, amenities")
+        .select("id, name, price, capacity, amenities, room_photos(url)")
         .eq("hotel_id", id)
         .order("price", { ascending: true }),
       supabase.from("reviews").select("rating").eq("hotel_id", id),
@@ -50,7 +50,23 @@ export default async function BookPage({
 
   if (!hotel) notFound();
 
-  const rooms = (roomRows as Pick<Room, "id" | "name" | "price" | "capacity" | "amenities">[] | null) ?? [];
+  interface RoomDbRow {
+    id: string;
+    name: string;
+    price: number;
+    capacity: number;
+    amenities: string[];
+    room_photos?: { url: string }[];
+  }
+
+  const rooms = ((roomRows as unknown as RoomDbRow[] | null)?.map((r) => ({
+    id: r.id,
+    name: r.name,
+    price: r.price,
+    capacity: r.capacity,
+    amenities: r.amenities,
+    image_url: r.room_photos?.[0]?.url ?? null,
+  })) ?? []);
   const reviews = (reviewRows as Pick<Review, "rating">[] | null) ?? [];
   const prof = profile as Pick<Profile, "full_name" | "phone"> | null;
 

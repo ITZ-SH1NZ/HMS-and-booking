@@ -38,6 +38,10 @@ interface HotelLite {
   require_advance?: boolean | null;
   advance_amount?: number | null;
   advance_is_percent?: boolean | null;
+  gst_percent?: number | null;
+  service_charge_percent?: number | null;
+  cancellation_policy?: string | null;
+  cancellation_policy_custom?: string | null;
 }
 interface RoomLite {
   id: string;
@@ -45,6 +49,7 @@ interface RoomLite {
   price: number;
   capacity: number;
   amenities: string[];
+  image_url?: string | null;
 }
 
 const todayStr = () => new Date().toISOString().split("T")[0];
@@ -152,8 +157,21 @@ export function BookingFlow({
     selectedAvail ?? rooms.find((r) => r.id === roomId) ?? null;
   const selectedPrice = selectedRoom?.price ?? null;
   const quote = selectedRoom
-    ? computeQuote(selectedRoom.price, nights, numRooms)
+    ? computeQuote(
+        selectedRoom.price,
+        nights,
+        numRooms,
+        hotel.gst_percent ?? 18,
+        hotel.service_charge_percent ?? 0
+      )
     : null;
+
+  const requiresAdvance = !!hotel.require_advance;
+  const advanceAmount = quote
+    ? hotel.advance_is_percent
+      ? Math.round(quote.total * ((hotel.advance_amount ?? 100) / 100) * 100) / 100
+      : Math.min(hotel.advance_amount ?? quote.total, quote.total)
+    : 0;
 
   function goTo(next: number) {
     setDir(next > step ? 1 : -1);
@@ -304,6 +322,8 @@ export function BookingFlow({
                 <RoomSelection
                   hotel={hotel}
                   rooms={availability ?? []}
+                  roomsInitial={rooms}
+                  guestsCount={guests}
                   numRooms={numRooms}
                   roomId={roomId}
                   setRoomId={setRoomId}
@@ -325,6 +345,10 @@ export function BookingFlow({
                   terms={terms}
                   setTerms={setTerms}
                   total={quote?.total ?? 0}
+                  requiresAdvance={requiresAdvance}
+                  advanceAmount={advanceAmount}
+                  cancellationPolicy={hotel.cancellation_policy}
+                  cancellationPolicyCustom={hotel.cancellation_policy_custom}
                   error={error}
                   submitting={submitting}
                   onBack={() => goTo(2)}
@@ -346,6 +370,7 @@ export function BookingFlow({
             reviewCount={reviewCount}
             pricePerNight={selectedPrice ?? minPrice}
             roomName={selectedRoom?.name}
+            roomImageUrl={rooms.find(r => r.id === roomId)?.image_url}
             stay={{ checkIn, checkOut, guests, rooms: numRooms, nights }}
             quote={quote}
             onEdit={() => goTo(1)}
@@ -457,6 +482,8 @@ function StayDetails(props: {
 function RoomSelection(props: {
   hotel: HotelLite;
   rooms: AvailabilityResult[];
+  roomsInitial: RoomLite[];
+  guestsCount: number;
   numRooms: number;
   roomId: string;
   setRoomId: (id: string) => void;
@@ -487,6 +514,8 @@ function RoomSelection(props: {
         {props.rooms.map((room) => {
           const enough = room.available >= props.numRooms;
           const selected = props.roomId === room.room_id;
+          const initialRoom = props.roomsInitial.find((r) => r.id === room.room_id);
+          const displayPhoto = initialRoom?.image_url || props.hotel.image_url;
           return (
             <button
               key={room.room_id}
@@ -507,9 +536,9 @@ function RoomSelection(props: {
                 {selected && <span className="h-2.5 w-2.5 rounded-full bg-brand-600" />}
               </span>
               <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                {props.hotel.image_url ? (
+                {displayPhoto ? (
                   <Image
-                    src={props.hotel.image_url}
+                    src={displayPhoto}
                     alt={room.name}
                     fill
                     sizes="128px"
@@ -523,10 +552,17 @@ function RoomSelection(props: {
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="font-semibold text-slate-900">{room.name}</p>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-900 truncate">{room.name}</p>
+                    {props.guestsCount > room.capacity && (
+                      <span className="mt-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 border border-amber-200">
+                        Exceeds capacity ({room.capacity})
+                      </span>
+                    )}
+                  </div>
                   <div className="text-right">
                     <Price amount={room.price} className="font-bold text-slate-900" />
-                    <span className="block text-xs text-slate-400">/ night · taxes incl.</span>
+                    <span className="block text-xs text-slate-400 font-medium">/ night</span>
                   </div>
                 </div>
                 <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
@@ -598,6 +634,10 @@ function Payment(props: {
   terms: boolean;
   setTerms: (v: boolean) => void;
   total: number;
+  requiresAdvance: boolean;
+  advanceAmount: number;
+  cancellationPolicy?: string | null;
+  cancellationPolicyCustom?: string | null;
   error: string | null;
   submitting: boolean;
   onBack: () => void;
@@ -694,6 +734,34 @@ function Payment(props: {
         )}
       </div>
 
+      {/* Cancellation Policy Detail */}
+      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-600 space-y-1">
+        <p className="font-bold text-slate-700 flex items-center gap-1">
+          <ShieldIcon className="h-3.5 w-3.5 text-brand-600" /> Cancellation Policy
+        </p>
+        <p className="leading-relaxed">
+          {props.cancellationPolicy === "flexible" && "Flexible: Full refund if cancelled 24 hours or more before check-in."}
+          {props.cancellationPolicy === "moderate" && "Moderate: Full refund if cancelled 5 days or more before check-in."}
+          {props.cancellationPolicy === "strict" && "Strict: No refund for cancellations within 7 days of check-in."}
+          {props.cancellationPolicy === "custom" && (props.cancellationPolicyCustom || "Custom cancellation terms apply. Please contact the hotel.")}
+          {(!props.cancellationPolicy || props.cancellationPolicy === "none") && "No refund: This booking is non-refundable."}
+        </p>
+      </div>
+
+      {/* Advance Payment Breakout */}
+      {props.requiresAdvance && props.checkoutMethod === "pay_online" && (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-brand-50/10 p-4 space-y-2 text-sm">
+          <div className="flex justify-between font-bold text-slate-800">
+            <span>Pay Now (Advance)</span>
+            <Price amount={props.advanceAmount} />
+          </div>
+          <div className="flex justify-between text-slate-500 text-xs font-medium">
+            <span>Pay at Property (Remaining)</span>
+            <Price amount={props.total - props.advanceAmount} />
+          </div>
+        </div>
+      )}
+
       <label className="mt-4 flex items-start gap-2 text-sm text-slate-600">
         <input
           type="checkbox"
@@ -726,7 +794,7 @@ function Payment(props: {
           <LockIcon className="h-4 w-4" />
           {props.checkoutMethod === "pay_online" ? (
             <>
-              Pay <Price amount={props.total} />
+              Pay <Price amount={props.requiresAdvance ? props.advanceAmount : props.total} />
             </>
           ) : (
             "Confirm Booking"

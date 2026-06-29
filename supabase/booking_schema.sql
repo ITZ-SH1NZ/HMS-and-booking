@@ -24,6 +24,7 @@ create table if not exists public.bookings (
   room_price          numeric(10, 2) not null,   -- snapshot of the nightly price (base currency)
   base_price          numeric(10, 2) not null,   -- room_price * num_rooms * nights
   gst                 numeric(10, 2) not null,    -- 18%
+  service_charge      numeric(10, 2) not null default 0,
   platform_fee        numeric(10, 2) not null,    -- 2%
   total_price         numeric(10, 2) not null,
   status              text not null default 'pending'
@@ -35,6 +36,7 @@ create table if not exists public.bookings (
   created_at          timestamptz not null default now(),
   constraint bookings_dates_chk check (check_out > check_in)
 );
+alter table public.bookings add column if not exists service_charge numeric(10, 2) not null default 0;
 create index if not exists bookings_guest_idx on public.bookings (guest_id, created_at desc);
 create index if not exists bookings_hotel_idx on public.bookings (hotel_id);
 create index if not exists bookings_room_idx on public.bookings (room_id);
@@ -129,16 +131,18 @@ security definer
 set search_path = public
 as $$
 declare
-  v_room    public.rooms;
-  v_uid     uuid := auth.uid();
-  v_nights  int;
-  v_base    numeric;
-  v_gst     numeric;
-  v_fee     numeric;
-  v_total   numeric;
-  v_id      uuid;
-  v_avail   int;
-  d         date;
+  v_room            public.rooms;
+  v_hotel           public.hotels;
+  v_uid             uuid := auth.uid();
+  v_nights          int;
+  v_base            numeric;
+  v_gst             numeric;
+  v_service_charge  numeric;
+  v_fee             numeric;
+  v_total           numeric;
+  v_id              uuid;
+  v_avail           int;
+  d                 date;
 begin
   if v_uid is null then raise exception 'Not authenticated'; end if;
   if p_check_out <= p_check_in then raise exception 'Check-out must be after check-in'; end if;
@@ -147,6 +151,9 @@ begin
 
   select * into v_room from public.rooms where id = p_room_id;
   if not found then raise exception 'Room not found'; end if;
+
+  select * into v_hotel from public.hotels where id = v_room.hotel_id;
+  if not found then raise exception 'Hotel not found'; end if;
 
   v_nights := p_check_out - p_check_in;
 
@@ -173,18 +180,19 @@ begin
     d := d + 1;
   end loop;
 
-  v_base  := v_room.price * p_num_rooms * v_nights;
-  v_gst   := round(v_base * 0.18, 2);
-  v_fee   := round(v_base * 0.02, 2);
-  v_total := v_base + v_gst + v_fee;
+  v_base           := v_room.price * p_num_rooms * v_nights;
+  v_gst            := round(v_base * (coalesce(v_hotel.gst_percent, 18.00) / 100.0), 2);
+  v_service_charge := round(v_base * (coalesce(v_hotel.service_charge_percent, 0.00) / 100.0), 2);
+  v_fee            := round(v_base * 0.02, 2);
+  v_total          := v_base + v_gst + v_service_charge + v_fee;
 
   insert into public.bookings (
     guest_id, hotel_id, room_id, check_in, check_out, nights, guest_count,
-    num_rooms, room_price, base_price, gst, platform_fee, total_price,
+    num_rooms, room_price, base_price, gst, service_charge, platform_fee, total_price,
     status, special_requests
   ) values (
     v_uid, v_room.hotel_id, p_room_id, p_check_in, p_check_out, v_nights, p_guests,
-    p_num_rooms, v_room.price, v_base, v_gst, v_fee, v_total,
+    p_num_rooms, v_room.price, v_base, v_gst, v_service_charge, v_fee, v_total,
     'pending', p_special
   )
   returning id into v_id;

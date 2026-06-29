@@ -27,12 +27,15 @@ export function computeQuote(
   roomPrice: number,
   nights: number,
   numRooms: number,
+  gstPercent: number = 18,
+  serviceChargePercent: number = 0
 ): PriceQuote {
   const base = round2(roomPrice * nights * numRooms);
-  const gst = round2(base * GST_RATE);
+  const gst = round2(base * (gstPercent / 100));
+  const serviceCharge = round2(base * (serviceChargePercent / 100));
   const platformFee = round2(base * PLATFORM_FEE_RATE);
-  const total = round2(base + gst + platformFee);
-  return { roomPrice, nights, numRooms, base, gst, platformFee, total };
+  const total = round2(base + gst + serviceCharge + platformFee);
+  return { roomPrice, nights, numRooms, base, gst, serviceCharge, platformFee, total };
 }
 
 export const BOOKING_STATUS_STYLES: Record<BookingStatus, string> = {

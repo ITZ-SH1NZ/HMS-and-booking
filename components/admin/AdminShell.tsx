@@ -88,7 +88,18 @@ export function AdminShell({ userName, children }: { userName: string; children:
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
-            {Body}
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{Body}</div>
+            <div className="space-y-1 border-t border-slate-200 p-3">
+              <Link href="/" onClick={() => setMobileNavOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:bg-slate-100">
+                <GlobeIcon className="h-[18px] w-[18px]" /> View site
+              </Link>
+              <div className="flex items-center gap-2 rounded-lg px-2 py-1.5">
+                <div className="grid h-8 w-8 place-items-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                  {userName.slice(0, 1).toUpperCase()}
+                </div>
+                <span className="truncate text-sm font-medium text-slate-700">{userName}</span>
+              </div>
+            </div>
           </aside>
         </div>
       )}
@@ -106,6 +117,27 @@ export function AdminShell({ userName, children }: { userName: string; children:
             {children}
           </SWRConfig>
         </div>
+
+        {/* Mobile bottom nav */}
+        <nav className="sticky bottom-0 z-30 flex items-stretch border-t border-slate-200 bg-white md:hidden">
+          {NAV.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onMouseEnter={() => warm(item.href)}
+                className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+                  active ? "text-brand-700" : "text-slate-500"
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );

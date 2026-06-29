@@ -392,6 +392,7 @@ export interface PriceQuote {
   numRooms: number;
   base: number;
   gst: number;
+  serviceCharge: number;
   platformFee: number;
   total: number;
 }

@@ -8,6 +8,7 @@ import { BookingActions } from "@/components/BookingActions";
 import { MapPinIcon, CalendarIcon } from "@/components/icons";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/ScrollReveal";
 import { ChevronLeft } from "lucide-react";
+import QRCode from "qrcode";
 import {
   BOOKING_STATUS_STYLES,
   BOOKING_STATUS_LABELS,
@@ -74,9 +75,15 @@ export default async function BookingDetailPage({
     numRooms: booking.num_rooms,
     base: booking.base_price,
     gst: booking.gst,
+    serviceCharge: (booking as any).service_charge ?? 0,
     platformFee: booking.platform_fee,
     total: booking.total_price,
   };
+
+  // Generate QR code on the server side
+  const qrCodeUrl = await QRCode.toDataURL(
+    `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/bookings/${booking.id}/check-in`
+  );
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
@@ -110,6 +117,24 @@ export default async function BookingDetailPage({
       </ScrollReveal>
 
       <StaggerContainer className="space-y-5">
+        
+        {/* Check-in QR Code Card */}
+        <StaggerItem>
+          <section className="rounded-3xl border border-slate-250/60 bg-white p-6 shadow-xs hover:shadow-md transition duration-300 flex flex-col items-center text-center">
+            <h2 className="text-xs font-black text-slate-800 uppercase tracking-wider self-start mb-4">Check-in QR Code</h2>
+            <img
+              src={qrCodeUrl}
+              alt="Booking QR Code"
+              className="w-36 h-36 border border-slate-200 rounded-xl p-1.5 bg-white shadow-sm"
+            />
+            <p className="text-[11px] text-slate-500 font-black mt-3 uppercase tracking-wider">
+              Scan at Front Desk
+            </p>
+            <p className="text-[11px] text-slate-400 font-medium mt-0.5 max-w-sm leading-relaxed">
+              Show this QR code to the hotel staff on arrival for instant check-in, or at departure for checkout.
+            </p>
+          </section>
+        </StaggerItem>
         
         {/* Stay Details */}
         <StaggerItem>

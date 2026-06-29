@@ -27,10 +27,20 @@ export async function POST(request: Request) {
   // RLS ensures the booking belongs to this user.
   const { data: booking } = await supabase
     .from("bookings")
-    .select("total_price, base_price, status, hotel_id")
+    .select(`
+      total_price,
+      base_price,
+      status,
+      hotel_id,
+      hotels (
+        require_advance,
+        advance_amount,
+        advance_is_percent
+      )
+    `)
     .eq("id", bookingId)
     .maybeSingle();
-
+ 
   if (!booking) {
     return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   }
@@ -41,9 +51,25 @@ export async function POST(request: Request) {
     );
   }
 
-  // Prices are stored in INR, so the order amount is simply paise.
-  const amountPaise = Math.round(Number(booking.total_price) * 100);
+  // Calculate amount to charge online (full price, or advance price if required)
+  let amountToCharge = Number(booking.total_price);
+  const hotel = booking.hotels as unknown as {
+    require_advance: boolean | null;
+    advance_amount: number | null;
+    advance_is_percent: boolean | null;
+  } | null;
 
+  if (hotel?.require_advance) {
+    if (hotel.advance_is_percent) {
+      amountToCharge = amountToCharge * ((hotel.advance_amount ?? 100) / 100);
+    } else {
+      amountToCharge = Math.min(hotel.advance_amount ?? amountToCharge, amountToCharge);
+    }
+  }
+ 
+  // Prices are stored in INR, so the order amount is simply paise.
+  const amountPaise = Math.round(amountToCharge * 100);
+ 
   // Route split: pay the hotel owner their base (minus commission) if linked.
   let transfers:
     | { account: string; amount: number; currency: string; notes: Record<string, string> }[]
@@ -53,7 +79,11 @@ export async function POST(request: Request) {
   });
   if (payoutAccount) {
     const basePaise = Math.round(Number(booking.base_price) * 100);
-    const managerShare = Math.round(basePaise * (1 - PLATFORM_COMMISSION_RATE));
+    // Payout share is capped at the actual amount charged online
+    const managerShare = Math.min(
+      Math.round(basePaise * (1 - PLATFORM_COMMISSION_RATE)),
+      amountPaise
+    );
     if (managerShare > 0 && managerShare <= amountPaise) {
       transfers = [
         {

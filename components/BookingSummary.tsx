@@ -29,6 +29,7 @@ export function BookingSummary({
   reviewCount,
   pricePerNight,
   roomName,
+  roomImageUrl,
   stay,
   quote,
   onEdit,
@@ -38,6 +39,7 @@ export function BookingSummary({
   reviewCount: number;
   pricePerNight: number | null;
   roomName?: string;
+  roomImageUrl?: string | null;
   stay: {
     checkIn: string;
     checkOut: string;
@@ -49,13 +51,18 @@ export function BookingSummary({
   onEdit?: () => void;
 }) {
   const [open, setOpen] = useState(true);
+  const displayImageUrl = roomImageUrl || hotel.image_url;
+
+  // Calculate percentages back from the quote amounts for display
+  const gstPercent = quote && quote.base > 0 ? Math.round((quote.gst / quote.base) * 100) : 18;
+  const serviceChargePercent = quote && quote.base > 0 ? Math.round((quote.serviceCharge / quote.base) * 105) : 0; // Use round to get clean integer
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="relative h-40 bg-slate-100">
-        {hotel.image_url ? (
+        {displayImageUrl ? (
           <Image
-            src={getOptimizedImageUrl(hotel.image_url, 400, 80)}
+            src={getOptimizedImageUrl(displayImageUrl, 400, 80)}
             alt={hotel.name}
             fill
             sizes="(max-width: 768px) 100vw, 400px"
@@ -151,7 +158,12 @@ export function BookingSummary({
                       label={`Room price (${quote.nights} night${quote.nights === 1 ? "" : "s"}${quote.numRooms > 1 ? ` × ${quote.numRooms}` : ""})`}
                       value={<Price amount={quote.base} />}
                     />
-                    <Row label="GST (18%)" value={<Price amount={quote.gst} />} />
+                    {quote.gst > 0 && (
+                      <Row label={`GST (${gstPercent}%)`} value={<Price amount={quote.gst} />} />
+                    )}
+                    {quote.serviceCharge > 0 && (
+                      <Row label={`Service charge (${Math.round((quote.serviceCharge / quote.base) * 100)}%)`} value={<Price amount={quote.serviceCharge} />} />
+                    )}
                     <Row label="Platform fee (2%)" value={<Price amount={quote.platformFee} />} />
                   </div>
                 </motion.div>
