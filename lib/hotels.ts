@@ -13,6 +13,7 @@ import type {
   AvailabilityRule,
   NearbyPlace,
   PublicHotelDetail,
+  ExploreHotel,
 } from "@/lib/types";
 
 // Cache tag used by every cached hotel read; bumped by revalidateHotels()
@@ -25,27 +26,55 @@ export const HOTELS_CACHE_TAG = "hotels";
  * tag with a 1h fallback revalidate; invalidated immediately on approve/publish.
  */
 export const getApprovedHotelsCached = unstable_cache(
-  async (): Promise<HotelWithStats[]> => {
+  async (): Promise<ExploreHotel[]> => {
     const supabase = createPublicClient();
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("hotels")
-      .select("id, name, location, image_url, city, state, rooms(price), reviews(rating)")
+      .select(`
+        id,
+        manager_id,
+        name,
+        description,
+        location,
+        image_url,
+        status,
+        created_at,
+        property_type,
+        star_rating,
+        amenities,
+        latitude,
+        longitude,
+        cancellation_policy,
+        city,
+        state,
+        area,
+        payment_policy,
+        gst_percent,
+        rooms (price),
+        reviews (rating),
+        hotel_photos (url, category, sort_order)
+      `)
       .eq("status", "approved")
       .order("created_at", { ascending: false });
-    return (data as HotelWithStats[] | null) ?? [];
+
+    if (error) {
+      console.error("Error fetching approved hotels in cache path:", error.message);
+      throw error;
+    }
+    return (data as any[]) ?? [];
   },
-  ["approved-hotels"],
+  ["approved-hotels-explore"],
   { tags: [HOTELS_CACHE_TAG], revalidate: 3600 },
 );
 
 // Collapse a hotel + its rooms/reviews into display-ready card data.
-export function toHotelCard(hotel: HotelWithStats): HotelCardData {
-  const prices = hotel.rooms?.map((r) => Number(r.price)).filter((p) => p > 0) ?? [];
-  const ratings = hotel.reviews?.map((r) => r.rating) ?? [];
+export function toHotelCard(hotel: any): HotelCardData {
+  const prices = hotel.rooms?.map((r: any) => Number(r.price)).filter((p: number) => p > 0) ?? [];
+  const ratings = hotel.reviews?.map((r: any) => r.rating) ?? [];
 
   const minPrice = prices.length ? Math.min(...prices) : null;
   const rating = ratings.length
-    ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+    ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
     : null;
 
   return {

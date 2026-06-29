@@ -395,3 +395,9 @@ export interface PriceQuote {
   platformFee: number;
   total: number;
 }
+
+export interface ExploreHotel extends HotelWithStats {
+  hotel_photos: { url: string; category: string; sort_order: number }[];
+}
+
+

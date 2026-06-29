@@ -620,3 +620,29 @@ export async function publishDraft(hotelId: string): Promise<HotelDraft> {
 
   return normalizeHotelDraft(publishedHotel);
 }
+
+// Robust helper to parse different formats of amenities from Supabase
+export function parseAmenities(amenities: any): string[] {
+  if (!amenities) return [];
+  if (Array.isArray(amenities)) return amenities;
+  if (typeof amenities === "string") {
+    const trimmed = amenities.trim();
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      return trimmed
+        .slice(1, -1)
+        .split(",")
+        .map((item) => item.replace(/"/g, "").trim())
+        .filter(Boolean);
+    }
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        return JSON.parse(trimmed);
+      } catch (e) {
+        return [];
+      }
+    }
+    return trimmed.split(",").map((item) => item.trim()).filter(Boolean);
+  }
+  return [];
+}
+

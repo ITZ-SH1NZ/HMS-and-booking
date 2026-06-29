@@ -1,25 +1,33 @@
-import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
+import { getApprovedHotelsCached } from "@/lib/hotels";
 import HotelsClient from "./HotelsClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function HotelsPage() {
-  const supabase = await createClient();
-
-  const { data: hotels, error } = await supabase
-    .from("hotels")
-    .select("*");
-
-  if (error) {
-    return <div>{error.message}</div>;
+  let hotels: any[] = [];
+  try {
+    hotels = await getApprovedHotelsCached();
+  } catch (error: any) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-cream-50 text-slate-800">
+        <div className="text-center">
+          <h2 className="text-xl font-bold">Error loading stays</h2>
+          <p className="text-sm text-slate-500 mt-2">{error.message || "Please check database connection."}</p>
+        </div>
+      </div>
+    );
   }
 
-return (
-  <div className="p-6">
-    <h1 className="text-3xl font-bold mb-6">
-      Explore Hotels
-    </h1>
-
-    <HotelsClient hotels={hotels ?? []} />
-  </div>
-);
-
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-cream-50 text-slate-400 font-semibold animate-pulse">
+          Loading Explore Stays...
+        </div>
+      }
+    >
+      <HotelsClient hotels={hotels} />
+    </Suspense>
+  );
 }
