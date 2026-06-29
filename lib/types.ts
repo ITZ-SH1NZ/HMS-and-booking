@@ -72,3 +72,29 @@ export interface HotelCardData {
   rating: number | null;
   reviewCount: number;
 }
+
+export interface ExploreHotel {
+  id: string;
+  manager_id: string;
+  name: string;
+  description: string | null;
+  location: string;
+  image_url: string | null;
+  status: VerificationStatus;
+  created_at: string;
+  property_type: string | null;
+  star_rating: number | null;
+  amenities: any;
+  latitude: number | null;
+  longitude: number | null;
+  cancellation_policy: string | null;
+  city: string | null;
+  state: string | null;
+  area: string | null;
+  payment_policy: string | null;
+  gst_percent: number;
+  rooms: { price: number }[];
+  reviews: { rating: number }[];
+  hotel_photos: { url: string; category: string; sort_order: number }[];
+}
+

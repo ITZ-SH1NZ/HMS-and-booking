@@ -1,15 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #faf8f5; /* Warm cream background */
+  --foreground: #1c2c24; /* Deep forest foreground */
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand Colors: Forest Green */
+  --color-brand-50: #f2f7f4;
+  --color-brand-100: #e2ede7;
+  --color-brand-200: #c5dcd0;
+  --color-brand-300: #9bc2ad;
+  --color-brand-400: #6ca184;
+  --color-brand-500: #0f5132; /* Primary forest green */
+  --color-brand-600: #0c4128;
+  --color-brand-700: #0a3520;
+  --color-brand-800: #072517;
+  --color-brand-900: #04160d;
+
+  /* Gold Colors */
+  --color-gold-50: #fffdf5;
+  --color-gold-100: #fffbeb;
+  --color-gold-200: #fef3c7;
+  --color-gold-300: #fde047;
+  --color-gold-400: #facc15;
+  --color-gold-500: #ca8a04; /* Primary gold */
+  --color-gold-600: #a16207;
+  --color-gold-700: #854d0e;
+
+  /* Cream Colors */
+  --color-cream-50: #faf8f5;
+  --color-cream-100: #fcf9f2;
+  --color-cream-200: #f7eed7;
+  --color-cream-300: #f2e2bb;
 }
 
 body {
