@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // POST /api/bookings/[id]/status — update booking status (check-in/check-out)
 // Restrained to the hotel's manager or staff.
@@ -30,8 +31,9 @@ export async function POST(
     return NextResponse.json({ error: "Invalid status transition" }, { status: 400 });
   }
 
-  // 2. Fetch the booking and its hotel details
-  const { data: booking, error: bookingError } = await supabase
+  // 2. Fetch the booking and its hotel details using the admin client
+  const admin = createAdminClient();
+  const { data: booking, error: bookingError } = await admin
     .from("bookings")
     .select("id, hotel_id, status, total_price, check_in, hotels(manager_id)")
     .eq("id", id)
@@ -81,8 +83,8 @@ export async function POST(
     }
   }
 
-  // 5. Perform the update
-  const { error: updateError } = await supabase
+  // 5. Perform the update using the admin client (bypasses RLS and table privileges)
+  const { error: updateError } = await admin
     .from("bookings")
     .update({ status })
     .eq("id", id);
@@ -91,9 +93,9 @@ export async function POST(
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // 5. On checkout (status === 'completed'), also mark payments as completed
+  // 6. On checkout (status === 'completed'), also mark payments as completed
   if (status === "completed") {
-    await supabase
+    await admin
       .from("payments")
       .update({ status: "completed", paid_at: new Date().toISOString() })
       .eq("booking_id", id);
