@@ -171,7 +171,7 @@ export function Navbar() {
       className="sticky top-0 z-40 w-full px-4 pt-4 bg-transparent pointer-events-none transition-all duration-300"
       onMouseLeave={handleMouseLeave}
     >
-      <div className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 rounded-full border border-slate-250 bg-white/90 backdrop-blur-md shadow-xs pointer-events-auto transition-all duration-300 ${
+      <div className={`mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 md:px-8 rounded-full border border-[#C5A880]/35 bg-white/85 backdrop-blur-md shadow-sm pointer-events-auto transition-all duration-300 ${
         isScrolled ? "shadow-md bg-white/95 py-2.5" : "py-4"
       }`}>
         {/* Brand Logo & Wordmark */}
@@ -207,15 +207,15 @@ export function Navbar() {
                     if (link.label === "Stays") handleMouseEnter("stays");
                     else handleMouseLeave();
                   }}
-                  className={`text-sm font-bold transition-colors duration-200 relative py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md px-1 ${
-                    isActive ? "text-slate-900" : "text-slate-650 hover:text-brand-600"
+                  className={`relative text-sm font-semibold transition-colors duration-200 py-1 px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md ${
+                    isActive ? "text-brand-900 font-bold" : "text-slate-650 hover:text-[#0E3829]"
                   }`}
                 >
                   {link.label}
                   {isActive && (
-                    <motion.span
+                    <motion.div
                       layoutId="nav-underline"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600 rounded-full"
+                      className="absolute bottom-0 left-1 right-1 h-[2px] bg-[#C5A880] rounded-full"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}

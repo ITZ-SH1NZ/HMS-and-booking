@@ -67,7 +67,7 @@ export function HomeStays({
   return (
     <section
       id="hotels"
-      className="relative z-10 mx-auto max-w-7xl w-full px-4 py-8 scroll-mt-20"
+      className="relative z-10 mx-auto max-w-[1600px] w-full px-6 md:px-10 py-8 scroll-mt-20"
     >
       <ScrollReveal>
         <div className="mb-6 flex items-baseline justify-between border-b border-slate-200/60 pb-4">
@@ -113,7 +113,7 @@ export function HomeStays({
         />
       ) : location ? (
         <div className="relative">
-          <StaggerContainer className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <StaggerContainer className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {hotels.map((hotel) => (
               <StaggerItem key={hotel.id}>
                 <HotelCard hotel={hotel} />

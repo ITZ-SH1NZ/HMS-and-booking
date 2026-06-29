@@ -15,10 +15,9 @@ export function CookieConsent() {
       if (!localStorage.getItem(STORAGE_KEY)) {
         const isHomepage = window.location.pathname === "/";
         const hasSeenLoader = sessionStorage.getItem("booknest_loader_seen") === "true";
-
-        // If the landing page loader is going to play, wait 2.8s (2s loader + 0.6s fadeout + buffer).
+        // If the landing page loader is going to play, wait 4800ms (3.85s loader + 0.95s curtain slide + buffer).
         // Otherwise, slide in after 800ms.
-        const delay = isHomepage && !hasSeenLoader ? 2800 : 800;
+        const delay = isHomepage && !hasSeenLoader ? 4800 : 800;
 
         const t = setTimeout(() => setShow(true), delay);
         return () => clearTimeout(t);

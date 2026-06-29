@@ -36,6 +36,9 @@ export function DestinationsMapSection({ destinations }: DestinationsMapSectionP
   useEffect(() => {
     if (!mapRef.current || map) return;
 
+    // Check if already initialized to prevent double-init throwing errors
+    if ((mapRef.current as any)._leaflet_id) return;
+
     // Find the first destination with valid coordinates to center the map
     const defaultCenter: [number, number] = [10.8505, 76.2711]; // Center of Kerala
     const firstValid = destinations.find(d => d.latitude !== null && d.longitude !== null);
@@ -48,7 +51,7 @@ export function DestinationsMapSection({ destinations }: DestinationsMapSectionP
       attributionControl: false,
     }).setView(center, 7);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 18,
     }).addTo(leafletMap);
 
@@ -148,7 +151,7 @@ export function DestinationsMapSection({ destinations }: DestinationsMapSectionP
   };
 
   return (
-    <section className="relative z-10 mx-auto max-w-7xl w-full px-4 py-12 border-t border-slate-200/60">
+    <section className="relative z-10 mx-auto max-w-[1600px] w-full px-6 md:px-10 py-12 border-t border-slate-200/60">
       {/* CSS Reset for Leaflet default divIcon style */}
       <style>{`
         .custom-map-marker-interactive {

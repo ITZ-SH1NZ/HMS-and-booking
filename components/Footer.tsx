@@ -50,9 +50,8 @@ export function Footer() {
   const currentLanguageLabel = languagesList.find((l) => l.code === locale)?.name || "English (IN)";
   const currentCurrencyLabel = currenciesList.find((c) => c.code === currency)?.name || "INR (₹)";
 
-
   return (
-    <footer className="relative bg-white text-slate-600 border-t border-slate-200/80 overflow-hidden">
+    <footer className="relative bg-[#FAF8F5] text-slate-600 border-t border-[#C5A880]/35 overflow-hidden">
       {/* Organic Leaf Watermark Background */}
       <div className="absolute right-2 bottom-2 text-brand-700/3 pointer-events-none select-none z-0">
         <svg viewBox="0 0 24 24" className="w-56 h-56 fill-current">
@@ -61,11 +60,11 @@ export function Footer() {
       </div>
 
       {/* Main Footer Links */}
-      <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 z-10">
+      <div className="relative mx-auto max-w-[1600px] px-6 py-16 sm:px-8 lg:px-10 z-10">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
           {/* Logo and Tagline Column */}
           <div className="lg:col-span-2 flex flex-col gap-5">
-            <Link href="/" className="flex items-center gap-3 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-xl">
+            <Link href="/" className="flex items-center gap-3 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-xl">
               <Image
                 src="/logo-mark.png"
                 alt="BookNest Logo"
@@ -75,7 +74,7 @@ export function Footer() {
                 unoptimized={true}
               />
               <div className="flex flex-col justify-center">
-                <span className="text-2xl font-black tracking-tight text-brand-700 leading-none">
+                <span className="text-2xl font-black tracking-tight text-brand-750 leading-none">
                   BookNest
                 </span>
                 <span className="text-[9px] font-black tracking-widest text-gold-600 uppercase mt-1.5">
@@ -83,14 +82,14 @@ export function Footer() {
                 </span>
               </div>
             </Link>
-            <p className="max-w-xs text-sm text-slate-500 leading-relaxed font-semibold">
+            <p className="max-w-xs text-xs text-slate-500 leading-relaxed font-semibold">
               Book handpicked hotels, resorts, and villas across India and beyond. Trusted by thousands of happy travelers.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <a
                 href="#"
                 aria-label="BookNest on X (formerly Twitter)"
-                className="grid h-8 w-8 place-items-center rounded-full bg-slate-100 text-slate-650 hover:bg-brand-50 hover:text-brand-700 hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-white border border-[#C5A880]/30 text-[#0E3829] hover:bg-[#0E3829] hover:text-white hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-550"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -99,7 +98,7 @@ export function Footer() {
               <a
                 href="#"
                 aria-label="BookNest on Facebook"
-                className="grid h-8 w-8 place-items-center rounded-full bg-slate-100 text-slate-650 hover:bg-brand-50 hover:text-brand-700 hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-white border border-[#C5A880]/30 text-[#0E3829] hover:bg-[#0E3829] hover:text-white hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-550"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
                   <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
@@ -108,7 +107,7 @@ export function Footer() {
               <a
                 href="#"
                 aria-label="BookNest on Instagram"
-                className="grid h-8 w-8 place-items-center rounded-full bg-slate-100 text-slate-650 hover:bg-brand-50 hover:text-brand-700 hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-white border border-[#C5A880]/30 text-[#0E3829] hover:bg-[#0E3829] hover:text-white hover:scale-105 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-550"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
@@ -121,25 +120,25 @@ export function Footer() {
 
           {/* Column 1: Discover */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">Discover</h4>
-            <ul className="flex flex-col gap-2.5 text-sm font-semibold">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#0E3829]">Discover</h4>
+            <ul className="flex flex-col gap-2.5 text-xs font-semibold">
               <li>
-                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Resorts & Villas
                 </Link>
               </li>
               <li>
-                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Luxury Stays
                 </Link>
               </li>
               <li>
-                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Nature Retreats
                 </Link>
               </li>
               <li>
-                <Link href="/hotels" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/hotels" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Budget Escapes
                 </Link>
               </li>
@@ -148,25 +147,25 @@ export function Footer() {
 
           {/* Column 2: Host */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">Hosting</h4>
-            <ul className="flex flex-col gap-2.5 text-sm font-semibold">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#0E3829]">Hosting</h4>
+            <ul className="flex flex-col gap-2.5 text-xs font-semibold">
               <li>
-                <Link href="/signup/manager" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/signup/manager" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Become a Host
                 </Link>
               </li>
               <li>
-                <Link href="/signup/manager" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/signup/manager" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Host Resources
                 </Link>
               </li>
               <li>
-                <Link href="/signup/manager" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/signup/manager" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Community Forum
                 </Link>
               </li>
               <li>
-                <Link href="/signup/manager" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="/signup/manager" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Insurance & Protection
                 </Link>
               </li>
@@ -175,25 +174,25 @@ export function Footer() {
 
           {/* Column 3: Support */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">Support</h4>
-            <ul className="flex flex-col gap-2.5 text-sm font-semibold">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#0E3829]">Support</h4>
+            <ul className="flex flex-col gap-2.5 text-xs font-semibold">
               <li>
-                <Link href="#" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="#" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Help Centre
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="#" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Trust & Safety
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="#" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Cancellation Options
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-brand-600 hover:translate-x-1 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 rounded px-0.5">
+                <Link href="#" className="text-slate-600 hover:text-[#0E3829] hover:translate-x-0.5 transition-all duration-250 inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold-500 rounded px-0.5">
                   Contact Support
                 </Link>
               </li>
@@ -202,22 +201,22 @@ export function Footer() {
         </div>
 
         {/* Divider line */}
-        <div className="my-10 border-t border-slate-200/80" />
+        <div className="my-10 border-t border-[#C5A880]/20" />
 
         {/* Bottom Bar: Copyright, Live Clock, Interactive Selector, Back to Top */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500 font-semibold relative z-10">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
             <span>&copy; {new Date().getFullYear()} BookNest Inc. All rights reserved.</span>
-            <span className="hidden sm:inline text-slate-300">|</span>
+            <span className="hidden sm:inline text-[#C5A880]/30">|</span>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-brand-600 transition duration-200">Privacy Policy</a>
-              <a href="#" className="hover:text-brand-600 transition duration-200">Terms of Service</a>
-              <a href="#" className="hover:text-brand-600 transition duration-200">Sitemap</a>
+              <Link href="/privacy" className="text-slate-600 hover:text-[#0E3829] transition duration-200">Privacy Policy</Link>
+              <Link href="/terms" className="text-slate-600 hover:text-[#0E3829] transition duration-200">Terms of Service</Link>
+              <a href="#" className="text-slate-600 hover:text-[#0E3829] transition duration-200">Sitemap</a>
             </div>
             {time && (
               <>
-                <span className="hidden sm:inline text-slate-300">|</span>
-                <span className="text-slate-400 font-medium">Local Time: {time} IST</span>
+                <span className="hidden sm:inline text-[#C5A880]/30">|</span>
+                <span className="text-slate-450 font-medium">Local Time: {time} IST</span>
               </>
             )}
           </div>
@@ -228,7 +227,7 @@ export function Footer() {
             <div className="relative">
               <button
                 onClick={() => setPickerOpen(!pickerOpen)}
-                className="flex items-center gap-1.5 text-slate-650 hover:text-brand-600 cursor-pointer transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md px-1 py-0.5"
+                className="flex items-center gap-1.5 text-slate-600 hover:text-[#0E3829] cursor-pointer transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-md px-1 py-0.5"
               >
                 <Globe className="h-4 w-4" />
                 <span>{currentLanguageLabel} • {currentCurrencyLabel}</span>
@@ -244,10 +243,10 @@ export function Footer() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 15, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute bottom-full right-0 mb-3 w-64 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 grid grid-cols-1 gap-4 text-left"
+                      className="absolute bottom-full right-0 mb-3 w-64 rounded-2xl border border-[#C5A880]/30 bg-[#FAF8F5] p-4 shadow-xl z-50 grid grid-cols-1 gap-4 text-left"
                     >
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Language</p>
+                        <p className="text-[10px] font-black text-[#C5A880] uppercase tracking-widest mb-2">Language</p>
                         <div className="grid grid-cols-1 gap-1">
                           {languagesList.map((lang) => (
                             <button
@@ -256,16 +255,16 @@ export function Footer() {
                                 setCurrencyAndLocale(currency, lang.code);
                                 setPickerOpen(false);
                               }}
-                              className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-55 transition text-left cursor-pointer"
+                              className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition text-left cursor-pointer"
                             >
                               <span>{lang.name}</span>
-                              {locale === lang.code && <Check className="h-3.5 w-3.5 text-brand-600" />}
+                              {locale === lang.code && <Check className="h-3.5 w-3.5 text-[#0E3829]" />}
                             </button>
                           ))}
                         </div>
                       </div>
-                      <div className="border-t border-slate-100 pt-3">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Currency</p>
+                      <div className="border-t border-[#C5A880]/15 pt-3">
+                        <p className="text-[10px] font-black text-[#C5A880] uppercase tracking-widest mb-2">Currency</p>
                         <div className="grid grid-cols-2 gap-1">
                           {currenciesList.map((curr) => (
                             <button
@@ -274,10 +273,10 @@ export function Footer() {
                                 setCurrencyAndLocale(curr.code, locale);
                                 setPickerOpen(false);
                               }}
-                              className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-55 transition text-left cursor-pointer"
+                              className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition text-left cursor-pointer"
                             >
                               <span>{curr.name}</span>
-                              {currency === curr.code && <Check className="h-3.5 w-3.5 text-brand-600" />}
+                              {currency === curr.code && <Check className="h-3.5 w-3.5 text-[#0E3829]" />}
                             </button>
                           ))}
                         </div>
@@ -291,10 +290,10 @@ export function Footer() {
             {/* Back to Top */}
             <button
               onClick={scrollToTop}
-              className="group flex items-center gap-1 text-slate-650 hover:text-brand-600 cursor-pointer transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-md px-1 py-0.5"
+              className="group flex items-center gap-1.5 text-slate-650 hover:text-[#0E3829] cursor-pointer transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-md px-1 py-0.5"
             >
               <span>Back to top</span>
-              <div className="grid h-6 w-6 place-items-center rounded-full bg-slate-100 group-hover:bg-brand-50 transition transform group-hover:-translate-y-0.5">
+              <div className="grid h-6 w-6 place-items-center rounded-lg bg-white border border-[#C5A880]/30 group-hover:bg-[#0E3829] group-hover:text-white text-[#0E3829] transition transform group-hover:-translate-y-0.5">
                 <ArrowUp className="h-3.5 w-3.5" />
               </div>
             </button>
