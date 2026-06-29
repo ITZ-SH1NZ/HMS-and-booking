@@ -232,3 +232,44 @@ html {
   animation: fadeIn 0.2s ease-out;
 }
 
+/* ---- Print Styles for Receipts/Invoices ---- */
+@media print {
+  /* Hide navbar, footer, background elements, navigation links, and action buttons */
+  header, footer, nav, aside, .no-print, button, a {
+    display: none !important;
+  }
+
+  /* Reset body and html backgrounds for printing */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Center the receipt print container and span the full page width */
+  #receipt-print-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 24px !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove box shadows and ensure clean borders on print */
+  #receipt-print-area section {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important; /* slate-300 for crisp borders on paper */
+    background: #ffffff !important;
+    break-inside: avoid;
+    border-radius: 16px !important; /* Keep a premium rounded look on PDF */
+  }
+
+  /* Adjust spacing and colors for print */
+  #receipt-print-area .border-b {
+    border-bottom-color: #cbd5e1 !important;
+  }
+}
+

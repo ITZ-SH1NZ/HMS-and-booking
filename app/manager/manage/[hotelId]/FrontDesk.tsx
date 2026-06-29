@@ -217,21 +217,44 @@ export function FrontDesk({
               </p>
               
               <CameraScanner
-                onScan={(decodedText) => {
+                onScan={async (decodedText) => {
                   setPortalError(null);
                   // Extract UUID from scanned URL
                   const match = decodedText.match(/bookings\/([a-f0-9-]{36})/i);
                   const bookingId = match ? match[1] : decodedText.trim();
 
-                  const matched = bookings.find(
+                  let matched = bookings.find(
                     (b) =>
                       b.id.toLowerCase() === bookingId.toLowerCase() ||
                       b.id.replace(/-/g, "").toLowerCase() === bookingId.toLowerCase()
                   );
 
+                  // Caching fallback: check the server for recent bookings
+                  if (!matched) {
+                    setPortalError("Checking server for recent bookings...");
+                    try {
+                      const res = await fetch(`/api/manager/manage/${hotel.id}`);
+                      if (res.ok) {
+                        const latestData = await res.json();
+                        const latestBookings = latestData.bookings || [];
+                        matched = latestBookings.find(
+                          (b: any) =>
+                            b.id.toLowerCase() === bookingId.toLowerCase() ||
+                            b.id.replace(/-/g, "").toLowerCase() === bookingId.toLowerCase()
+                        );
+                        
+                        const { mutate } = await import("swr");
+                        mutate(`/api/manager/manage/${hotel.id}`, latestData, false);
+                      }
+                    } catch (err) {
+                      console.error("Failed to fetch latest bookings:", err);
+                    }
+                  }
+
                   if (matched) {
                     setPortalOpen(false);
                     setIsScanning(false);
+                    setPortalError(null);
                     window.open(`/bookings/${matched.id}/check-in`, "_blank");
                   } else {
                     setPortalError("No active booking found for this scanned QR code.");
@@ -279,21 +302,45 @@ export function FrontDesk({
               </div>
 
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   setPortalError(null);
                   const searchId = portalSearch.trim();
                   if (!searchId) return;
 
-                  const matched = bookings.find(
+                  // 1. Try local search first
+                  let matched = bookings.find(
                     (b) =>
                       b.id.toLowerCase().startsWith(searchId.toLowerCase()) ||
                       b.id.replace(/-/g, "").toLowerCase().startsWith(searchId.toLowerCase())
                   );
 
+                  // 2. If not found locally, fetch latest from server (caching fallback)
+                  if (!matched) {
+                    setPortalError("Checking server for recent bookings...");
+                    try {
+                      const res = await fetch(`/api/manager/manage/${hotel.id}`);
+                      if (res.ok) {
+                        const latestData = await res.json();
+                        const latestBookings = latestData.bookings || [];
+                        matched = latestBookings.find(
+                          (b: any) =>
+                            b.id.toLowerCase().startsWith(searchId.toLowerCase()) ||
+                            b.id.replace(/-/g, "").toLowerCase().startsWith(searchId.toLowerCase())
+                        );
+                        
+                        const { mutate } = await import("swr");
+                        mutate(`/api/manager/manage/${hotel.id}`, latestData, false);
+                      }
+                    } catch (err) {
+                      console.error("Failed to fetch latest bookings:", err);
+                    }
+                  }
+
                   if (matched) {
                     setPortalOpen(false);
                     setPortalSearch("");
+                    setPortalError(null);
                     window.open(`/bookings/${matched.id}/check-in`, "_blank");
                   } else {
                     setPortalError("No active booking found with this ID for this hotel.");

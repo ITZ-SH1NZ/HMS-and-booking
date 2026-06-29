@@ -8,6 +8,7 @@ import confetti from "canvas-confetti";
 import QRCode from "qrcode";
 import { Price } from "@/components/Price";
 import { ShieldIcon, CalendarIcon, BuildingIcon } from "@/components/icons";
+import { CheckInQrCard } from "@/components/CheckInQrCard";
 import type { BookingDetail } from "@/lib/types";
 
 const fmt = (s: string) =>
@@ -236,19 +237,13 @@ export function SuccessClient({ booking }: { booking: BookingDetail }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.65 }}
-            className="flex flex-col items-center justify-center p-5 bg-slate-50 border border-slate-200/60 rounded-2xl my-6"
+            className="my-6 w-full"
           >
-            <img
-              src={qrUrl}
-              alt="Booking QR Code"
-              className="w-36 h-36 border border-slate-200 rounded-xl p-1.5 bg-white shadow-sm"
+            <CheckInQrCard
+              qrCodeUrl={qrUrl}
+              title="Check-In / Check-Out QR Code"
+              subtitle="Show this QR code at the front desk for seamless check-in or checkout."
             />
-            <p className="text-[10px] text-slate-500 font-black mt-2.5 uppercase tracking-wider">
-              Check-In / Check-Out QR Code
-            </p>
-            <p className="text-[10px] text-slate-400 font-medium mt-1 max-w-[260px] leading-relaxed">
-              Show this QR code at the front desk for seamless check-in or checkout.
-            </p>
           </motion.div>
         )}
 
