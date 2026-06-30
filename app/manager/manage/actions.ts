@@ -28,6 +28,11 @@ export async function confirmBookingPayment(hotelId: string, bookingId: string):
   const supabase = await createClient();
   const { error } = await supabase.rpc("confirm_booking_payment", { p_booking_id: bookingId });
   if (error) return { ok: false, error: error.message };
+  
+  // Trigger booking confirmation email (non-blocking)
+  const { sendBookingConfirmation } = await import("@/lib/emails/bookingConfirmation");
+  await sendBookingConfirmation(bookingId);
+
   revalidatePath(`/manager/manage/${hotelId}`);
   return { ok: true };
 }
@@ -43,6 +48,11 @@ export async function cancelHotelBooking(
     p_reason: reason || "Cancelled at front desk",
   });
   if (error) return { ok: false, error: error.message };
+
+  // Trigger booking cancellation email (non-blocking)
+  const { sendBookingCancellation } = await import("@/lib/emails/bookingCancellation");
+  await sendBookingCancellation(bookingId);
+
   revalidatePath(`/manager/manage/${hotelId}`);
   return { ok: true };
 }
@@ -78,6 +88,15 @@ export async function createOfflineBooking(input: OfflineBookingInput): Promise<
     p_special: input.special ?? null,
   });
   if (error) return { ok: false, error: error.message };
+
+  const bookingId = data as string;
+
+  // Trigger booking confirmation email if paid & confirmed (non-blocking)
+  if (bookingId && input.paid) {
+    const { sendBookingConfirmation } = await import("@/lib/emails/bookingConfirmation");
+    await sendBookingConfirmation(bookingId);
+  }
+
   revalidatePath(`/manager/manage/${input.hotelId}`);
-  return { ok: true, id: data as string };
+  return { ok: true, id: bookingId };
 }
