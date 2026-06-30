@@ -9,6 +9,9 @@ import { useAuth } from "@/components/AuthProvider";
 import { signOut } from "@/lib/auth";
 import { GlobeIcon, HeartIcon } from "@animateicons/react/lucide";
 import { createPublicClient } from "@/lib/supabase/public";
+import { createClient } from "@/lib/supabase/client";
+import { MessageSquare } from "lucide-react";
+import useSWR from "swr";
 import { AirbnbSearch } from "@/components/AirbnbSearch";
 import { getOptimizedImageUrl } from "@/lib/image";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -138,6 +141,43 @@ export function Navbar() {
   }
 
   const role = profile?.role;
+
+  // Fetch unread count for guest messages
+  const { data: unreadData, mutate: mutateUnread } = useSWR(
+    user && role === "guest" ? "/api/messages/unread-count" : null,
+    async (url) => {
+      const res = await fetch(url);
+      if (!res.ok) return { count: 0 };
+      return res.json();
+    },
+    { refreshInterval: 15000 }
+  );
+
+  const unreadCount = unreadData?.count ?? 0;
+
+  useEffect(() => {
+    if (!user || role !== "guest") return;
+    const supabaseClient = createClient();
+    const channel = supabaseClient
+      .channel("navbar-unread-conversations")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "conversations",
+          filter: `guest_id=eq.${user.id}`,
+        },
+        () => {
+          mutateUnread();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [user, role, mutateUnread]);
 
   // The manager/staff dashboard has its own shell chrome — hide the marketing
   // navbar there (but keep it on the create-hotel wizard and waiting screens).
@@ -296,6 +336,21 @@ export function Navbar() {
             <HeartIcon size={18} />
           </Link>
 
+          {user && role === "guest" && (
+            <Link
+              href="/messages"
+              aria-label="Messages"
+              className="hidden lg:flex p-2 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 items-center justify-center relative hover:scale-105 active:scale-95"
+            >
+              <MessageSquare className="h-4.5 w-4.5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white leading-none shadow-sm">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
+
           {/* Desktop/Tablet Auth or User capsule dropdown */}
           {loading ? (
             <div className="h-9 w-24 animate-pulse rounded-full bg-slate-100" />
@@ -340,6 +395,19 @@ export function Navbar() {
                       <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg animate-pop-in">
                         {role === "guest" && (
                           <>
+                            <MenuLink
+                              href="/messages"
+                              onClick={() => setMenuOpen(false)}
+                            >
+                              <span className="flex items-center justify-between">
+                                <span>Messages</span>
+                                {unreadCount > 0 && (
+                                  <span className="rounded-full bg-red-650 px-2 py-0.5 text-[9px] font-black text-white">
+                                    {unreadCount}
+                                  </span>
+                                )}
+                              </span>
+                            </MenuLink>
                             <MenuLink
                               href="/dashboard/bookings"
                               onClick={() => setMenuOpen(false)}
@@ -535,6 +603,18 @@ export function Navbar() {
               <>
                 {role === "guest" && (
                   <>
+                    <Link
+                      href="/messages"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-black text-slate-800 hover:bg-brand-50/50 hover:text-brand-700 transition"
+                    >
+                      <span>Messages</span>
+                      {unreadCount > 0 && (
+                        <span className="rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-black text-white">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </Link>
                     <Link
                       href="/dashboard/bookings"
                       onClick={() => setMobileMenuOpen(false)}

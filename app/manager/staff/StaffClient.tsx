@@ -35,6 +35,7 @@ const PERM_LABEL: Record<string, string> = {
   view_occupancy: "View occupancy",
   manage_rooms: "Manage rooms",
   offline_booking: "Offline bookings",
+  reply_messages: "Reply to messages",
 };
 
 const PERMISSIONS_CONFIG = [
@@ -66,10 +67,17 @@ const PERMISSIONS_CONFIG = [
       { key: "offline_booking:edit", label: "Edit offline", desc: "Modify or cancel offline bookings" },
     ],
   },
+  {
+    key: "reply_messages",
+    label: "Reply to messages",
+    hint: "Read and answer guest messages",
+    subPerms: [],
+  },
 ];
 
+
 function groupPermissions(perms: string[]) {
-  const mainPerms = ["view_occupancy", "manage_rooms", "offline_booking"] as const;
+  const mainPerms = ["view_occupancy", "manage_rooms", "offline_booking", "reply_messages"] as const;
   const groups: Record<string, string[]> = {};
   
   perms.forEach((p) => {
@@ -85,13 +93,14 @@ function groupPermissions(perms: string[]) {
     .map((m) => {
       const subs = groups[m] || [];
       const config = PERMISSIONS_CONFIG.find((c) => c.key === m);
-      const totalSubs = config?.subPerms.length ?? 0;
+      const totalSubs = config?.subPerms?.length ?? 0;
       if (subs.length > 0 && subs.length < totalSubs) {
         return `${PERM_LABEL[m]} (${subs.length}/${totalSubs})`;
       }
       return PERM_LABEL[m];
     });
 }
+
 
 export function StaffClient({
   hotels,
@@ -356,7 +365,7 @@ function InviteForm({
       const allPerms: string[] = [];
       PERMISSIONS_CONFIG.forEach((c) => {
         allPerms.push(c.key);
-        c.subPerms.forEach((s) => allPerms.push(s.key));
+        c.subPerms?.forEach((s) => allPerms.push(s.key));
       });
       init[h.id] = { enabled: false, permissions: allPerms };
     });
@@ -410,7 +419,7 @@ function InviteForm({
       const config = PERMISSIONS_CONFIG.find((c) => c.key === permKey);
       if (!config) return prev;
 
-      const subKeys = config.subPerms.map((s) => s.key);
+      const subKeys = config.subPerms?.map((s) => s.key) ?? [];
       const isCurrentlyEnabled = hotel.permissions.includes(permKey);
 
       let nextPerms: string[];
@@ -575,7 +584,7 @@ function InviteForm({
         <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-xs">
           <div className="min-w-[480px]">
             {/* Permissions Grid Header */}
-            <div className="grid grid-cols-[1fr_85px_85px_85px] gap-2 items-center px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-450 border-b border-slate-150/70 bg-slate-50/60">
+            <div className="grid grid-cols-[1fr_85px_85px_85px_85px] gap-2 items-center px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-450 border-b border-slate-150/70 bg-slate-50/60">
               <div>Hotel</div>
               <div className="text-center flex items-center justify-center gap-0.5">
                 View occ <Info className="h-3 w-3 text-slate-400" />
@@ -585,6 +594,9 @@ function InviteForm({
               </div>
               <div className="text-center flex items-center justify-center gap-0.5">
                 Offline <Info className="h-3 w-3 text-slate-400" />
+              </div>
+              <div className="text-center flex items-center justify-center gap-0.5" title="Read and answer guest messages">
+                Messages <Info className="h-3 w-3 text-slate-400" />
               </div>
             </div>
 
@@ -600,7 +612,7 @@ function InviteForm({
                   return (
                     <div
                       key={h.id}
-                      className={`grid grid-cols-[1fr_85px_85px_85px] gap-2 items-center px-4 py-3.5 hover:bg-slate-50/40 transition ${
+                      className={`grid grid-cols-[1fr_85px_85px_85px_85px] gap-2 items-center px-4 py-3.5 hover:bg-slate-50/40 transition ${
                         isChecked ? "bg-slate-50/20" : ""
                       }`}
                     >
@@ -657,23 +669,27 @@ function InviteForm({
                             </button>
 
                             {/* Chevron Trigger */}
-                            <button
-                              type="button"
-                              disabled={!isChecked}
-                              onClick={() => {
-                                if (isOpen) {
-                                  setActivePopover(null);
-                                } else {
-                                  setActivePopover({ hotelId: h.id, permKey: col.key });
-                                }
-                              }}
-                              className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition disabled:opacity-25"
-                            >
-                              <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180 text-slate-700" : ""}`} />
-                            </button>
+                            {col.subPerms && col.subPerms.length > 0 ? (
+                              <button
+                                type="button"
+                                disabled={!isChecked}
+                                onClick={() => {
+                                  if (isOpen) {
+                                    setActivePopover(null);
+                                  } else {
+                                    setActivePopover({ hotelId: h.id, permKey: col.key });
+                                  }
+                                }}
+                                className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition disabled:opacity-25"
+                              >
+                                <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180 text-slate-700" : ""}`} />
+                              </button>
+                            ) : (
+                              <div className="w-5" />
+                            )}
 
                             {/* Floating Sub-permissions Popover */}
-                            {isOpen && (
+                            {isOpen && col.subPerms && col.subPerms.length > 0 && (
                               <>
                                 <div className="fixed inset-0 z-40" onClick={() => setActivePopover(null)} />
                                 <div className="absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl text-left border-t border-slate-150">

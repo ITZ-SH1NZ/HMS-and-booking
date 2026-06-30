@@ -19,6 +19,7 @@ import {
   CheckIcon,
   GlobeIcon,
   XIcon,
+  MessageSquareIcon,
 } from "@/components/icons";
 import type { UserRole } from "@/lib/types";
 
@@ -39,6 +40,7 @@ const MANAGER_NAV: NavItem[] = [
   { label: "Hotels", href: "/manager/hotels", icon: BuildingIcon, match: (p) => p.startsWith("/manager/hotels") },
   { label: "Manage", href: "/manager/manage", icon: GridIcon, match: (p) => p.startsWith("/manager/manage") },
   { label: "Staff", href: "/manager/staff", icon: UsersIcon, match: (p) => p.startsWith("/manager/staff") },
+  { label: "Messages", href: "/manager/messages", icon: MessageSquareIcon, match: (p) => p.startsWith("/manager/messages") },
 ];
 
 const MANAGER_NAV_SECONDARY: NavItem[] = [
@@ -59,11 +61,13 @@ export function ManagerShell({
   role,
   hotels,
   userName,
+  staffPermissions = [],
   children,
 }: {
   role: UserRole;
   hotels: ShellHotel[];
   userName: string;
+  staffPermissions?: string[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? "";
@@ -72,7 +76,14 @@ export function ManagerShell({
   // Wizard / waiting render without the dashboard chrome.
   if (isBareRoute(pathname)) return <>{children}</>;
 
-  const primary = role === "staff" ? STAFF_NAV : MANAGER_NAV;
+  const primary = role === "staff"
+    ? (staffPermissions.includes("reply_messages")
+        ? [
+            ...STAFF_NAV,
+            { label: "Messages", href: "/manager/messages", icon: MessageSquareIcon, match: (p: string) => p.startsWith("/manager/messages") }
+          ]
+        : STAFF_NAV)
+    : MANAGER_NAV;
   const secondary = role === "staff" ? [] : MANAGER_NAV_SECONDARY;
 
   // Active hotel for the breadcrumb switcher (only on /manager/manage/[id]).

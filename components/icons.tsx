@@ -49,6 +49,7 @@ import {
   Image,
   LayoutGrid,
   X,
+  MessageSquare,
   type LucideProps,
 } from "lucide-react";
 
@@ -98,6 +99,8 @@ export const ImageIcon = Image;
 export const GridIcon = LayoutGrid;
 export const XIcon = X;
 export const MoreIcon = MoreHorizontal;
+export const MessageSquareIcon = MessageSquare;
+
 
 // Star / Heart support a `filled` convenience prop.
 export function StarIcon({

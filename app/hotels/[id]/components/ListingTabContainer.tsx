@@ -198,7 +198,7 @@ export function ListingTabContainer({
             />
           </div>
 
-          <HostCard host={host} isSuperhost={isSuperhost} />
+          <HostCard host={host} isSuperhost={isSuperhost} hotelId={hotel.id} />
 
           {/* Compact Mini Map Card */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition duration-300 space-y-4">
