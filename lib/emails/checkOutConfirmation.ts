@@ -5,25 +5,24 @@ const inr = (n: number) => `₹${Number(n).toLocaleString("en-IN")}`;
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hms-and-booking.vercel.app";
 
-// Sends a check-out confirmation email. Idempotent via check_out_email_sent_at.
-// Best-effort — never throws.
+// Sends a check-out confirmation email. Best-effort — never throws.
 export async function sendCheckOutConfirmation(bookingId: string): Promise<void> {
   try {
     const admin = createAdminClient();
 
-    // Atomic claim: only completed bookings that haven't been emailed yet.
-    const { data: booking } = await admin
+    // Fetch the booking details directly
+    const { data: booking, error: fetchError } = await admin
       .from("bookings")
-      .update({ check_out_email_sent_at: new Date().toISOString() })
-      .eq("id", bookingId)
-      .eq("status", "completed")
-      .is("check_out_email_sent_at", null)
       .select(
         "id, guest_id, guest_name, guest_email, nights, total_price, hotels(name, location), rooms(name)",
       )
+      .eq("id", bookingId)
       .maybeSingle();
 
-    if (!booking) return;
+    if (fetchError || !booking) {
+      console.error("[email] check-out: booking not found", bookingId, fetchError);
+      return;
+    }
 
     let toEmail = booking.guest_email as string | null;
     let toName = booking.guest_name as string | null;
@@ -34,7 +33,10 @@ export async function sendCheckOutConfirmation(bookingId: string): Promise<void>
       toEmail = data.user?.email ?? null;
       toName = toName ?? (data.user?.user_metadata?.full_name as string) ?? null;
     }
-    if (!toEmail) return;
+    if (!toEmail) {
+      console.error("[email] check-out: no recipient email found for booking", bookingId);
+      return;
+    }
 
     const hotel = booking.hotels as { name?: string; location?: string } | null;
     const room = booking.rooms as { name?: string } | null;
@@ -104,9 +106,9 @@ export async function sendCheckOutConfirmation(bookingId: string): Promise<void>
               <img src="https://img.icons8.com/ios-filled/50/C9A24D/shield.png" width="16" height="16" style="display:inline-block; vertical-align:middle; margin-right:8px;" />
               <strong style="text-transform:uppercase; font-size:10px; letter-spacing:1.5px; color:${BRAND.muted}; margin-right:12px; vertical-align:middle;">Booking ID</strong>
               <span style="font-family:monospace; font-size:12px; font-weight:bold; color:${BRAND.text}; vertical-align:middle;">${shortBookingId}</span>
-                </td>
-              </tr>
-            </table>
+            </td>
+          </tr>
+        </table>
 
         ${emailButton(`${siteUrl}/bookings/${booking.id}/review`, "Share Your Feedback")}
       `,

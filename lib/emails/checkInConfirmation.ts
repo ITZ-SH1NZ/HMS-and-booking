@@ -11,25 +11,24 @@ const fmtDate = (d: string) =>
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hms-and-booking.vercel.app";
 
-// Sends a welcome email upon check-in. Idempotent via check_in_email_sent_at.
-// Best-effort — never throws.
+// Sends a welcome email upon check-in. Best-effort — never throws.
 export async function sendCheckInConfirmation(bookingId: string): Promise<void> {
   try {
     const admin = createAdminClient();
 
-    // Atomic claim: only checked_in bookings that haven't been emailed yet.
-    const { data: booking } = await admin
+    // Fetch the booking details directly
+    const { data: booking, error: fetchError } = await admin
       .from("bookings")
-      .update({ check_in_email_sent_at: new Date().toISOString() })
-      .eq("id", bookingId)
-      .eq("status", "checked_in")
-      .is("check_in_email_sent_at", null)
       .select(
         "id, guest_id, guest_name, guest_email, check_in, check_out, nights, hotels(name, location), rooms(name)",
       )
+      .eq("id", bookingId)
       .maybeSingle();
 
-    if (!booking) return;
+    if (fetchError || !booking) {
+      console.error("[email] check-in: booking not found", bookingId, fetchError);
+      return;
+    }
 
     let toEmail = booking.guest_email as string | null;
     let toName = booking.guest_name as string | null;
@@ -40,7 +39,10 @@ export async function sendCheckInConfirmation(bookingId: string): Promise<void> 
       toEmail = data.user?.email ?? null;
       toName = toName ?? (data.user?.user_metadata?.full_name as string) ?? null;
     }
-    if (!toEmail) return;
+    if (!toEmail) {
+      console.error("[email] check-in: no recipient email found for booking", bookingId);
+      return;
+    }
 
     const hotel = booking.hotels as { name?: string; location?: string } | null;
     const room = booking.rooms as { name?: string } | null;
