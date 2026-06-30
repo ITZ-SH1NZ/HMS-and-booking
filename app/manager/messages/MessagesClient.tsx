@@ -601,7 +601,7 @@ export default function MessagesClient({
         {activeConversation ? (
           <>
             {/* Thread Header */}
-            <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-200 flex items-center justify-between bg-white relative z-10">
+            <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-200 flex items-center justify-between bg-white relative z-20">
               <div className="flex items-center gap-3">
                 {/* Mobile Back Button */}
                 <button
@@ -1023,17 +1023,6 @@ export default function MessagesClient({
         )}
       </div>
 
-      {/* MOBILE TRIGGER BUTTONS */}
-      {activeId && activeConversation && (
-        <div className="md:hidden fixed bottom-20 right-6 z-40 flex flex-col gap-2">
-          <button
-            onClick={() => setShowMobileDetails(true)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-700 text-white shadow-lg active:scale-95 transition-all cursor-pointer"
-          >
-            <Info className="h-5 w-5 text-gold-400" />
-          </button>
-        </div>
-      )}
 
       {/* MOBILE SHEET: Filters & Sort */}
       {showMobileFilters && (

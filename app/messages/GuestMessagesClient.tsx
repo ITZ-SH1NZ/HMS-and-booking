@@ -437,7 +437,7 @@ export default function GuestMessagesClient({
             {activeConversation ? (
               <>
                 {/* Header info */}
-                <div className="px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-200/85 flex items-center justify-between bg-white shrink-0">
+                <div className="px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-200/85 flex items-center justify-between bg-white shrink-0 relative z-20">
                   <div className="flex items-center gap-3.5 min-w-0">
                     
                     {/* Mobile Back Button (Returns to list) */}
