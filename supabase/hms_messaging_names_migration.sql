@@ -66,3 +66,7 @@ create policy "message-attachments: write"
       end
     )
   );
+
+-- 6. Performance Index for Message Retrieval
+create index if not exists idx_messages_conversation_id
+  on public.messages(conversation_id);

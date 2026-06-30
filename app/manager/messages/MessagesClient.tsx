@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useMemo, useCallback } from "react";
+import { useState, useEffect, useTransition, useMemo, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Search,
@@ -46,6 +46,9 @@ interface MessagesClientProps {
 const supabase = createClient();
 const EMPTY_MESSAGES: Message[] = [];
 
+// Official WhatsApp SVG path from simple-icons
+const WHATSAPP_SVG_PATH = "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z";
+
 export default function MessagesClient({
   initialConversations,
   hotels,
@@ -66,6 +69,10 @@ export default function MessagesClient({
   const [showMobileDetails, setShowMobileDetails] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [resolveNote, setResolveNote] = useState("");
+
+  // Three dots header dropdown
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+  const moreDropdownRef = useRef<HTMLDivElement>(null);
 
   // Filters & Search
   const [filterTab, setFilterTab] = useState<"all" | "unread" | "resolved" | "unassigned" | "blocked" | "open">("open");
@@ -101,6 +108,17 @@ export default function MessagesClient({
     },
   });
 
+  // Close moreDropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (moreDropdownRef.current && !moreDropdownRef.current.contains(e.target as Node)) {
+        setShowMoreDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Fetch all conversations
   const fetchConversations = useCallback(async () => {
     const hotelIds = hotels.map((h) => h.id);
@@ -133,7 +151,7 @@ export default function MessagesClient({
   // Realtime subscription
   useEffect(() => {
     const channel = supabase
-      .channel("manager-conversations-realtime-v2")
+      .channel("manager-conversations-realtime-v3")
       .on(
         "postgres_changes",
         {
@@ -397,7 +415,7 @@ export default function MessagesClient({
                 className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition duration-150 cursor-pointer ${
                   filterTab === tab.id
                     ? "bg-brand-50 text-brand-700"
-                    : "text-slate-550 hover:bg-slate-50 hover:text-slate-800"
+                    : "text-slate-550 hover:bg-slate-550/10 hover:text-slate-800"
                 }`}
               >
                 <span>{tab.label}</span>
@@ -430,7 +448,7 @@ export default function MessagesClient({
                   className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition duration-150 cursor-pointer ${
                     selectedHotelId === h.id
                       ? "bg-brand-50 text-brand-700"
-                      : "text-slate-550 hover:bg-slate-50 hover:text-slate-850"
+                      : "text-slate-550 hover:bg-slate-50 hover:text-slate-855"
                   }`}
                 >
                   <span className="truncate pr-2">{h.name}</span>
@@ -625,7 +643,7 @@ export default function MessagesClient({
               </div>
 
               {/* Action Buttons & Sidebar Toggles */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative">
                 
                 {/* Custom Call / WhatsApp Links directly on header */}
                 <div className="hidden sm:flex items-center gap-1 border-r border-slate-200 pr-2 mr-1">
@@ -645,9 +663,9 @@ export default function MessagesClient({
                         className="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition"
                         title="WhatsApp Chat"
                       >
-                        {/* WhatsApp Custom SVG */}
-                        <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.859 0c3.166.001 6.141 1.233 8.378 3.471 2.237 2.238 3.468 5.214 3.467 8.381-.002 6.535-5.328 11.859-11.859 11.859-2.003-.001-3.974-.509-5.725-1.478L0 24zm6.702-3.136c1.6.953 3.518 1.458 5.474 1.459 5.479 0 9.934-4.456 9.936-9.937.001-2.656-1.033-5.152-2.909-7.03C17.382 3.477 14.887 2.44 12.23 2.44c-5.48 0-9.938 4.456-9.94 9.938-.001 2.012.527 3.98 1.53 5.728l-.997 3.637 3.736-.979zm11.233-6.812c-.31-.155-1.838-.908-2.112-1.008-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.66.075-.31-.155-1.309-.482-2.493-1.538-.92-.82-1.54-1.833-1.72-2.133-.18-.3-.02-.462.136-.615.14-.137.31-.363.465-.545.155-.182.206-.312.31-.52.105-.208.052-.388-.026-.54-.078-.153-.675-1.627-.925-2.227-.244-.588-.493-.508-.675-.518-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 0-.376.104-.6.3-.775.675-.575 1.175-.9 2.55-.9 2.65c0 .1.025.2.075.3.05.1 1.2 1.8 2.9 2.525.4.175.725.279.975.358.4.129.763.11 1.05.068.32-.047 1.838-.75 2.094-1.478.257-.727.257-1.35.18-1.478-.077-.128-.275-.203-.586-.358z"/>
+                        {/* WhatsApp Custom SVG (Simple Icons Official Path) */}
+                        <svg className="h-4.5 w-4.5 fill-current text-[#25D366]" viewBox="0 0 24 24">
+                          <path d={WHATSAPP_SVG_PATH} />
                         </svg>
                       </a>
                     </>
@@ -692,16 +710,56 @@ export default function MessagesClient({
                   </button>
                 </div>
 
-                {/* Menu button */}
-                <button className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition cursor-pointer">
-                  <MoreVertical className="h-4.5 w-4.5" />
-                </button>
+                {/* Menu button with Dropdown Menu */}
+                <div ref={moreDropdownRef} className="relative">
+                  <button
+                    onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                    className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition cursor-pointer"
+                  >
+                    <MoreVertical className="h-4.5 w-4.5" />
+                  </button>
+                  
+                  {showMoreDropdown && (
+                    <div className="absolute right-0 mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-50 animate-fade-in text-left">
+                      <button
+                        onClick={() => {
+                          setShowMoreDropdown(false);
+                          setShowResolveModal(true);
+                        }}
+                        className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <CheckCircle className="h-4 w-4 text-slate-400" />
+                        {activeConversation.status === "resolved" ? "Re-open Conversation" : "Mark as Resolved"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMoreDropdown(false);
+                          alert("Conversation muted.");
+                        }}
+                        className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <Clock className="h-4 w-4 text-slate-400" />
+                        Mute Conversation
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMoreDropdown(false);
+                          alert("Guest has been blocked.");
+                        }}
+                        className="w-full px-4 py-2.5 text-xs font-bold text-red-650 hover:bg-red-50 flex items-center gap-2 border-t border-slate-100"
+                      >
+                        <Lock className="h-4 w-4 text-red-400" />
+                        Block Guest
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Message window */}
             {loadingMessages ? (
-              <div className="flex-1 flex items-center justify-center bg-[#F9F6F0]">
+              <div className="flex-1 flex items-center justify-center bg-[#F8F9FA]">
                 <div className="flex flex-col items-center gap-2">
                   <Clock className="h-6 w-6 animate-spin text-brand-600" />
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Retrieving History</span>
@@ -725,7 +783,7 @@ export default function MessagesClient({
             />
           </>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center text-center p-8 bg-[#F9F6F0]">
+          <div className="flex h-full flex-col items-center justify-center text-center p-8 bg-[#F8F9FA]">
             <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center shadow-sm border border-gold-100/40 mb-5">
               <MessageSquare className="h-8 w-8 text-brand-700" />
             </div>
@@ -790,7 +848,7 @@ export default function MessagesClient({
                       href={`mailto:${guestEmail}`}
                       className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-50 transition text-slate-650"
                     >
-                      <Mail className="h-4.5 w-4.5 text-slate-450" />
+                      <Mail className="h-4.5 w-4.5 text-slate-455" />
                       <span className="text-[9px] font-bold">Email</span>
                     </a>
                   ) : (
@@ -807,15 +865,15 @@ export default function MessagesClient({
                       rel="noopener noreferrer"
                       className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-50 transition text-slate-650"
                     >
-                      <svg className="h-4.5 w-4.5 text-slate-450 fill-current" viewBox="0 0 24 24">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.859 0c3.166.001 6.141 1.233 8.378 3.471 2.237 2.238 3.468 5.214 3.467 8.381-.002 6.535-5.328 11.859-11.859 11.859-2.003-.001-3.974-.509-5.725-1.478L0 24zm6.702-3.136c1.6.953 3.518 1.458 5.474 1.459 5.479 0 9.934-4.456 9.936-9.937.001-2.656-1.033-5.152-2.909-7.03C17.382 3.477 14.887 2.44 12.23 2.44c-5.48 0-9.938 4.456-9.94 9.938-.001 2.012.527 3.98 1.53 5.728l-.997 3.637 3.736-.979zm11.233-6.812c-.31-.155-1.838-.908-2.112-1.008-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.66.075-.31-.155-1.309-.482-2.493-1.538-.92-.82-1.54-1.833-1.72-2.133-.18-.3-.02-.462.136-.615.14-.137.31-.363.465-.545.155-.182.206-.312.31-.52.105-.208.052-.388-.026-.54-.078-.153-.675-1.627-.925-2.227-.244-.588-.493-.508-.675-.518-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 0-.376.104-.6.3-.775.675-.575 1.175-.9 2.55-.9 2.65c0 .1.025.2.075.3.05.1 1.2 1.8 2.9 2.525.4.175.725.279.975.358.4.129.763.11 1.05.068.32-.047 1.838-.75 2.094-1.478.257-.727.257-1.35.18-1.478-.077-.128-.275-.203-.586-.358z"/>
+                      <svg className="h-4.5 w-4.5 text-[#25D366] fill-current" viewBox="0 0 24 24">
+                        <path d={WHATSAPP_SVG_PATH} />
                       </svg>
                       <span className="text-[9px] font-bold">WhatsApp</span>
                     </a>
                   ) : (
                     <div className="flex flex-col items-center gap-1 p-2 opacity-40 text-slate-300">
                       <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.859 0c3.166.001 6.141 1.233 8.378 3.471 2.237 2.238 3.468 5.214 3.467 8.381-.002 6.535-5.328 11.859-11.859 11.859-2.003-.001-3.974-.509-5.725-1.478L0 24zm6.702-3.136c1.6.953 3.518 1.458 5.474 1.459 5.479 0 9.934-4.456 9.936-9.937.001-2.656-1.033-5.152-2.909-7.03C17.382 3.477 14.887 2.44 12.23 2.44c-5.48 0-9.938 4.456-9.94 9.938-.001 2.012.527 3.98 1.53 5.728l-.997 3.637 3.736-.979zm11.233-6.812c-.31-.155-1.838-.908-2.112-1.008-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.66.075-.31-.155-1.309-.482-2.493-1.538-.92-.82-1.54-1.833-1.72-2.133-.18-.3-.02-.462.136-.615.14-.137.31-.363.465-.545.155-.182.206-.312.31-.52.105-.208.052-.388-.026-.54-.078-.153-.675-1.627-.925-2.227-.244-.588-.493-.508-.675-.518-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 0-.376.104-.6.3-.775.675-.575 1.175-.9 2.55-.9 2.65c0 .1.025.2.075.3.05.1 1.2 1.8 2.9 2.525.4.175.725.279.975.358.4.129.763.11 1.05.068.32-.047 1.838-.75 2.094-1.478.257-.727.257-1.35.18-1.478-.077-.128-.275-.203-.586-.358z"/>
+                        <path d={WHATSAPP_SVG_PATH} />
                       </svg>
                       <span className="text-[9px] font-bold">WhatsApp</span>
                     </div>
@@ -925,9 +983,7 @@ export default function MessagesClient({
                   onClick={handleSharePropertyInfo}
                   className="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 text-xs font-bold text-slate-750 hover:bg-slate-50 hover:border-slate-300 transition duration-150 cursor-pointer shadow-3xs"
                 >
-                  <span className="flex items-center gap-2">
-                    <Building className="h-4 w-4 text-slate-400" /> Send Property Info
-                  </span>
+                  <span className="flex items-center gap-2"><Building className="h-4 w-4 text-slate-400" /> Send Property Info</span>
                   <ChevronRight className="h-4 w-4 text-slate-300" />
                 </button>
 
@@ -936,9 +992,7 @@ export default function MessagesClient({
                   onClick={handleSharePolicies}
                   className="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 text-xs font-bold text-slate-750 hover:bg-slate-50 hover:border-slate-300 transition duration-150 cursor-pointer shadow-3xs"
                 >
-                  <span className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-slate-400" /> Share Hotel Guidelines
-                  </span>
+                  <span className="flex items-center gap-2"><FileText className="h-4 w-4 text-slate-400" /> Share Hotel Guidelines</span>
                   <ChevronRight className="h-4 w-4 text-slate-300" />
                 </button>
 
@@ -1107,15 +1161,15 @@ export default function MessagesClient({
                       rel="noopener noreferrer"
                       className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-50 transition text-slate-650"
                     >
-                      <svg className="h-4.5 w-4.5 text-slate-450 fill-current" viewBox="0 0 24 24">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.859 0c3.166.001 6.141 1.233 8.378 3.471 2.237 2.238 3.468 5.214 3.467 8.381-.002 6.535-5.328 11.859-11.859 11.859-2.003-.001-3.974-.509-5.725-1.478L0 24zm6.702-3.136c1.6.953 3.518 1.458 5.474 1.459 5.479 0 9.934-4.456 9.936-9.937.001-2.656-1.033-5.152-2.909-7.03C17.382 3.477 14.887 2.44 12.23 2.44c-5.48 0-9.938 4.456-9.94 9.938-.001 2.012.527 3.98 1.53 5.728l-.997 3.637 3.736-.979zm11.233-6.812c-.31-.155-1.838-.908-2.112-1.008-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.66.075-.31-.155-1.309-.482-2.493-1.538-.92-.82-1.54-1.833-1.72-2.133-.18-.3-.02-.462.136-.615.14-.137.31-.363.465-.545.155-.182.206-.312.31-.52.105-.208.052-.388-.026-.54-.078-.153-.675-1.627-.925-2.227-.244-.588-.493-.508-.675-.518-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 0-.376.104-.6.3-.775.675-.575 1.175-.9 2.55-.9 2.65c0 .1.025.2.075.3.05.1 1.2 1.8 2.9 2.525.4.175.725.279.975.358.4.129.763.11 1.05.068.32-.047 1.838-.75 2.094-1.478.257-.727.257-1.35.18-1.478-.077-.128-.275-.203-.586-.358z"/>
+                      <svg className="h-4.5 w-4.5 text-[#25D366] fill-current" viewBox="0 0 24 24">
+                        <path d={WHATSAPP_SVG_PATH} />
                       </svg>
                       <span className="text-[9px] font-bold">WhatsApp</span>
                     </a>
                   ) : (
                     <div className="flex flex-col items-center gap-1 p-2 opacity-40 text-slate-300">
                       <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.859 0c3.166.001 6.141 1.233 8.378 3.471 2.237 2.238 3.468 5.214 3.467 8.381-.002 6.535-5.328 11.859-11.859 11.859-2.003-.001-3.974-.509-5.725-1.478L0 24zm6.702-3.136c1.6.953 3.518 1.458 5.474 1.459 5.479 0 9.934-4.456 9.936-9.937.001-2.656-1.033-5.152-2.909-7.03C17.382 3.477 14.887 2.44 12.23 2.44c-5.48 0-9.938 4.456-9.94 9.938-.001 2.012.527 3.98 1.53 5.728l-.997 3.637 3.736-.979zm11.233-6.812c-.31-.155-1.838-.908-2.112-1.008-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.66.075-.31-.155-1.309-.482-2.493-1.538-.92-.82-1.54-1.833-1.72-2.133-.18-.3-.02-.462.136-.615.14-.137.31-.363.465-.545.155-.182.206-.312.31-.52.105-.208.052-.388-.026-.54-.078-.153-.675-1.627-.925-2.227-.244-.588-.493-.508-.675-.518-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 0-.376.104-.6.3-.775.675-.575 1.175-.9 2.55-.9 2.65c0 .1.025.2.075.3.05.1 1.2 1.8 2.9 2.525.4.175.725.279.975.358.4.129.763.11 1.05.068.32-.047 1.838-.75 2.094-1.478.257-.727.257-1.35.18-1.478-.077-.128-.275-.203-.586-.358z"/>
+                        <path d={WHATSAPP_SVG_PATH} />
                       </svg>
                       <span className="text-[9px] font-bold">WhatsApp</span>
                     </div>

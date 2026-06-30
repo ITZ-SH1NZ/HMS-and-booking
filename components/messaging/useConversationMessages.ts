@@ -1,23 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { sendMessage as apiSendMessage, markRead as apiMarkRead } from "@/app/messages/actions";
 import type { Message, MessageAttachment } from "@/lib/types";
 
-const supabase = createClient();
-
 interface UseConversationMessagesOptions {
   conversationId: string | null;
-  initialMessages: Message[];
+  initialMessages?: Message[];
   currentUserId: string;
   currentUserRole: "guest" | "host";
   onMarkRead?: () => void;
 }
 
+const supabase = createClient();
+
+// Global in-memory cache for conversation messages to enable instant Stale-While-Revalidate (SWR) loading
+const messageCache: Record<string, Message[]> = {};
+
 export function useConversationMessages({
   conversationId,
-  initialMessages,
+  initialMessages = [],
   currentUserId,
   currentUserRole,
   onMarkRead,
@@ -27,7 +30,6 @@ export function useConversationMessages({
   const [loading, setLoading] = useState(false);
   const [isOtherPartyTyping, setIsOtherPartyTyping] = useState(false);
   
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const activeConversationIdRef = useRef<string | null>(conversationId);
   const onMarkReadRef = useRef<(() => void) | undefined>(onMarkRead);
   const initialMessagesRef = useRef<Message[]>(initialMessages);
@@ -40,12 +42,18 @@ export function useConversationMessages({
   // React 19 State sync during render phase (prevents cascading renders)
   if (conversationId !== prevConversationId) {
     setPrevConversationId(conversationId);
-    // If we have initialMessages that match this conversation, seed them, otherwise clear messages
-    const matchingInitial =
-      conversationId &&
-      initialMessages.length > 0 &&
-      initialMessages[0].conversation_id === conversationId;
-    setMessages(matchingInitial ? initialMessages : []);
+    
+    // Check if we have cached messages for this conversation (SWR)
+    const cached = conversationId ? messageCache[conversationId] : null;
+    if (cached) {
+      setMessages(cached);
+    } else {
+      const matchingInitial =
+        conversationId &&
+        initialMessages.length > 0 &&
+        initialMessages[0].conversation_id === conversationId;
+      setMessages(matchingInitial ? initialMessages : []);
+    }
   }
 
   // Keep refs up-to-date to avoid stale closures in subscriptions
@@ -69,21 +77,30 @@ export function useConversationMessages({
     }
   }, []);
 
-  // 1. Fetch messages on conversation change (only if not seeded by initialMessages)
+  // 1. Fetch messages on conversation change (with SWR caching)
   useEffect(() => {
     if (!conversationId) return;
     const refinedId: string = conversationId;
     const currentInitials = initialMessagesRef.current;
 
-    // If already seeded by initialMessages, just mark read and skip fetch
-    if (currentInitials.length > 0 && currentInitials[0].conversation_id === refinedId) {
+    const hasCache = !!messageCache[refinedId];
+
+    // Seed from initialMessages if no cache yet
+    if (!hasCache && currentInitials.length > 0 && currentInitials[0].conversation_id === refinedId) {
+      messageCache[refinedId] = currentInitials;
+      setMessages(currentInitials);
       triggerMarkRead(refinedId);
       return;
     }
 
     let active = true;
-    async function loadMessages() {
+    
+    // Only show loading spinner if we don't have cached messages
+    if (!hasCache) {
       setLoading(true);
+    }
+
+    async function loadMessages() {
       try {
         const { data } = await supabase
           .from("messages")
@@ -92,6 +109,8 @@ export function useConversationMessages({
           .order("created_at", { ascending: true });
 
         if (active && data) {
+          // Update cache
+          messageCache[refinedId] = data;
           setMessages(data);
           triggerMarkRead(refinedId);
         }
@@ -114,147 +133,109 @@ export function useConversationMessages({
   // 2. Realtime subscription (Postgres Changes + Broadcast Typing)
   useEffect(() => {
     if (!conversationId) return;
+    const refinedId: string = conversationId;
 
-    const channelName = `conv:${conversationId}`;
-    const channel = supabase
-      .channel(channelName)
-      // Listen for database inserts
+    const channelName = `room-${refinedId}`;
+    const channel = supabase.channel(channelName);
+
+    channel
+      // A. Listen for new messages
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
+          filter: `conversation_id=eq.${refinedId}`,
         },
         (payload) => {
           const newMsg = payload.new as Message;
-          
+          const activeId = activeConversationIdRef.current;
+          if (!activeId || newMsg.conversation_id !== activeId) return;
+
           setMessages((prev) => {
-            // Deduplicate: If message is already present, just update its status (non-optimistic)
-            const exists = prev.some((m) => m.id === newMsg.id);
-            if (exists) {
-              return prev.map((m) => (m.id === newMsg.id ? { ...newMsg, sending: false } : m));
-            }
-            return [...prev, { ...newMsg, sending: false }];
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            const next = [...prev, newMsg];
+            // Update SWR cache
+            messageCache[activeId] = next;
+            return next;
           });
 
-          // Mark read if it's the active conversation and from the other party
-          if (
-            activeConversationIdRef.current === conversationId &&
-            newMsg.sender_role !== currentUserRole
-          ) {
-            triggerMarkRead(conversationId);
-          }
+          // Mark as read if received in active thread
+          triggerMarkRead(activeId);
         }
       )
-      // Listen for typing broadcast
+      // B. Listen for typing status (Broadcast)
       .on("broadcast", { event: "typing" }, (payload) => {
-        const { senderId, isTyping } = payload.payload;
-        if (senderId !== currentUserId) {
+        const { userId, isTyping } = payload.payload;
+        if (userId !== currentUserId) {
           setIsOtherPartyTyping(isTyping);
-          
-          // Auto-clear typing indicator after 3.5s of inactivity
-          if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-          }
-          if (isTyping) {
-            typingTimeoutRef.current = setTimeout(() => {
-              setIsOtherPartyTyping(false);
-            }, 3500);
-          }
         }
       })
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          // Fetch any missed messages during a brief disconnect
-          supabase
-            .from("messages")
-            .select("*")
-            .eq("conversation_id", conversationId)
-            .order("created_at", { ascending: true })
-            .then(({ data }) => {
-              if (data) {
-                setMessages((prev) => {
-                  const merged = [...prev];
-                  data.forEach((msg) => {
-                    const idx = merged.findIndex((m) => m.id === msg.id);
-                    if (idx !== -1) {
-                      merged[idx] = { ...msg, sending: false };
-                    } else {
-                      merged.push({ ...msg, sending: false });
-                    }
-                  });
-                  return merged.sort(
-                    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-                  );
-                });
-              }
-            });
-        }
-      });
+      .subscribe();
 
     return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
       supabase.removeChannel(channel);
+      setIsOtherPartyTyping(false);
     };
-  }, [conversationId, currentUserRole, currentUserId, triggerMarkRead]);
+  }, [conversationId, currentUserId, triggerMarkRead]);
 
-  // 3. Send Typing Status Broadcast
+  // 3. Send message action with optimistic updates
+  const sendMessage = async (body: string | null, attachments: MessageAttachment[]) => {
+    if (!conversationId) return;
+
+    const tempId = crypto.randomUUID();
+    const optimisticMsg: Message = {
+      id: tempId,
+      conversation_id: conversationId,
+      sender_id: currentUserId,
+      sender_role: currentUserRole,
+      body,
+      attachments,
+      created_at: new Date().toISOString(),
+      read_at: null,
+      sending: true, // Optimistic flag
+    };
+
+    // Append optimistic message and update cache
+    setMessages((prev) => {
+      const next = [...prev, optimisticMsg];
+      messageCache[conversationId] = next;
+      return next;
+    });
+
+    try {
+      const message = await apiSendMessage(conversationId, body, attachments, tempId);
+      
+      // Replace optimistic message with actual message and update cache
+      setMessages((prev) => {
+        const next = prev.map((m) => (m.id === tempId ? message : m));
+        messageCache[conversationId] = next;
+        return next;
+      });
+    } catch (err) {
+      console.error("Failed to send message:", err);
+      // Remove optimistic message on error and update cache
+      setMessages((prev) => {
+        const next = prev.filter((m) => m.id !== tempId);
+        messageCache[conversationId] = next;
+        return next;
+      });
+      throw err;
+    }
+  };
+
+  // 4. Send typing status broadcast
   const sendTypingStatus = useCallback(
     (isTyping: boolean) => {
       if (!conversationId) return;
-      
-      const channel = supabase.channel(`conv:${conversationId}`);
-      channel.send({
+      supabase.channel(`room-${conversationId}`).send({
         type: "broadcast",
         event: "typing",
-        payload: { senderId: currentUserId, isTyping },
+        payload: { userId: currentUserId, isTyping },
       });
     },
     [conversationId, currentUserId]
-  );
-
-  // 4. Optimistic Send
-  const sendMessage = useCallback(
-    async (body: string | null, attachments: MessageAttachment[]) => {
-      if (!conversationId) return;
-
-      const messageId = crypto.randomUUID();
-      const optimisticMsg: Message = {
-        id: messageId,
-        conversation_id: conversationId,
-        sender_id: currentUserId,
-        sender_role: currentUserRole,
-        body,
-        attachments,
-        read_at: null,
-        created_at: new Date().toISOString(),
-        sending: true,
-      };
-
-      // Append optimistic message immediately
-      setMessages((prev) => [...prev, optimisticMsg]);
-
-      try {
-        // Send typing status as false since we've sent the message
-        sendTypingStatus(false);
-
-        const savedMsg = await apiSendMessage(conversationId, body, attachments, messageId);
-
-        // Reconcile: replace optimistic message with the saved one
-        setMessages((prev) =>
-          prev.map((m) => (m.id === messageId ? { ...savedMsg, sending: false } : m))
-        );
-      } catch (err) {
-        // Rollback on failure
-        setMessages((prev) => prev.filter((m) => m.id !== messageId));
-        throw err;
-      }
-    },
-    [conversationId, currentUserId, currentUserRole, sendTypingStatus]
   );
 
   return {
