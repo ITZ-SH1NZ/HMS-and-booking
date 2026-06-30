@@ -119,6 +119,12 @@ $$;
 grant execute on function public.can_access_conversation(uuid) to authenticated;
 grant execute on function public.validate_message_sender(uuid, uuid, text) to authenticated;
 
+-- Table privileges. RLS still governs WHICH rows are visible, but PostgREST
+-- also requires a base GRANT or every request fails with 42501 "permission
+-- denied for table". (Mirrors the grants in hms_management_migration.sql.)
+grant select, insert, update on public.conversations to authenticated;
+grant select, insert, update on public.messages       to authenticated;
+
 -- ----------------------------------------------------------------------------
 -- 5. ROW LEVEL SECURITY & POLICIES
 -- ----------------------------------------------------------------------------
