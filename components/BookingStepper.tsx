@@ -18,8 +18,8 @@ export function BookingStepper({ current }: { current: number }) {
             <div className="flex flex-col items-center">
               <motion.div
                 animate={{
-                  backgroundColor: done || active ? "#e11d48" : "#ffffff",
-                  borderColor: done || active ? "#e11d48" : "#cbd5e1",
+                  backgroundColor: done || active ? "#0F5A46" : "#ffffff",
+                  borderColor: done || active ? "#0F5A46" : "#cbd5e1",
                   color: done || active ? "#ffffff" : "#94a3b8",
                   scale: active ? 1.1 : 1,
                 }}

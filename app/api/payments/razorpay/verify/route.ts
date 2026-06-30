@@ -61,5 +61,10 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // Trigger booking confirmation email (non-blocking)
+  const { sendBookingConfirmation } = await import("@/lib/emails/bookingConfirmation");
+  await sendBookingConfirmation(bookingId);
+
   return NextResponse.json({ ok: true });
 }
