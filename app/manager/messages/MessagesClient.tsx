@@ -248,6 +248,18 @@ export default function MessagesClient({
     };
   }, []);
 
+  // Manage body class for hiding header/navbar on mobile when chatting
+  useEffect(() => {
+    if (activeConversation) {
+      document.body.classList.add("chat-active");
+    } else {
+      document.body.classList.remove("chat-active");
+    }
+    return () => {
+      document.body.classList.remove("chat-active");
+    };
+  }, [activeConversation]);
+
   // Resolve / Reopen
   const handleToggleResolve = async () => {
     if (!activeConversation) return;
@@ -393,7 +405,7 @@ export default function MessagesClient({
   }, [activeConversation]);
 
   return (
-    <div className="w-full h-[calc(100dvh-7.1rem)] md:h-[calc(100dvh-3.5rem)] flex overflow-hidden bg-[#F9F9FB] relative font-sans text-slate-800">
+    <div className="w-full h-[calc(100dvh-7.1rem)] md:h-[calc(100dvh-3.5rem)] chat-active-height flex overflow-hidden bg-[#F9F9FB] relative font-sans text-slate-800">
       
       {/* COLUMN 1: Filters Sidebar (Desktop) */}
       <div
@@ -621,34 +633,40 @@ export default function MessagesClient({
                   <ArrowLeft className="h-5 w-5" />
                 </button>
 
-                <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-700 to-brand-850 flex items-center justify-center font-bold text-white text-xs shadow-sm border border-brand-900 uppercase">
-                  {activeInitials}
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-black text-slate-900 font-serif leading-none">
-                      {getDisplayName(activeConversation)}
-                    </h2>
-                    {activeConversation.booking_id && (
-                      <span className="bg-gold-50 text-gold-700 border border-gold-200/50 rounded-full px-1.5 py-0.2 text-[8px] font-black uppercase tracking-wider">
-                        Priority
-                      </span>
-                    )}
+                <button
+                  type="button"
+                  onClick={() => setIsDetailsExpanded(true)}
+                  className="flex items-center gap-3 hover:opacity-80 transition cursor-pointer text-left focus:outline-none"
+                >
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-700 to-brand-850 flex items-center justify-center font-bold text-white text-xs shadow-sm border border-brand-900 uppercase">
+                    {activeInitials}
                   </div>
-                  <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-1.5">
-                    <span className="font-semibold text-slate-600">
-                      {activeConversation.hotels?.name}
-                    </span>
-                    {activeConversation.booking_id && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-slate-450 font-bold">
-                          Booking ID: {activeConversation.booking_id.split("-")[0].toUpperCase()}
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-sm font-black text-slate-900 font-serif leading-none">
+                        {getDisplayName(activeConversation)}
+                      </h2>
+                      {activeConversation.booking_id && (
+                        <span className="bg-gold-50 text-gold-700 border border-gold-200/50 rounded-full px-1.5 py-0.2 text-[8px] font-black uppercase tracking-wider">
+                          Priority
                         </span>
-                      </>
-                    )}
+                      )}
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-1.5">
+                      <span className="font-semibold text-slate-600">
+                        {activeConversation.hotels?.name}
+                      </span>
+                      {activeConversation.booking_id && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-slate-450 font-bold">
+                            Booking ID: {activeConversation.booking_id.split("-")[0].toUpperCase()}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
 
               {/* Action Buttons & Sidebar Toggles */}

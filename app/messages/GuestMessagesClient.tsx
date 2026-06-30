@@ -87,6 +87,18 @@ export default function GuestMessagesClient({
     };
   }, []);
 
+  // Manage body class for hiding header/navbar on mobile when chatting
+  useEffect(() => {
+    if (activeConversationId) {
+      document.body.classList.add("chat-active");
+    } else {
+      document.body.classList.remove("chat-active");
+    }
+    return () => {
+      document.body.classList.remove("chat-active");
+    };
+  }, [activeConversationId]);
+
   // React 19 Render-phase state sync for booking reset to avoid cascading renders
   const [prevHotelId, setPrevHotelId] = useState<string | null>(null);
   const currentHotelId = activeConversation?.hotel_id || null;
@@ -289,7 +301,7 @@ export default function GuestMessagesClient({
   };
 
   return (
-    <div className="w-full h-[calc(100dvh-4rem)] bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased overflow-hidden">
+    <div className="w-full h-[calc(100dvh-4rem)] bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased overflow-hidden chat-active-height">
       
       {/* 1. Global Page Header */}
       <header className="bg-white border-b border-slate-200/85 px-4 py-3 sm:px-6 md:py-4 flex items-center justify-between shadow-3xs shrink-0">
@@ -464,21 +476,27 @@ export default function GuestMessagesClient({
                       <ArrowLeft className="h-4.5 w-4.5" />
                     </button>
 
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-[#0A4335] to-[#125B49] flex items-center justify-center font-bold text-white text-xs shadow-sm uppercase tracking-wider shrink-0">
-                      {hostInitials}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsDetailsExpanded(true)}
+                      className="flex items-center gap-3.5 min-w-0 hover:opacity-80 transition cursor-pointer text-left focus:outline-none"
+                    >
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-[#0A4335] to-[#125B49] flex items-center justify-center font-bold text-white text-xs shadow-sm uppercase tracking-wider shrink-0">
+                        {hostInitials}
+                      </div>
 
-                    <div className="text-left min-w-0">
-                      <h2 className="text-sm font-bold text-slate-900 font-serif truncate">
-                        {activeConversation.hotels?.name || "Hotel Host"}
-                      </h2>
-                      <p className="text-[10px] text-slate-500 font-medium mt-0.5 flex items-center gap-1 truncate">
-                        <Building className="h-3.5 w-3.5 text-slate-400 shrink-0" /> 
-                        <span className="truncate">{activeConversation.hotels?.location}</span>
-                      </p>
-                    </div>
+                      <div className="text-left min-w-0">
+                        <h2 className="text-sm font-bold text-slate-900 font-serif truncate">
+                          {activeConversation.hotels?.name || "Hotel Host"}
+                        </h2>
+                        <p className="text-[10px] text-slate-500 font-medium mt-0.5 flex items-center gap-1 truncate">
+                          <Building className="h-3.5 w-3.5 text-slate-400 shrink-0" /> 
+                          <span className="truncate">{activeConversation.hotels?.location}</span>
+                        </p>
+                      </div>
 
-                    <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0 shadow-sm" title="Online" />
+                      <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0 shadow-sm" title="Online" />
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">

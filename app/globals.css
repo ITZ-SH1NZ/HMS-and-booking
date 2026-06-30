@@ -40,6 +40,23 @@ body {
   color: var(--foreground);
 }
 
+/* Mobile chat full-bleed overrides */
+@media (max-width: 768px) {
+  body.chat-active > header {
+    display: none !important;
+  }
+  body.chat-active header {
+    display: none !important;
+  }
+  body.chat-active nav.sticky.bottom-0 {
+    display: none !important;
+  }
+  body.chat-active .chat-active-height {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+}
+
 /* Custom global scrollbar styled with BookNest colors */
 ::-webkit-scrollbar {
   width: 8px;
