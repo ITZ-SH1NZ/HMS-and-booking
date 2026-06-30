@@ -70,7 +70,6 @@ const SANS = "'Helvetica Neue',Helvetica,Arial,sans-serif";
 const IMAGES = {
   heroRoom: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80",
   lobbyPromo: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
-  hexagonB: "https://ekurxcwuriltcrsrcfqo.supabase.co/storage/v1/object/public/public_assets/b_gold_hexagon.png" // Fallback fallback logo
 };
 
 // Reusable Gold Divider
@@ -93,6 +92,8 @@ export function emailLayout(opts: {
   imageUrl?: string;
 }): string {
   const heroImage = opts.imageUrl ?? IMAGES.heroRoom;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hms-and-booking.vercel.app";
+  const logoUrl = `${siteUrl}/logo-mark.png`;
 
   return `<!doctype html>
 <html lang="en">
@@ -127,7 +128,7 @@ export function emailLayout(opts: {
                 <tr>
                   <!-- Logo Icon -->
                   <td width="48" style="vertical-align:middle;">
-                    <img src="https://i.ibb.co/twkvZpH3/logo-mark.png" width="40" height="40" alt="BookNest" style="display:block; width:40px; height:40px; border:none; outline:none; text-decoration:none;" />
+                    <img src="${logoUrl}" width="40" height="40" alt="BookNest" style="display:block; width:40px; height:40px; border:none; outline:none; text-decoration:none;" />
                   </td>
                   <!-- Logo Text -->
                   <td style="padding-left:12px; vertical-align:middle;">
@@ -188,17 +189,21 @@ export function emailLayout(opts: {
             <td style="background:${BRAND.greenDark}; padding:20px 30px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px;">
-                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🏷</span> Best Price Guaranteed
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; vertical-align:middle;">
+                    <img src="https://abs.twimg.com/emoji/v2/72x72/1f3f7.png" width="14" height="14" style="display:inline-block; vertical-align:middle; margin-right:4px;" />
+                    <span style="vertical-align:middle;">Best Price</span>
                   </td>
-                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15);">
-                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🛡</span> Secure Bookings
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15); vertical-align:middle;">
+                    <img src="https://abs.twimg.com/emoji/v2/72x72/1f6e1.png" width="14" height="14" style="display:inline-block; vertical-align:middle; margin-right:4px;" />
+                    <span style="vertical-align:middle;">Secure Stays</span>
                   </td>
-                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15);">
-                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🎧</span> 24/7 Guest Support
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15); vertical-align:middle;">
+                    <img src="https://abs.twimg.com/emoji/v2/72x72/1f3a7.png" width="14" height="14" style="display:inline-block; vertical-align:middle; margin-right:4px;" />
+                    <span style="vertical-align:middle;">24/7 Support</span>
                   </td>
-                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15);">
-                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🔔</span> Handpicked Stays
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15); vertical-align:middle;">
+                    <img src="https://abs.twimg.com/emoji/v2/72x72/1f514.png" width="14" height="14" style="display:inline-block; vertical-align:middle; margin-right:4px;" />
+                    <span style="vertical-align:middle;">Handpicked</span>
                   </td>
                 </tr>
               </table>
@@ -280,12 +285,12 @@ export function emailButton(href: string, label: string): string {
 
 // Dual column details card layout with QR code option
 export function emailDetails(
-  rows: { label: string; value: string; icon?: string }[],
+  rows: { label: string; value: string; iconUrl?: string }[],
   qrData?: string
 ): string {
   const detailsRows = rows
     .map((r, i) => {
-      const iconHtml = r.icon ? `<span style="font-size:16px; margin-right:8px; display:inline-block; vertical-align:middle; color:${BRAND.gold};">${r.icon}</span>` : "";
+      const iconHtml = r.iconUrl ? `<img src="${r.iconUrl}" width="16" height="16" style="display:inline-block; vertical-align:middle; margin-right:8px;" />` : "";
       return `<tr style="${i < rows.length - 1 ? `border-bottom:1.5px solid #F0ECE3;` : ""}">
         <td style="padding:14px 16px; font-size:10px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:${BRAND.muted}; vertical-align:middle;">
           ${iconHtml}<span style="vertical-align:middle;">${r.label}</span>

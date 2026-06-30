@@ -69,19 +69,19 @@ export async function sendRefundProcessed(bookingId: string): Promise<void> {
 
           <!-- Details Card -->
           ${emailDetails([
-            { label: "Hotel", value: hotel?.name ?? "—", icon: "🏨" },
+            { label: "Hotel", value: hotel?.name ?? "—", iconUrl: "https://abs.twimg.com/emoji/v2/72x72/1f3e8.png" },
             {
               label: "Refunded Amount",
               value: `<span style="color:${BRAND.green}; font-weight:bold;">${inr(refund)}</span><br><span style="color:${BRAND.muted}; font-size:11px; font-weight:normal;">Returned to original source</span>`,
-              icon: "💳",
+              iconUrl: "https://abs.twimg.com/emoji/v2/72x72/1f4b3.png",
             },
           ])}
 
           <!-- Booking Reference Banner -->
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px; border:1px solid ${BRAND.line}; border-radius:8px; background:#F8F7F4; overflow:hidden;">
             <tr>
-              <td style="padding:16px 20px; font-size:12px; color:${BRAND.text}; text-align:left;">
-                <span style="font-size:16px; margin-right:8px; display:inline-block; vertical-align:middle; color:${BRAND.gold};">🛡</span>
+              <td style="padding:16px 20px; font-size:12px; color:${BRAND.text}; text-align:left; vertical-align:middle;">
+                <img src="https://abs.twimg.com/emoji/v2/72x72/1f6e1.png" width="16" height="16" style="display:inline-block; vertical-align:middle; margin-right:8px;" />
                 <strong style="text-transform:uppercase; font-size:10px; letter-spacing:1.5px; color:${BRAND.muted}; margin-right:12px; vertical-align:middle;">Booking Reference</strong>
                 <span style="font-family:monospace; font-size:12px; font-weight:bold; color:${BRAND.text}; vertical-align:middle;">${booking.id}</span>
               </td>
