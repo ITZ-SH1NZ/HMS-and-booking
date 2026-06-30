@@ -55,6 +55,7 @@ export default function GuestMessagesClient({
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [prevInitialConversations, setPrevInitialConversations] = useState<Conversation[]>(initialConversations);
+  const [activeId, setActiveId] = useState<string | null>(activeConversationId);
 
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loadingBooking, setLoadingBooking] = useState(false);
@@ -75,8 +76,8 @@ export default function GuestMessagesClient({
   }
 
   const activeConversation = useMemo(() => {
-    return conversations.find((c) => c.id === activeConversationId) || null;
-  }, [conversations, activeConversationId]);
+    return conversations.find((c) => c.id === activeId) || null;
+  }, [conversations, activeId]);
 
   // Lock body scroll on mount to prevent page-level scrolling/viewport shifting
   useEffect(() => {
@@ -118,14 +119,14 @@ export default function GuestMessagesClient({
     sendMessage,
     sendTypingStatus,
   } = useConversationMessages({
-    conversationId: activeConversationId,
+    conversationId: activeId,
     initialMessages,
     currentUserId,
     currentUserRole,
     onMarkRead: () => {
       setConversations((prev) =>
         prev.map((c) =>
-          c.id === activeConversationId ? { ...c, guest_unread: 0 } : c
+          c.id === activeId ? { ...c, guest_unread: 0 } : c
         )
       );
     },
@@ -301,7 +302,7 @@ export default function GuestMessagesClient({
   };
 
   return (
-    <div className="w-full h-[calc(100dvh-4rem)] bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased overflow-hidden chat-active-height">
+    <div className="w-full h-dvh bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased overflow-hidden chat-active-height">
       
       {/* 1. Global Page Header */}
       <header className="bg-white border-b border-slate-200/85 px-4 py-3 sm:px-6 md:py-4 flex items-center justify-between shadow-3xs shrink-0">
@@ -325,7 +326,7 @@ export default function GuestMessagesClient({
       <div className="flex-1 min-h-0 max-w-7xl w-full mx-auto px-3 sm:px-6 pb-4 md:pb-6 flex flex-col gap-4 overflow-hidden">
         
         {/* Title area (Desktop only, hidden on mobile if thread is active to maximize chat space) */}
-        <div className={`shrink-0 ${activeConversationId ? "hidden md:block" : "block"}`}>
+        <div className={`shrink-0 ${activeId ? "hidden md:block" : "block"}`}>
           <h1 className="text-2xl md:text-3xl font-black font-serif text-slate-900 tracking-tight">
             Messages
           </h1>
@@ -340,7 +341,7 @@ export default function GuestMessagesClient({
           {/* COLUMN 1: Conversation List */}
           <div
             className={`w-full md:w-85 shrink-0 flex flex-col h-full bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-2xs ${
-              activeConversationId ? "hidden md:flex" : "flex"
+              activeId ? "hidden md:flex" : "flex"
             }`}
           >
             {/* Search and Filters */}
@@ -393,7 +394,7 @@ export default function GuestMessagesClient({
                         .toUpperCase()
                     : "H";
                   
-                  const isActive = c.id === activeConversationId;
+                  const isActive = c.id === activeId;
                   const hasUnread = c.guest_unread > 0;
 
                   // Build target click path keeping the back tracking
@@ -402,7 +403,10 @@ export default function GuestMessagesClient({
                   return (
                     <button
                       key={c.id}
-                      onClick={() => router.push(clickPath)}
+                      onClick={() => {
+                        setActiveId(c.id);
+                        window.history.replaceState(null, "", clickPath);
+                      }}
                       className={`w-full p-4.5 flex gap-3.5 text-left hover:bg-[#F9F6F0]/25 transition duration-200 outline-none border-l-4 relative ${
                         isActive ? "bg-[#F9F6F0]/55 border-[#0A4335] pl-3.5" : "border-transparent"
                       }`}
@@ -455,7 +459,7 @@ export default function GuestMessagesClient({
           {/* COLUMN 2: Message Thread */}
           <div
             className={`flex-1 flex flex-col h-full bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-2xs ${
-              activeConversationId ? "flex" : "hidden md:flex"
+              activeId ? "flex" : "hidden md:flex"
             }`}
           >
             {activeConversation ? (
@@ -468,8 +472,9 @@ export default function GuestMessagesClient({
                     <button
                       type="button"
                       onClick={() => {
+                        setActiveId(null);
                         const listPath = `/messages${back ? `?back=${back}` : ""}${hotelId ? `&hotelId=${hotelId}` : ""}`;
-                        router.push(listPath);
+                        window.history.replaceState(null, "", listPath);
                       }}
                       className="md:hidden p-1.5 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                     >

@@ -181,11 +181,16 @@ export function Navbar() {
 
   // The manager/staff dashboard has its own shell chrome — hide the marketing
   // navbar there (but keep it on the create-hotel wizard and waiting screens).
+  // Also hide it on the guest messaging page (/messages).
   const inManagerShell =
     pathname?.startsWith("/manager") &&
     !pathname.startsWith("/manager/create-hotel") &&
     !pathname.startsWith("/manager/waiting");
-  const inDashboardShell = inManagerShell || Boolean(pathname?.startsWith("/admin"));
+  const inDashboardShell =
+    inManagerShell ||
+    Boolean(pathname?.startsWith("/admin")) ||
+    pathname === "/messages" ||
+    pathname?.startsWith("/messages/");
   if (inDashboardShell) return null;
 
   // Auth/utility pages get a clean, minimal header (logo + back to home) instead
