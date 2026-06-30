@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath, updateTag } from "next/cache";
 import { HOTELS_CACHE_TAG } from "@/lib/hotels";
+import { sendCheckOutConfirmation } from "@/lib/emails/checkOutConfirmation";
 
 export interface ActionResult {
   ok: boolean;
@@ -71,8 +72,11 @@ export async function submitGuestReviewAndCheckout(
 
       if (checkoutErr) {
         console.error("[review] checkout update error:", checkoutErr);
-        // We don't fail the whole request since the review succeeded,
-        // but we log it.
+      } else {
+        // Trigger checkout email in the background (best-effort)
+        sendCheckOutConfirmation(bookingId).catch((err) =>
+          console.error("[review] checkout email error:", err)
+        );
       }
     }
 

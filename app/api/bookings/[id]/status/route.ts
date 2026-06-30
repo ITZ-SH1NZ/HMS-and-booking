@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendCheckInConfirmation } from "@/lib/emails/checkInConfirmation";
+import { sendCheckOutConfirmation } from "@/lib/emails/checkOutConfirmation";
 
 // POST /api/bookings/[id]/status — update booking status (check-in/check-out)
 // Restrained to the hotel's manager or staff.
@@ -99,6 +101,17 @@ export async function POST(
       .from("payments")
       .update({ status: "completed", paid_at: new Date().toISOString() })
       .eq("booking_id", id);
+  }
+
+  // 7. Trigger email notifications in the background (best-effort)
+  if (status === "checked_in") {
+    sendCheckInConfirmation(id).catch((err) =>
+      console.error("[status-api] check-in email error:", err)
+    );
+  } else if (status === "completed") {
+    sendCheckOutConfirmation(id).catch((err) =>
+      console.error("[status-api] check-out email error:", err)
+    );
   }
 
   return NextResponse.json({ success: true, newStatus: status });

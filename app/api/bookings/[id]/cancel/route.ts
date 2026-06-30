@@ -45,6 +45,7 @@ export async function PUT(
 
   // Issue the actual Razorpay refund for the captured proportion.
   let refundError: string | null = null;
+  let refundSuccess = false;
   if (refundPct > 0 && payment?.status === "completed" && payment.transaction_id) {
     try {
       const captured = await razorpay.payments.fetch(payment.transaction_id);
@@ -55,6 +56,7 @@ export async function PUT(
           speed: "normal",
           notes: { bookingId: id, reason },
         });
+        refundSuccess = true;
       }
     } catch (e) {
       // DB already marked the payment refunded; surface the gateway issue.
@@ -63,6 +65,11 @@ export async function PUT(
   }
 
   await sendBookingCancellation(id);
+
+  if (refundSuccess) {
+    const { sendRefundProcessed } = await import("@/lib/emails/refundProcessed");
+    await sendRefundProcessed(id);
+  }
 
   return NextResponse.json({ ...data, refundError });
 }
