@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import GuestMessagesClient from "./GuestMessagesClient";
+import type { Message } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
   const conversations = conversationsData ?? [];
 
   // Fetch messages if a conversation is active
-  let initialMessages: any[] = [];
+  let initialMessages: Message[] = [];
   if (activeConversationId) {
     const { data: messagesData } = await supabase
       .from("messages")

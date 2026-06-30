@@ -450,6 +450,7 @@ export interface Message {
   attachments: MessageAttachment[];
   read_at: string | null;
   created_at: string;
+  sending?: boolean;
 }
 
 

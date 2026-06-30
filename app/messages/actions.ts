@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import type { MessageAttachment } from "@/lib/types";
 
 export async function getOrCreateConversation(hotelId: string) {
   const supabase = await createClient();
@@ -14,7 +15,7 @@ export async function getOrCreateConversation(hotelId: string) {
   }
 
   // Find or create conversation for the guest and hotel
-  const { data: existing, error } = await supabase
+  const { data: existing } = await supabase
     .from("conversations")
     .select("id")
     .eq("hotel_id", hotelId)
@@ -45,7 +46,8 @@ export async function getOrCreateConversation(hotelId: string) {
 export async function sendMessage(
   conversationId: string,
   body: string | null,
-  attachments: any[] = []
+  attachments: MessageAttachment[] = [],
+  messageId?: string
 ) {
   const supabase = await createClient();
   const {
@@ -69,16 +71,29 @@ export async function sendMessage(
 
   const senderRole = conversation.guest_id === user.id ? "guest" : "host";
 
-  // Insert the message
+  // Insert the message without using 'any'
+  const insertPayload: {
+    id?: string;
+    conversation_id: string;
+    sender_id: string;
+    sender_role: "guest" | "host";
+    body: string | null;
+    attachments: MessageAttachment[];
+  } = {
+    conversation_id: conversationId,
+    sender_id: user.id,
+    sender_role: senderRole,
+    body: body || null,
+    attachments,
+  };
+
+  if (messageId) {
+    insertPayload.id = messageId;
+  }
+
   const { data: message, error: msgErr } = await supabase
     .from("messages")
-    .insert({
-      conversation_id: conversationId,
-      sender_id: user.id,
-      sender_role: senderRole,
-      body: body || null,
-      attachments: attachments,
-    })
+    .insert(insertPayload)
     .select("*")
     .single();
 
@@ -86,10 +101,6 @@ export async function sendMessage(
     console.error("Failed to send message:", msgErr);
     throw new Error(msgErr.message);
   }
-
-  revalidatePath(`/messages/${conversationId}`);
-  revalidatePath(`/messages`);
-  revalidatePath(`/manager/messages`);
 
   return message;
 }
