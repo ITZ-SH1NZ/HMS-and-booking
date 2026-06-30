@@ -11,6 +11,11 @@ interface EditProfileModalProps {
   onProfileUpdated?: () => void;
 }
 
+interface LocationSuggestion {
+  id: number;
+  name: string;
+}
+
 const COUNTRY_CODES = [
   { code: "+91", country: "India", flag: "🇮🇳" },
   { code: "+1", country: "USA/Canada", flag: "🇺🇸" },
@@ -35,8 +40,18 @@ export default function EditProfileModal({
 
   // Form fields
   const [fullName, setFullName] = useState("");
+  
+  // Date of Birth (Split Select State)
+  const [dobDay, setDobDay] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobYear, setDobYear] = useState("");
   const [dob, setDob] = useState("");
+
+  // Location Autocomplete State
+  const [locationInput, setLocationInput] = useState("");
   const [location, setLocation] = useState("");
+  const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   
   // Phone verification state
   const [countryCode, setCountryCode] = useState("+91");
@@ -47,6 +62,62 @@ export default function EditProfileModal({
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [mockSmsToast, setMockSmsToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync split DOB into YYYY-MM-DD
+  useEffect(() => {
+    if (dobDay && dobMonth && dobYear) {
+      setDob(`${dobYear}-${dobMonth}-${dobDay.padStart(2, "0")}`);
+    } else {
+      setDob("");
+    }
+  }, [dobDay, dobMonth, dobYear]);
+
+  // Sync locationInput into location state
+  useEffect(() => {
+    setLocation(locationInput);
+  }, [locationInput]);
+
+  // Debounced Location Autocomplete Fetching (OpenStreetMap Nominatim)
+  useEffect(() => {
+    const query = locationInput.trim();
+    if (query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&accept-language=en`
+        );
+        if (!res.ok) throw new Error("Search failed");
+        const data = await res.json();
+
+        const items = data.map((item: any) => {
+          const addr = item.address;
+          const city = addr.city || addr.town || addr.village || addr.suburb || addr.municipality || addr.county;
+          const state = addr.state;
+          const country = addr.country;
+
+          let displayName = item.display_name;
+          if (city && country) {
+            displayName = state ? `${city}, ${state}, ${country}` : `${city}, ${country}`;
+          }
+
+          return {
+            id: item.place_id,
+            name: displayName,
+          };
+        });
+
+        setSuggestions(items);
+      } catch (err) {
+        console.error("Autocomplete fetch error:", err);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [locationInput]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -69,8 +140,29 @@ export default function EditProfileModal({
           const prof = data as Profile;
           setProfile(prof);
           setFullName(prof.full_name || "");
-          setDob(prof.dob || "");
-          setLocation(prof.location || "");
+          
+          if (prof.dob) {
+            setDob(prof.dob);
+            const parts = prof.dob.split("-");
+            if (parts.length === 3) {
+              setDobYear(parts[0]);
+              setDobMonth(parts[1]);
+              setDobDay(parseInt(parts[2]).toString().padStart(2, "0"));
+            }
+          } else {
+            setDob("");
+            setDobDay("");
+            setDobMonth("");
+            setDobYear("");
+          }
+
+          if (prof.location) {
+            setLocationInput(prof.location);
+            setLocation(prof.location);
+          } else {
+            setLocationInput("");
+            setLocation("");
+          }
           
           if (prof.phone) {
             // Try to parse country code and phone number
@@ -109,7 +201,6 @@ export default function EditProfileModal({
 
     try {
       // If the phone number changed and is not verified, we keep profiles.phone as is or null
-      // The phone is only updated in profiles if it matches the verified phone number.
       let finalPhone = profile.phone;
       const formattedInputPhone = phoneNumber ? `${countryCode}${phoneNumber}` : "";
       
@@ -120,7 +211,6 @@ export default function EditProfileModal({
       } else if (isPhoneVerified) {
         finalPhone = formattedInputPhone;
       } else {
-        // Phone number was changed but not verified
         if (phoneNumber && formattedInputPhone !== profile.phone) {
           setError("Please verify your new phone number via OTP before saving.");
           setSaving(false);
@@ -253,33 +343,108 @@ export default function EditProfileModal({
                 </div>
               </div>
 
-              {/* Date of Birth */}
+              {/* Date of Birth (Split Selects from Signup) */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date of Birth</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-3 h-4.5 w-4.5 text-slate-400" />
-                  <input
-                    type="date"
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:outline-none text-sm font-medium transition"
-                  />
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    value={dobDay}
+                    onChange={(e) => setDobDay(e.target.value)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 cursor-pointer"
+                    required
+                  >
+                    <option value="">Day</option>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                      <option key={d} value={String(d).padStart(2, "0")}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={dobMonth}
+                    onChange={(e) => setDobMonth(e.target.value)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 cursor-pointer"
+                    required
+                  >
+                    <option value="">Month</option>
+                    {[
+                      { value: "01", label: "January" },
+                      { value: "02", label: "February" },
+                      { value: "03", label: "March" },
+                      { value: "04", label: "April" },
+                      { value: "05", label: "May" },
+                      { value: "06", label: "June" },
+                      { value: "07", label: "July" },
+                      { value: "08", label: "August" },
+                      { value: "09", label: "September" },
+                      { value: "10", label: "October" },
+                      { value: "11", label: "November" },
+                      { value: "12", label: "December" },
+                    ].map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={dobYear}
+                    onChange={(e) => setDobYear(e.target.value)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 cursor-pointer"
+                    required
+                  >
+                    <option value="">Year</option>
+                    {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - 10 - i).map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* Location */}
-              <div className="space-y-1.5">
+              {/* Location Autocomplete (from Signup) */}
+              <div className="relative space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Location</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3.5 top-3 h-4.5 w-4.5 text-slate-400" />
+                  <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. Mumbai, India"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:outline-none text-sm font-medium transition"
+                    value={locationInput}
+                    onChange={(e) => {
+                      setLocationInput(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    placeholder="Start typing your city..."
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm outline-none focus:border-brand-500"
+                    required
                   />
                 </div>
+
+                {/* Autocomplete suggestions */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowSuggestions(false)} />
+                    <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg divide-y divide-slate-50">
+                      {suggestions.map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => {
+                            setLocationInput(s.name);
+                            setShowSuggestions(false);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs text-slate-755 hover:bg-slate-50 transition cursor-pointer"
+                        >
+                          <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate font-medium">{s.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Phone Number with Region Dropdown */}
@@ -306,7 +471,7 @@ export default function EditProfileModal({
                         setCountryCode(e.target.value);
                         setIsPhoneVerified(false);
                       }}
-                      className="h-full pl-3 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-brand-500 focus:outline-none text-sm font-semibold transition cursor-pointer appearance-none"
+                      className="h-full pl-3 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold focus:border-brand-500 focus:outline-none cursor-pointer appearance-none"
                     >
                       {COUNTRY_CODES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -320,7 +485,7 @@ export default function EditProfileModal({
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => {
-                      setPhoneNumber(e.target.value);
+                      setPhoneNumber(e.target.value.replace(/\D/g, ""));
                       setIsPhoneVerified(false);
                     }}
                     placeholder="Mobile number"
