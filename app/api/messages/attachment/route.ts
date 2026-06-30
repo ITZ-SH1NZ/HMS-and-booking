@@ -38,18 +38,24 @@ export async function GET(req: NextRequest) {
       return new NextResponse("Forbidden", { status: 403 });
     }
 
-    // Create a signed URL (short TTL, e.g. 60 seconds)
+    // Create a signed URL (1 hour TTL for browser caching)
     const { data, error: signError } = await supabase.storage
       .from("message-attachments")
-      .createSignedUrl(path, 60);
+      .createSignedUrl(path, 3600);
 
     if (signError || !data?.signedUrl) {
       console.error("[attachment-auth] Failed to create signed URL:", signError);
       return new NextResponse("Failed to generate access URL", { status: 500 });
     }
 
-    // Redirect to the signed URL
-    return NextResponse.redirect(data.signedUrl);
+    // Redirect to the signed URL with Cache-Control headers so the browser caches the redirect
+    return new NextResponse(null, {
+      status: 307,
+      headers: {
+        Location: data.signedUrl,
+        "Cache-Control": "private, max-age=3600",
+      },
+    });
   } catch (err) {
     console.error("[attachment-auth] Server error:", err);
     return new NextResponse("Internal Server Error", { status: 500 });

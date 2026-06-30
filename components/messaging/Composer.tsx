@@ -1,35 +1,24 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Paperclip, Smile, Send, X, Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import type { MessageAttachment } from "@/lib/types";
+import { Camera, Paperclip, Smile, Send, X } from "lucide-react";
 import EmojiPicker from "./EmojiPicker";
 
 interface ComposerProps {
   conversationId: string;
-  onSend: (body: string | null, attachments: MessageAttachment[]) => Promise<void>;
+  onSend: (body: string | null, files: File[]) => Promise<void>;
   disabled?: boolean;
   onTyping?: (isTyping: boolean) => void;
 }
 
-interface UploadingFile {
-  id: string;
-  name: string;
-  progress: number;
-}
-
-const supabase = createClient();
-
 export default function Composer({
-  conversationId,
   onSend,
   disabled = false,
   onTyping,
 }: ComposerProps) {
   const [text, setText] = useState("");
-  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
-  const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [emojiOpen, setEmojiOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,54 +66,7 @@ export default function Composer({
     };
   }, [text, onTyping]);
 
-  // Image compression helper
-  const compressImage = (file: File): Promise<{ blob: Blob; width: number; height: number }> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        const maxDim = 1920;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          reject(new Error("Canvas context creation failed"));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              resolve({ blob, width, height });
-            } else {
-              reject(new Error("Canvas compression failed"));
-            }
-          },
-          "image/jpeg",
-          0.85
-        );
-      };
-      img.onerror = () => reject(new Error("Failed to load image file"));
-    });
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -143,60 +85,12 @@ export default function Composer({
 
     if (validFiles.length === 0) return;
 
-    // Start uploads in parallel
-    validFiles.forEach(async (file) => {
-      const uploadId = crypto.randomUUID();
-      
-      setUploadingFiles((prev) => [
-        ...prev,
-        { id: uploadId, name: file.name, progress: 10 },
-      ]);
-
-      try {
-        const { blob, width, height } = await compressImage(file);
-        
-        setUploadingFiles((prev) =>
-          prev.map((f) => (f.id === uploadId ? { ...f, progress: 40 } : f))
-        );
-
-        const ext = file.name.split(".").pop() || "jpg";
-        const fileUuid = crypto.randomUUID();
-        const path = `${conversationId}/${fileUuid}.${ext}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("message-attachments")
-          .upload(path, blob, {
-            upsert: false,
-            onUploadProgress: (event: { loaded: number; total: number }) => {
-              const progress = Math.round((event.loaded / event.total) * 40) + 40;
-              setUploadingFiles((prev) =>
-                prev.map((f) => (f.id === uploadId ? { ...f, progress } : f))
-              );
-            },
-          } as unknown as Record<string, unknown>);
-
-        if (uploadError) throw uploadError;
-
-        setUploadingFiles((prev) =>
-          prev.map((f) => (f.id === uploadId ? { ...f, progress: 90 } : f))
-        );
-
-        setAttachments((prev) => [
-          ...prev,
-          {
-            url: path,
-            type: "image",
-            width,
-            height,
-          },
-        ]);
-
-        setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
-      } catch (err) {
-        console.error(`Attachment upload failed for "${file.name}":`, err);
-        alert(`Failed to upload "${file.name}": ${err instanceof Error ? err.message : "Unknown error"}`);
-        setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
-      }
+    setAttachments((prev) => {
+      const next = [...prev, ...validFiles];
+      previews.forEach((url) => URL.revokeObjectURL(url));
+      const newUrls = next.map((file) => URL.createObjectURL(file));
+      setPreviews(newUrls);
+      return next;
     });
 
     if (fileInputRef.current) {
@@ -205,25 +99,35 @@ export default function Composer({
   };
 
   const removeAttachment = (index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      previews.forEach((url) => URL.revokeObjectURL(url));
+      const newUrls = next.map((file) => URL.createObjectURL(file));
+      setPreviews(newUrls);
+      return next;
+    });
   };
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (disabled || uploadingFiles.length > 0 || (!text.trim() && attachments.length === 0)) return;
+    if (disabled || (!text.trim() && attachments.length === 0)) return;
 
     const messageText = text.trim();
-    const messageAttachments = [...attachments];
+    const messageFiles = [...attachments];
 
     setText("");
     setAttachments([]);
+    previews.forEach((url) => URL.revokeObjectURL(url));
+    setPreviews([]);
 
     try {
-      await onSend(messageText || null, messageAttachments);
+      await onSend(messageText || null, messageFiles);
     } catch (err) {
       console.error("Failed to send message:", err);
       setText(messageText);
-      setAttachments(messageAttachments);
+      setAttachments(messageFiles);
+      const newUrls = messageFiles.map((file) => URL.createObjectURL(file));
+      setPreviews(newUrls);
     }
   };
 
@@ -252,54 +156,30 @@ export default function Composer({
     setEmojiOpen(false);
   };
 
-  const getAttachmentDisplayUrl = (path: string) => {
-    return `/api/messages/attachment?path=${encodeURIComponent(path)}`;
-  };
-
   return (
-    <div className="bg-[#F9F6F0] px-4 pb-4 md:px-6 md:pb-6 relative z-10">
-      {/* Container wrapper for floating feel */}
+    <div className="bg-[#F8F9FA] px-4 pb-4 md:px-6 md:pb-6 relative z-10">
       <div className="max-w-4xl mx-auto">
         
-        {/* Uploading files list */}
-        {uploadingFiles.length > 0 && (
-          <div className="mb-3 p-3 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-200/60 space-y-2 shadow-xs">
-            {uploadingFiles.map((file) => (
-              <div key={file.id} className="flex items-center gap-3 text-xs text-slate-700">
-                <Loader2 className="h-4 w-4 animate-spin text-gold-600 shrink-0" />
-                <span className="truncate max-w-[150px] font-medium">{file.name}</span>
-                <div className="h-1 flex-1 rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full bg-gold-500 transition-all duration-300 rounded-full"
-                    style={{ width: `${file.progress}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-slate-500 shrink-0">{file.progress}%</span>
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Attachments preview list */}
-        {attachments.length > 0 && (
-          <div className="mb-3 p-3 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-200/60 flex flex-wrap gap-3 shadow-xs">
-            {attachments.map((att, idx) => (
+        {previews.length > 0 && (
+          <div className="mb-3 p-3 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-200/60 flex flex-wrap gap-3 shadow-2xs animate-fade-in">
+            {previews.map((url, idx) => (
               <div
                 key={idx}
-                className="relative h-20 w-20 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-xs group/thumb"
+                className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-2xs group/thumb"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={getAttachmentDisplayUrl(att.url)}
-                  alt="Attachment"
+                  src={url}
+                  alt="Attachment preview"
                   className="h-full w-full object-cover"
                 />
                 <button
                   type="button"
                   onClick={() => removeAttachment(idx)}
-                  className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black transition cursor-pointer shadow-sm"
+                  className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black transition cursor-pointer shadow-sm"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-2.5 w-2.5" />
                 </button>
               </div>
             ))}
@@ -307,7 +187,7 @@ export default function Composer({
         )}
 
         {/* Floating Glassmorphism Composer Bar */}
-        <div className="flex items-center gap-2.5 bg-white/90 backdrop-blur-md border border-slate-200/80 p-2 rounded-full shadow-md focus-within:shadow-lg focus-within:border-slate-300 transition duration-300">
+        <div className="flex items-center gap-2.5 bg-white border border-slate-200 p-2 rounded-full shadow-2xs focus-within:shadow-xs focus-within:border-slate-300 transition duration-300">
           <input
             type="file"
             ref={fileInputRef}
@@ -322,8 +202,8 @@ export default function Composer({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || uploadingFiles.length > 0}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-450 hover:bg-slate-100 hover:text-slate-750 transition disabled:opacity-40 cursor-pointer"
+              disabled={disabled}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-450 hover:bg-slate-100 hover:text-slate-700 transition disabled:opacity-40 cursor-pointer"
               title="Attach photos"
             >
               <Paperclip className="h-4.5 w-4.5" />
@@ -332,8 +212,8 @@ export default function Composer({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || uploadingFiles.length > 0}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-455 hover:bg-slate-100 hover:text-slate-750 transition disabled:opacity-40 cursor-pointer"
+              disabled={disabled}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-450 hover:bg-slate-100 hover:text-slate-700 transition disabled:opacity-40 cursor-pointer"
               title="Take photo"
             >
               <Camera className="h-4.5 w-4.5" />
@@ -350,7 +230,7 @@ export default function Composer({
               onKeyDown={handleKeyDown}
               disabled={disabled}
               placeholder="Type a message..."
-              className="w-full bg-transparent py-2.5 pl-1 pr-10 text-sm text-slate-800 placeholder-slate-450 outline-none"
+              className="w-full bg-transparent py-2.5 pl-1 pr-10 text-sm text-slate-800 placeholder-slate-400 outline-none"
             />
 
             {/* Emoji Picker */}
@@ -359,7 +239,7 @@ export default function Composer({
                 type="button"
                 onClick={() => setEmojiOpen(!emojiOpen)}
                 disabled={disabled}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-750 transition cursor-pointer"
               >
                 <Smile className="h-4.5 w-4.5" />
               </button>
@@ -376,14 +256,10 @@ export default function Composer({
           <button
             type="submit"
             onClick={handleSend}
-            disabled={
-              disabled ||
-              uploadingFiles.length > 0 ||
-              (!text.trim() && attachments.length === 0)
-            }
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-700 text-white hover:bg-brand-800 hover:scale-[1.04] disabled:bg-slate-100 disabled:text-slate-300 disabled:scale-100 transition-all shadow-sm active:scale-95 cursor-pointer shrink-0"
+            disabled={disabled || (!text.trim() && attachments.length === 0)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0A4335] text-white hover:bg-brand-900 hover:scale-[1.03] disabled:bg-slate-100 disabled:text-slate-300 disabled:scale-100 transition-all shadow-3xs active:scale-95 cursor-pointer shrink-0"
           >
-            <Send className="h-4 w-4 text-gold-400" />
+            <Send className="h-4 w-4 text-white" />
           </button>
         </div>
 

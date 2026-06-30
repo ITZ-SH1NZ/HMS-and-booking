@@ -180,18 +180,25 @@ export function useConversationMessages({
     };
   }, [conversationId, currentUserId, triggerMarkRead]);
 
-  // 3. Send message action with optimistic updates
-  const sendMessage = async (body: string | null, attachments: MessageAttachment[]) => {
+  // 3. Send message action with optimistic updates and background uploads
+  const sendMessage = async (body: string | null, files: File[]) => {
     if (!conversationId) return;
 
     const tempId = crypto.randomUUID();
+    
+    // Create optimistic attachments with local object URLs (renders instantly)
+    const optimisticAttachments: MessageAttachment[] = files.map((file) => ({
+      url: URL.createObjectURL(file),
+      type: "image",
+    }));
+
     const optimisticMsg: Message = {
       id: tempId,
       conversation_id: conversationId,
       sender_id: currentUserId,
       sender_role: currentUserRole,
       body,
-      attachments,
+      attachments: optimisticAttachments,
       created_at: new Date().toISOString(),
       read_at: null,
       sending: true, // Optimistic flag
@@ -205,7 +212,30 @@ export function useConversationMessages({
     });
 
     try {
-      const message = await apiSendMessage(conversationId, body, attachments, tempId);
+      // Upload files in parallel in the background
+      const uploadedAttachments = await Promise.all(
+        files.map(async (file) => {
+          const ext = file.name.split(".").pop() || "jpg";
+          const fileUuid = crypto.randomUUID();
+          const path = `${conversationId}/${fileUuid}.${ext}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("message-attachments")
+            .upload(path, file, {
+              upsert: false,
+            });
+
+          if (uploadError) throw uploadError;
+
+          return {
+            url: path,
+            type: "image" as const,
+          };
+        })
+      );
+
+      // Save to database with final storage paths
+      const message = await apiSendMessage(conversationId, body, uploadedAttachments, tempId);
       
       // Replace optimistic message with actual message and update cache
       setMessages((prev) => {
@@ -213,6 +243,9 @@ export function useConversationMessages({
         messageCache[conversationId] = next;
         return next;
       });
+
+      // Revoke temporary object URLs
+      optimisticAttachments.forEach((att) => URL.revokeObjectURL(att.url));
     } catch (err) {
       console.error("Failed to send message:", err);
       // Remove optimistic message on error and update cache
@@ -221,6 +254,8 @@ export function useConversationMessages({
         messageCache[conversationId] = next;
         return next;
       });
+      // Revoke temporary object URLs
+      optimisticAttachments.forEach((att) => URL.revokeObjectURL(att.url));
       throw err;
     }
   };

@@ -180,50 +180,59 @@ export default function ChatThread({
                       <div className={`flex flex-col max-w-[70%] sm:max-w-[60%] ${isOwn ? "items-end" : "items-start"}`}>
                         
                         {/* Bubble Body */}
-                        <div
-                          className={`p-3.5 rounded-2xl shadow-3xs transition-all ${
-                            isOwn
-                              ? "bg-[#0A4335] text-white"
-                              : "bg-[#F1F3F5] text-slate-800"
-                          } ${isSending ? "opacity-75 animate-pulse" : ""}`}
-                        >
-                          {/* Attachments */}
-                          {msg.attachments && msg.attachments.length > 0 && (
-                            <div className="grid grid-cols-1 gap-2 mb-2">
-                              {msg.attachments.map((att, idx) => {
-                                const displayUrl = getAttachmentUrl(att.url);
-                                return (
-                                  <div
-                                    key={idx}
-                                    onClick={() => setLightboxImage(displayUrl)}
-                                    className="relative cursor-zoom-in overflow-hidden rounded-xl border border-black/5 hover:opacity-95 active:scale-[0.98] transition shadow-3xs"
-                                  >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                      src={displayUrl}
-                                      alt="Attachment"
-                                      className="max-h-64 w-full object-cover rounded-xl"
-                                      style={{
-                                        width: att.width ? `${att.width}px` : "auto",
-                                        height: att.height ? `${att.height}px` : "auto",
-                                      }}
-                                    />
-                                    <div className="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition flex items-center justify-center">
-                                      <ZoomIn className="h-4.5 w-4.5 text-white" />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                        {(() => {
+                          const hasOnlyAttachments = msg.attachments && msg.attachments.length > 0 && !msg.body;
+                          return (
+                            <div
+                              className={`transition-all ${
+                                hasOnlyAttachments
+                                  ? ""
+                                  : `p-3.5 rounded-2xl shadow-3xs ${
+                                      isOwn
+                                        ? "bg-[#0A4335] text-white"
+                                        : "bg-[#F1F3F5] text-slate-800"
+                                    }`
+                              } ${isSending ? "opacity-75 animate-pulse" : ""}`}
+                            >
+                              {/* Attachments */}
+                              {msg.attachments && msg.attachments.length > 0 && (
+                                <div className="grid grid-cols-1 gap-2">
+                                  {msg.attachments.map((att, idx) => {
+                                    const displayUrl = getAttachmentUrl(att.url);
+                                    return (
+                                      <div
+                                        key={idx}
+                                        onClick={() => setLightboxImage(displayUrl)}
+                                        className="relative cursor-zoom-in overflow-hidden rounded-2xl border border-black/5 hover:opacity-95 active:scale-[0.98] transition shadow-3xs"
+                                      >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                          src={displayUrl}
+                                          alt="Attachment"
+                                          className="max-h-64 w-full object-cover rounded-2xl"
+                                          style={{
+                                            width: att.width ? `${att.width}px` : "auto",
+                                            height: att.height ? `${att.height}px` : "auto",
+                                          }}
+                                        />
+                                        <div className="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition flex items-center justify-center">
+                                          <ZoomIn className="h-4.5 w-4.5 text-white" />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
 
-                          {/* Text */}
-                          {msg.body && (
-                            <p className="text-xs sm:text-[13px] leading-relaxed break-words whitespace-pre-wrap font-medium tracking-wide">
-                              {msg.body}
-                            </p>
-                          )}
-                        </div>
+                              {/* Text */}
+                              {msg.body && (
+                                <p className="text-xs sm:text-[13px] leading-relaxed break-words whitespace-pre-wrap font-medium tracking-wide">
+                                  {msg.body}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         {/* Timestamp BELOW the bubble */}
                         <div
