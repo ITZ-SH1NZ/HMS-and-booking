@@ -60,26 +60,40 @@ export const BRAND = {
   text: "#1F2937", // foreground
   muted: "#6B7280",
   line: "#E7E2D9", // warm border
+  bgLight: "#FFFDF9", // details card background
 };
 
-// Serif display stack for headings/wordmark — gives the boutique-hotel feel.
 const SERIF = "Georgia,'Times New Roman',Times,serif";
 const SANS = "'Helvetica Neue',Helvetica,Arial,sans-serif";
 
-// A short centered gold hairline — the recurring luxury divider motif.
-function goldRule(width = 44): string {
-  return `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:18px auto;"><tr><td style="width:${width}px;height:1px;line-height:1px;font-size:0;background:${BRAND.gold};">&nbsp;</td></tr></table>`;
+// Unsplash high-end imagery
+const IMAGES = {
+  heroRoom: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80",
+  lobbyPromo: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
+  hexagonB: "https://ekurxcwuriltcrsrcfqo.supabase.co/storage/v1/object/public/public_assets/b_gold_hexagon.png" // Fallback fallback logo
+};
+
+// Reusable Gold Divider
+function goldDivider(): string {
+  return `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+    <tr>
+      <td style="font-size:0; line-height:0;" width="40" height="1" bgcolor="${BRAND.gold}">&nbsp;</td>
+      <td style="padding:0 10px; font-family:${SERIF}; font-size:14px; color:${BRAND.gold}; font-style:italic; line-height:1;">&nbsp;⚜&nbsp;</td>
+      <td style="font-size:0; line-height:0;" width="40" height="1" bgcolor="${BRAND.gold}">&nbsp;</td>
+    </tr>
+  </table>`;
 }
 
 // Shared branded wrapper. Inline styles only (email clients strip <style>/CSS).
-// Luxury treatment: serif display type, centered wordmark with gold tagline,
-// uppercase eyebrow, gold hairline rules, generous whitespace — on warm cream.
 export function emailLayout(opts: {
   heading: string;
   bodyHtml: string;
   eyebrow?: string;
   footnote?: string;
+  imageUrl?: string;
 }): string {
+  const heroImage = opts.imageUrl ?? IMAGES.heroRoom;
+
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -92,59 +106,230 @@ export function emailLayout(opts: {
       body { margin:0; padding:0; width:100% !important; -webkit-text-size-adjust:100%; }
       a { text-decoration:none; }
       @media only screen and (max-width:600px) {
-        .bn-card { width:100% !important; border-radius:0 !important; }
-        .bn-pad { padding:32px 26px !important; }
+        .bn-card { width:100% !important; border-radius:0 !important; border-left:none !important; border-right:none !important; }
+        .bn-pad { padding:30px 20px !important; }
+        .bn-col { display:block !important; width:100% !important; }
+        .bn-hero-img { display:none !important; }
+        .bn-hero-text { width:100% !important; padding:35px 24px !important; }
       }
     </style>
   </head>
   <body style="margin:0;padding:0;background:${BRAND.cream};font-family:${SANS};color:${BRAND.text};">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.cream};padding:36px 0;">
-      <tr><td align="center" style="padding:0 12px;">
-        <table role="presentation" class="bn-card" width="580" cellpadding="0" cellspacing="0" style="width:580px;max-width:580px;background:#ffffff;border:1px solid ${BRAND.line};border-radius:6px;overflow:hidden;">
-          <!-- header -->
-          <tr><td align="center" style="background:${BRAND.greenDark};padding:34px 30px 28px;">
-            <div style="font-family:${SERIF};color:#ffffff;font-size:27px;font-weight:bold;letter-spacing:0.5px;">BookNest</div>
-            <table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:13px auto;"><tr><td style="width:40px;height:1px;line-height:1px;font-size:0;background:${BRAND.gold};">&nbsp;</td></tr></table>
-            <div style="color:${BRAND.gold};font-size:10px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;">Stays that feel like home</div>
-          </td></tr>
-          <!-- hero -->
-          <tr><td align="center" class="bn-pad" style="padding:40px 44px 8px;">
-            ${opts.eyebrow ? `<div style="font-size:11px;font-weight:bold;letter-spacing:2.5px;text-transform:uppercase;color:${BRAND.gold};">${opts.eyebrow}</div>` : ""}
-            <h1 style="margin:${opts.eyebrow ? "12px" : "0"} 0 0;font-family:${SERIF};font-size:26px;font-weight:normal;line-height:1.25;color:${BRAND.greenDark};">${opts.heading}</h1>
-            ${goldRule()}
-          </td></tr>
-          <!-- body -->
-          <tr><td class="bn-pad" style="padding:4px 44px 40px;">
-            ${opts.bodyHtml}
-          </td></tr>
-          <!-- footer -->
-          <tr><td align="center" style="padding:22px 30px 26px;background:${BRAND.cream};border-top:1px solid ${BRAND.line};">
-            <p style="margin:0;font-size:12px;line-height:1.6;color:${BRAND.muted};">${opts.footnote ?? "You're receiving this email from BookNest."}</p>
-          </td></tr>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.cream};padding:24px 0;">
+      <tr><td align="center" style="padding:0 8px;">
+        
+        <table role="presentation" class="bn-card" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border:1px solid ${BRAND.line};border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+          
+          <!-- 1. Luxurious Header -->
+          <tr>
+            <td style="padding:24px 30px; border-bottom:1px solid #F0ECE3; background:#ffffff;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <!-- Logo Icon -->
+                  <td width="48" style="vertical-align:middle;">
+                    <img src="https://i.ibb.co/twkvZpH3/logo-mark.png" width="40" height="40" alt="BookNest" style="display:block; width:40px; height:40px; border:none; outline:none; text-decoration:none;" />
+                  </td>
+                  <!-- Logo Text -->
+                  <td style="padding-left:12px; vertical-align:middle;">
+                    <div style="font-family:${SERIF}; color:${BRAND.greenDark}; font-size:22px; font-weight:bold; letter-spacing:0.5px; line-height:1.1;">BookNest</div>
+                    <div style="color:${BRAND.gold}; font-size:8px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; margin-top:2px;">Stays that feel like home</div>
+                  </td>
+                  <td align="right" style="vertical-align:middle;">
+                    <span style="font-size:10px; color:${BRAND.muted}; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">Your stay is confirmed</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- 2. Hero Section (Dynamic Two Column) -->
+          <tr>
+            <td bgcolor="${BRAND.greenDark}" style="background:${BRAND.greenDark};">
+              <!--[if mso]>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td width="360" valign="middle">
+              <![endif]-->
+              <table role="presentation" align="left" class="bn-col" width="360" cellpadding="0" cellspacing="0" style="width:360px;">
+                <tr>
+                  <td class="bn-hero-text" style="padding:48px 40px; text-align:left;">
+                    ${opts.eyebrow ? `<div style="font-size:10px; font-weight:bold; letter-spacing:2.5px; text-transform:uppercase; color:${BRAND.gold}; margin-bottom:12px;">${opts.eyebrow}</div>` : ""}
+                    <h1 style="margin:0; font-family:${SERIF}; font-size:28px; font-weight:normal; line-height:1.2; color:#ffffff;">${opts.heading}</h1>
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:16px; margin-bottom:16px;">
+                      <tr><td width="40" height="2" bgcolor="${BRAND.gold}" style="font-size:0; line-height:0;">&nbsp;</td></tr>
+                    </table>
+                    <p style="margin:0; font-size:14px; color:#E2E8F0; line-height:1.5;">We can't wait to welcome you.</p>
+                  </td>
+                </tr>
+              </table>
+              <!--[if mso]>
+              </td><td width="240" valign="top">
+              <![endif]-->
+              <table role="presentation" align="left" class="bn-col bn-hero-img" width="240" cellpadding="0" cellspacing="0" style="width:240px;">
+                <tr>
+                  <td>
+                    <img src="${heroImage}" width="240" alt="Luxury Room" style="display:block; width:240px; height:240px; object-fit:cover; border:none;" />
+                  </td>
+                </tr>
+              </table>
+              <!--[if mso]>
+              </td></tr></table>
+              <![endif]-->
+            </td>
+          </tr>
+
+          <!-- 3. Main Body Content -->
+          <tr>
+            <td class="bn-pad" style="padding:40px 44px 30px; background:#ffffff;">
+              ${opts.bodyHtml}
+            </td>
+          </tr>
+
+          <!-- 4. Value Propositions Bar -->
+          <tr>
+            <td style="background:${BRAND.greenDark}; padding:20px 30px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px;">
+                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🏷</span> Best Price Guaranteed
+                  </td>
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15);">
+                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🛡</span> Secure Bookings
+                  </td>
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15);">
+                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🎧</span> 24/7 Guest Support
+                  </td>
+                  <td align="center" width="25%" style="font-family:${SANS}; font-size:9px; font-weight:bold; color:#ffffff; letter-spacing:1px; text-transform:uppercase; padding:0 4px; border-left:1px solid rgba(255,255,255,0.15);">
+                    <span style="color:${BRAND.gold}; font-size:12px; display:block; margin-bottom:4px;">🔔</span> Handpicked Stays
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- 5. Support Promo Section -->
+          <tr>
+            <td style="padding:32px 44px; background:${BRAND.cream}; border-top:1px solid ${BRAND.line};">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <!-- Image -->
+                  <td class="bn-col" width="200" style="width:200px; padding-right:24px; vertical-align:middle;">
+                    <img src="${IMAGES.lobbyPromo}" width="200" alt="Lobby" style="display:block; width:100%; border-radius:6px; border:1px solid ${BRAND.line};" />
+                  </td>
+                  <!-- Content -->
+                  <td class="bn-col" style="vertical-align:middle; padding-top:16px;">
+                    <h3 style="margin:0; font-family:${SERIF}; font-size:18px; font-weight:normal; color:${BRAND.greenDark};">Need anything?</h3>
+                    <p style="margin:8px 0 16px; font-size:12px; line-height:1.6; color:${BRAND.muted};">Our guest support team is here for you 24/7 to make your upcoming stay exceptional.</p>
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="border-radius:4px; background:${BRAND.green};">
+                          <a href="mailto:support@booknest.com" style="display:inline-block; padding:10px 20px; font-size:11px; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase; color:#ffffff; border-radius:4px;">Contact Support &rarr;</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- 6. Footer Info Bar -->
+          <tr>
+            <td style="padding:16px 30px; background:#ffffff; border-top:1px solid #F0ECE3; border-bottom:1px solid #F0ECE3; text-align:center;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="font-size:11px; font-weight:bold; color:${BRAND.muted};">
+                    📞 <span style="color:${BRAND.text}; margin-left:4px;">+91 124 456 7890</span>
+                    <span style="margin:0 12px; color:${BRAND.line};">|</span>
+                    ✉ <span style="color:${BRAND.text}; margin-left:4px;">support@booknest.com</span>
+                    <span style="margin:0 12px; color:${BRAND.line};">|</span>
+                    🌐 <span style="color:${BRAND.text}; margin-left:4px;">www.booknest.com</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- 7. Social Footer -->
+          <tr>
+            <td align="center" style="padding:24px 30px; background:${BRAND.greenDark};">
+              <div style="font-family:${SERIF}; color:#ffffff; font-size:20px; font-weight:bold; letter-spacing:0.5px;">BookNest</div>
+              <div style="color:${BRAND.gold}; font-size:8px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; margin-top:3px; margin-bottom:16px;">Stays that feel like home</div>
+              
+              <p style="margin:16px 0 0; font-size:10px; color:#94A3B8; line-height:1.4;">${opts.footnote ?? "This is an automated email. Please do not reply."}</p>
+            </td>
+          </tr>
+
         </table>
-        <p style="margin:16px 0 0;font-family:${SERIF};font-size:11px;letter-spacing:1px;color:#A8A29E;">BOOKNEST &nbsp;·&nbsp; STAYS THAT FEEL LIKE HOME</p>
+        
+        <p style="margin:16px 0 0; font-family:${SERIF}; font-size:10px; letter-spacing:1px; color:#A8A29E;">BOOKNEST &nbsp;·&nbsp; LUXURY BOUTIQUE HOTELS</p>
       </td></tr>
     </table>
   </body>
 </html>`;
 }
 
-// Refined CTA — sharp-edged, uppercase, letter-spaced (boutique, not chunky).
+// Refined CTA Button
 export function emailButton(href: string, label: string): string {
-  return `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:26px auto;"><tr>
-    <td style="border-radius:3px;background:${BRAND.green};">
-      <a href="${href}" style="display:inline-block;padding:15px 40px;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#ffffff;border-radius:3px;">${label}</a>
-    </td></tr></table>`;
+  return `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+    <tr>
+      <td style="border-radius:4px; background:${BRAND.green}; box-shadow: 0 2px 5px rgba(0,0,0,0.15);">
+        <a href="${href}" style="display:inline-block; padding:14px 35px; font-family:${SANS}; font-size:11px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#ffffff; border-radius:4px;">${label}</a>
+      </td>
+    </tr>
+  </table>`;
 }
 
-// Label/value detail table — uppercase gold-tinged labels, hairline rows.
-export function emailDetails(rows: { label: string; value: string }[]): string {
-  const body = rows
-    .map(
-      (r, i) =>
-        `<tr><td style="padding:14px 20px;${i < rows.length - 1 ? `border-bottom:1px solid ${BRAND.line};` : ""}font-size:10px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;color:${BRAND.muted};vertical-align:middle;">${r.label}</td>
-         <td style="padding:14px 20px;${i < rows.length - 1 ? `border-bottom:1px solid ${BRAND.line};` : ""}font-size:14px;color:${BRAND.text};text-align:right;vertical-align:middle;">${r.value}</td></tr>`,
-    )
+// Dual column details card layout with QR code option
+export function emailDetails(
+  rows: { label: string; value: string; icon?: string }[],
+  qrData?: string
+): string {
+  const detailsRows = rows
+    .map((r, i) => {
+      const iconHtml = r.icon ? `<span style="font-size:16px; margin-right:8px; display:inline-block; vertical-align:middle; color:${BRAND.gold};">${r.icon}</span>` : "";
+      return `<tr style="${i < rows.length - 1 ? `border-bottom:1.5px solid #F0ECE3;` : ""}">
+        <td style="padding:14px 16px; font-size:10px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:${BRAND.muted}; vertical-align:middle;">
+          ${iconHtml}<span style="vertical-align:middle;">${r.label}</span>
+        </td>
+        <td style="padding:14px 16px; font-size:13px; font-weight:bold; color:${BRAND.text}; text-align:right; vertical-align:middle;">
+          ${r.value}
+        </td>
+      </tr>`;
+    })
     .join("");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BRAND.line};border-radius:4px;overflow:hidden;background:#FFFDF9;">${body}</table>`;
+
+  const detailsTable = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.bgLight};">${detailsRows}</table>`;
+
+  if (!qrData) {
+    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BRAND.line}; border-radius:8px; overflow:hidden; background:${BRAND.bgLight};">${detailsRows}</table>`;
+  }
+
+  // If QR code is provided, render the two-column layout
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(qrData)}`;
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${BRAND.line}; border-radius:8px; overflow:hidden; background:${BRAND.bgLight};">
+    <tr>
+      <!-- Details Column -->
+      <!--[if mso]>
+      <td width="340" valign="top">
+      <![endif]-->
+      <td class="bn-col" width="340" style="width:340px; border-right:1px solid ${BRAND.line}; vertical-align:top;">
+        ${detailsTable}
+      </td>
+      <!--[if mso]>
+      </td><td width="172" valign="middle" align="center">
+      <![endif]-->
+      <!-- QR Code Column -->
+      <td class="bn-col" align="center" style="padding:20px; vertical-align:middle; text-align:center; background:#ffffff;">
+        <div style="font-size:9px; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase; color:${BRAND.gold}; margin-bottom:12px;">Booking QR Code</div>
+        <img src="${qrUrl}" width="120" height="120" alt="Booking QR" style="display:block; width:120px; height:120px; border:1px solid ${BRAND.line}; padding:4px; background:#ffffff;" />
+        <table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin-top:12px; margin-bottom:6px;">
+          <tr><td width="24" height="1" bgcolor="${BRAND.gold}"></td></tr>
+        </table>
+        <div style="font-size:8px; color:${BRAND.muted}; line-height:1.4; max-width:120px;">Show this QR at check-in for a seamless experience.</div>
+      </td>
+      <!--[if mso]>
+      </td></tr></table>
+      <![endif]-->
+    </tr>
+  </table>`;
 }

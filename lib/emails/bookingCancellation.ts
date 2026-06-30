@@ -38,21 +38,30 @@ export async function sendBookingCancellation(bookingId: string): Promise<void> 
     const refund = Number(booking.refund_amount ?? 0);
 
     const details = emailDetails([
-      { label: "Hotel", value: hotel?.name ?? "—" },
-      { label: "Room", value: room?.name ?? "—" },
-      { label: "Check-in", value: fmtDate(booking.check_in as string) },
-      { label: "Check-out", value: fmtDate(booking.check_out as string) },
+      { label: "Hotel", value: hotel?.name ?? "—", icon: "🏨" },
+      { label: "Room", value: room?.name ?? "—", icon: "🛌" },
+      { label: "Check-in", value: fmtDate(booking.check_in as string), icon: "📅" },
+      { label: "Check-out", value: fmtDate(booking.check_out as string), icon: "📅" },
       {
-        label: "Refund",
+        label: "Refund Status",
         value:
           refund > 0
-            ? `<span style="color:${BRAND.green};font-weight:bold;">${inr(refund)}</span>`
+            ? `<span style="color:${BRAND.green}; font-weight:bold;">${inr(refund)}</span><br><span style="color:${BRAND.muted}; font-size:11px; font-weight:normal;">Refunding online</span>`
             : "No refund due",
+        icon: "💳",
       },
     ]);
 
     const reasonBlock = booking.cancellation_reason
-      ? `<p style="margin:18px 0 0;font-size:13px;color:${BRAND.muted};text-align:center;">Reason: ${booking.cancellation_reason}</p>`
+      ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px; border:1px solid ${BRAND.line}; border-radius:8px; background:#F8F7F4; overflow:hidden;">
+          <tr>
+            <td style="padding:16px 20px; font-size:12px; color:${BRAND.text}; text-align:left;">
+              <span style="font-size:16px; margin-right:8px; display:inline-block; vertical-align:middle; color:${BRAND.gold};">💬</span>
+              <strong style="text-transform:uppercase; font-size:10px; letter-spacing:1.5px; color:${BRAND.muted}; margin-right:12px; vertical-align:middle;">Cancellation Reason</strong>
+              <span style="font-size:12px; font-weight:bold; color:${BRAND.text}; vertical-align:middle;">${booking.cancellation_reason}</span>
+            </td>
+          </tr>
+        </table>`
       : "";
 
     // --- Guest ---
@@ -74,15 +83,29 @@ export async function sendBookingCancellation(bookingId: string): Promise<void> 
         subject: `Booking cancelled — ${hotel?.name ?? "BookNest"}`,
         html: emailLayout({
           eyebrow: "Booking Cancelled",
-          heading: "Your booking has been cancelled",
-          footnote: "You're receiving this about a BookNest reservation.",
+          heading: "Your reservation is cancelled",
+          footnote: "You're receiving this because your BookNest reservation was cancelled.",
           bodyHtml: `
-            <p style="margin:0 0 22px;font-size:15px;line-height:1.7;color:${BRAND.text};text-align:center;">
-              Dear ${guestName ?? "Guest"}, your reservation has been cancelled.${refund > 0 ? " Your refund details are below." : ""}
+            <p style="margin:0 0 16px; font-size:14px; line-height:1.6; color:${BRAND.text}; text-align:left;">
+              Dear <strong>${guestName ?? "Guest"}</strong>,
             </p>
+            <p style="margin:0 0 24px; font-size:14px; line-height:1.6; color:${BRAND.text}; text-align:left;">
+              Your booking has been successfully cancelled. Below are the details of the cancelled stay and your refund status.
+            </p>
+            
+            <!-- Gold luxury divider -->
+            <table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+              <tr>
+                <td style="font-size:0; line-height:0;" width="40" height="1" bgcolor="${BRAND.gold}">&nbsp;</td>
+                <td style="padding:0 10px; font-family:Georgia,serif; font-size:14px; color:${BRAND.gold}; font-style:italic; line-height:1;">&nbsp;⚜&nbsp;</td>
+                <td style="font-size:0; line-height:0;" width="40" height="1" bgcolor="${BRAND.gold}">&nbsp;</td>
+              </tr>
+            </table>
+
             ${details}
             ${reasonBlock}
-            ${emailButton(`${siteUrl}/bookings`, "View my trips")}`,
+            ${emailButton(`${siteUrl}/bookings`, "View My Trips")}
+          `,
         }),
       });
       if (!ok) {
@@ -104,15 +127,29 @@ export async function sendBookingCancellation(bookingId: string): Promise<void> 
           to: hostEmail,
           subject: `A booking was cancelled — ${hotel?.name ?? "BookNest"}`,
           html: emailLayout({
-            eyebrow: "Booking Cancelled",
+            eyebrow: "Host Notification",
             heading: "A reservation was cancelled",
-            footnote: "You're receiving this as the host of this property.",
+            footnote: "You're receiving this as the host/manager of this property.",
             bodyHtml: `
-              <p style="margin:0 0 22px;font-size:15px;line-height:1.7;color:${BRAND.text};text-align:center;">
+              <p style="margin:0 0 16px; font-size:14px; line-height:1.6; color:${BRAND.text}; text-align:left;">
+                Hello,
+              </p>
+              <p style="margin:0 0 24px; font-size:14px; line-height:1.6; color:${BRAND.text}; text-align:left;">
                 A booking for <strong>${hotel?.name ?? "your property"}</strong> has been cancelled. The dates are now open for new bookings.
               </p>
+              
+              <!-- Gold luxury divider -->
+              <table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+                <tr>
+                  <td style="font-size:0; line-height:0;" width="40" height="1" bgcolor="${BRAND.gold}">&nbsp;</td>
+                  <td style="padding:0 10px; font-family:Georgia,serif; font-size:14px; color:${BRAND.gold}; font-style:italic; line-height:1;">&nbsp;⚜&nbsp;</td>
+                  <td style="font-size:0; line-height:0;" width="40" height="1" bgcolor="${BRAND.gold}">&nbsp;</td>
+                </tr>
+              </table>
+
               ${details}
-              ${reasonBlock}`,
+              ${reasonBlock}
+            `,
           }),
         });
       }
