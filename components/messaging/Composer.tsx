@@ -208,16 +208,6 @@ export default function Composer({
             >
               <Paperclip className="h-4.5 w-4.5" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={disabled}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-450 hover:bg-slate-100 hover:text-slate-700 transition disabled:opacity-40 cursor-pointer"
-              title="Take photo"
-            >
-              <Camera className="h-4.5 w-4.5" />
-            </button>
           </div>
 
           {/* Input field */}

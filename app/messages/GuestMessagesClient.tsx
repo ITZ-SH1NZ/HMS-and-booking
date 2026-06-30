@@ -305,7 +305,7 @@ export default function GuestMessagesClient({
     <div className="w-full h-dvh bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased overflow-hidden chat-active-height">
       
       {/* 1. Global Page Header */}
-      <header className="bg-white border-b border-slate-200/85 px-4 py-3 sm:px-6 md:py-4 flex items-center justify-between shadow-3xs shrink-0">
+      <header className="hidden md:flex bg-white border-b border-slate-200/85 px-4 py-3 sm:px-6 md:py-4 items-center justify-between shadow-3xs shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(backUrl)}
@@ -327,12 +327,23 @@ export default function GuestMessagesClient({
         
         {/* Title area (Desktop only, hidden on mobile if thread is active to maximize chat space) */}
         <div className={`shrink-0 ${activeId ? "hidden md:block" : "block"}`}>
-          <h1 className="text-2xl md:text-3xl font-black font-serif text-slate-900 tracking-tight">
-            Messages
-          </h1>
-          <p className="text-xs md:text-sm text-slate-500 mt-1">
-            Communicate with your host securely
-          </p>
+          <div className="flex items-center gap-3.5 md:block">
+            <button
+              onClick={() => router.push(backUrl)}
+              className="md:hidden p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-700 transition cursor-pointer"
+              title={backText}
+            >
+              <ArrowLeft className="h-6 w-6" />
+            </button>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black font-serif text-slate-900 tracking-tight">
+                Messages
+              </h1>
+              <p className="text-xs md:text-sm text-slate-500 mt-1">
+                Communicate with your host securely
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* 3-Column Workspace */}
