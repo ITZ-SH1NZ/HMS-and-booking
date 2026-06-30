@@ -84,5 +84,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
+  // Link booking to conversation if it exists
+  try {
+    const { data: roomData } = await supabase
+      .from("rooms")
+      .select("hotel_id")
+      .eq("id", roomId)
+      .single();
+
+    if (roomData?.hotel_id) {
+      await supabase
+        .from("conversations")
+        .update({ booking_id: data })
+        .eq("hotel_id", roomData.hotel_id)
+        .eq("guest_id", user.id)
+        .eq("status", "open");
+    }
+  } catch (convErr) {
+    console.error("Failed to link booking to conversation:", convErr);
+  }
+
   return NextResponse.json({ bookingId: data });
 }
