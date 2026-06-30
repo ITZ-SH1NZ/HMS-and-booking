@@ -1,12 +1,23 @@
+"use client";
+
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { ShieldCheckIcon, MessageSquareIcon } from "lucide-react";
 import type { PublicProfile } from "@/lib/types";
+import { useAuth } from "@/components/AuthProvider";
+import { getOrCreateConversation } from "@/app/messages/actions";
 
 interface HostCardProps {
   host: PublicProfile | null;
   isSuperhost: boolean;
+  hotelId: string;
 }
 
-export function HostCard({ host, isSuperhost }: HostCardProps) {
+export function HostCard({ host, isSuperhost, hotelId }: HostCardProps) {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
   if (!host) return null;
 
   // Get initials for avatar
@@ -24,6 +35,23 @@ export function HostCard({ host, isSuperhost }: HostCardProps) {
     month: "long",
     year: "numeric",
   });
+
+  const handleMessageHost = () => {
+    if (!user) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const conversationId = await getOrCreateConversation(hotelId);
+        router.push(`/messages?c=${conversationId}`);
+      } catch (err) {
+        console.error("Failed to start message thread:", err);
+        alert("Failed to message host. Please try again.");
+      }
+    });
+  };
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition duration-300">
@@ -59,16 +87,23 @@ export function HostCard({ host, isSuperhost }: HostCardProps) {
           As your host, {host.full_name?.split(" ")[0] || "we"} will ensure you have a seamless and memorable stay. Feel free to reach out with any inquiries.
         </p>
 
-        {/* Coming soon Message Button */}
         <button
           type="button"
-          disabled
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-50 border border-slate-200 py-3 text-sm font-semibold text-slate-400 cursor-not-allowed hover:bg-slate-50 transition"
+          onClick={handleMessageHost}
+          disabled={pending}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white py-3 text-sm font-semibold transition disabled:opacity-50"
         >
-          <MessageSquareIcon className="h-4.5 w-4.5" />
-          Message Host <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded ml-1 font-bold">Coming Soon</span>
+          {pending ? (
+            <span className="animate-pulse">Connecting...</span>
+          ) : (
+            <>
+              <MessageSquareIcon className="h-4.5 w-4.5" />
+              Message Host
+            </>
+          )}
         </button>
       </div>
     </div>
   );
 }
+

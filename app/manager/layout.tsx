@@ -19,6 +19,7 @@ export default async function ManagerLayout({ children }: { children: React.Reac
 
   // Managers see hotels they own; staff see hotels they're assigned to.
   let hotels: ShellHotel[] = [];
+  let staffPermissions: string[] = [];
   if (role === "manager") {
     const { data } = await supabase
       .from("hotels")
@@ -28,19 +29,22 @@ export default async function ManagerLayout({ children }: { children: React.Reac
       .order("created_at", { ascending: false });
     hotels = (data as ShellHotel[] | null) ?? [];
   } else if (role === "staff") {
-    const { data } = await supabase
+    const { data: staffData } = await supabase
       .from("hotel_staff")
-      .select("hotels(id, name, status)")
+      .select("permissions, hotels(id, name, status)")
       .eq("staff_id", userId);
-    hotels = ((data ?? []) as { hotels: ShellHotel | ShellHotel[] | null }[]).flatMap((r) =>
+    hotels = ((staffData ?? []) as any[]).flatMap((r) =>
       r.hotels ? (Array.isArray(r.hotels) ? r.hotels : [r.hotels]) : [],
+    );
+    staffPermissions = Array.from(
+      new Set(((staffData ?? []) as any[]).flatMap((r) => r.permissions ?? [])),
     );
   }
 
   const userName = profile?.full_name || "Account";
 
   return (
-    <ManagerShell role={role} hotels={hotels} userName={userName}>
+    <ManagerShell role={role} hotels={hotels} userName={userName} staffPermissions={staffPermissions}>
       {children}
     </ManagerShell>
   );

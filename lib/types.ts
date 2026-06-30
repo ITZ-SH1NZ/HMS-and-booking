@@ -407,4 +407,50 @@ export interface ExploreHotel extends HotelWithStats {
   hotel_photos: { url: string; category: string; sort_order: number }[];
 }
 
+export interface MessageAttachment {
+  url: string;
+  type: "image";
+  width?: number;
+  height?: number;
+}
+
+export interface Conversation {
+  id: string;
+  hotel_id: string;
+  guest_id: string;
+  booking_id: string | null;
+  status: "open" | "resolved";
+  last_message_at: string;
+  last_message_preview: string | null;
+  guest_unread: number;
+  host_unread: number;
+  created_at: string;
+  hotels?: {
+    id: string;
+    name: string;
+    location: string;
+    image_url: string | null;
+    profiles?: {
+      full_name: string | null;
+    } | null;
+  };
+  profiles?: {
+    id: string;
+    full_name: string | null;
+    phone: string | null;
+  };
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  sender_role: "guest" | "host";
+  body: string | null;
+  attachments: MessageAttachment[];
+  read_at: string | null;
+  created_at: string;
+}
+
+
 
