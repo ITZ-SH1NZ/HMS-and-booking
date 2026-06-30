@@ -432,6 +432,8 @@ export interface Conversation {
     image_url: string | null;
     profiles?: {
       full_name: string | null;
+      phone: string | null;
+      email: string | null;
     } | null;
   };
   profiles?: {

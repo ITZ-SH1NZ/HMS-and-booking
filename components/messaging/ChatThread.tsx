@@ -190,7 +190,7 @@ export default function ChatThread({
                                   : `p-3.5 rounded-2xl shadow-3xs ${
                                       isOwn
                                         ? "bg-[#0A4335] text-white"
-                                        : "bg-[#F1F3F5] text-slate-800"
+                                        : "bg-[#F8F6F2] text-slate-850"
                                     }`
                               } ${isSending ? "opacity-75 animate-pulse" : ""}`}
                             >

@@ -6,7 +6,7 @@ import type { Message } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ c?: string }>;
+  searchParams: Promise<{ c?: string; back?: string; hotelId?: string }>;
 }
 
 export default async function GuestMessagesPage({ searchParams }: PageProps) {
@@ -20,7 +20,7 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
   }
 
   // Resolve search parameters (Promise in Next.js 15+)
-  const { c: activeConversationId } = await searchParams;
+  const { c: activeConversationId, back, hotelId } = await searchParams;
 
   // Fetch all conversations for this guest
   const { data: conversationsData } = await supabase
@@ -33,7 +33,9 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
         location,
         image_url,
         profiles: manager_id (
-          full_name
+          full_name,
+          phone,
+          email
         )
       )
     `)
@@ -61,6 +63,8 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
       activeConversationId={activeConversationId || null}
       currentUserId={user.id}
       currentUserRole="guest"
+      back={back || null}
+      hotelId={hotelId || null}
     />
   );
 }
