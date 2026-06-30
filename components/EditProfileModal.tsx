@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, User, Calendar, MapPin, Smartphone, ShieldCheck, Check, Clock } from "lucide-react";
+import { X, User, MapPin, Smartphone, ShieldCheck, Check, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
+import DatePicker from "@/components/DatePicker";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -40,11 +41,6 @@ export default function EditProfileModal({
 
   // Form fields
   const [fullName, setFullName] = useState("");
-  
-  // Date of Birth (Split Select State)
-  const [dobDay, setDobDay] = useState("");
-  const [dobMonth, setDobMonth] = useState("");
-  const [dobYear, setDobYear] = useState("");
   const [dob, setDob] = useState("");
 
   // Location Autocomplete State
@@ -62,15 +58,6 @@ export default function EditProfileModal({
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [mockSmsToast, setMockSmsToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Sync split DOB into YYYY-MM-DD
-  useEffect(() => {
-    if (dobDay && dobMonth && dobYear) {
-      setDob(`${dobYear}-${dobMonth}-${dobDay.padStart(2, "0")}`);
-    } else {
-      setDob("");
-    }
-  }, [dobDay, dobMonth, dobYear]);
 
   // Sync locationInput into location state
   useEffect(() => {
@@ -140,21 +127,7 @@ export default function EditProfileModal({
           const prof = data as Profile;
           setProfile(prof);
           setFullName(prof.full_name || "");
-          
-          if (prof.dob) {
-            setDob(prof.dob);
-            const parts = prof.dob.split("-");
-            if (parts.length === 3) {
-              setDobYear(parts[0]);
-              setDobMonth(parts[1]);
-              setDobDay(parseInt(parts[2]).toString().padStart(2, "0"));
-            }
-          } else {
-            setDob("");
-            setDobDay("");
-            setDobMonth("");
-            setDobYear("");
-          }
+          setDob(prof.dob || "");
 
           if (prof.location) {
             setLocationInput(prof.location);
@@ -200,6 +173,19 @@ export default function EditProfileModal({
     setError(null);
 
     try {
+      // Validate DOB if entered
+      if (dob) {
+        const parts = dob.split("-");
+        if (parts.length === 3) {
+          const y = parseInt(parts[0]);
+          if (y < 1900 || y > new Date().getFullYear()) {
+            setError("Please enter a valid Date of Birth.");
+            setSaving(false);
+            return;
+          }
+        }
+      }
+
       // If the phone number changed and is not verified, we keep profiles.phone as is or null
       let finalPhone = profile.phone;
       const formattedInputPhone = phoneNumber ? `${countryCode}${phoneNumber}` : "";
@@ -343,68 +329,18 @@ export default function EditProfileModal({
                 </div>
               </div>
 
-              {/* Date of Birth (Split Selects from Signup) */}
+              {/* Date of Birth (Custom Calendar Picker) */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date of Birth</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <select
-                    value={dobDay}
-                    onChange={(e) => setDobDay(e.target.value)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 cursor-pointer"
-                    required
-                  >
-                    <option value="">Day</option>
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                      <option key={d} value={String(d).padStart(2, "0")}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={dobMonth}
-                    onChange={(e) => setDobMonth(e.target.value)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 cursor-pointer"
-                    required
-                  >
-                    <option value="">Month</option>
-                    {[
-                      { value: "01", label: "January" },
-                      { value: "02", label: "February" },
-                      { value: "03", label: "March" },
-                      { value: "04", label: "April" },
-                      { value: "05", label: "May" },
-                      { value: "06", label: "June" },
-                      { value: "07", label: "July" },
-                      { value: "08", label: "August" },
-                      { value: "09", label: "September" },
-                      { value: "10", label: "October" },
-                      { value: "11", label: "November" },
-                      { value: "12", label: "December" },
-                    ].map((m) => (
-                      <option key={m.value} value={m.value}>
-                        {m.label}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={dobYear}
-                    onChange={(e) => setDobYear(e.target.value)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500 cursor-pointer"
-                    required
-                  >
-                    <option value="">Year</option>
-                    {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - 10 - i).map((y) => (
-                      <option key={y} value={y}>
-                        {y}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <DatePicker
+                  value={dob}
+                  onChange={setDob}
+                  placeholder="Select date of birth"
+                  required
+                />
               </div>
 
-              {/* Location Autocomplete (from Signup) */}
+              {/* Location Autocomplete */}
               <div className="relative space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Location</label>
                 <div className="relative">
@@ -427,7 +363,7 @@ export default function EditProfileModal({
                 {showSuggestions && suggestions.length > 0 && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowSuggestions(false)} />
-                    <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg divide-y divide-slate-50">
+                    <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg divide-y divide-slate-55">
                       {suggestions.map((s) => (
                         <button
                           key={s.id}

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUpGuest, signInWithGoogle } from "@/lib/auth";
+import DatePicker from "@/components/DatePicker";
 import { AuthShell } from "@/components/AuthShell";
 import { primaryBtn } from "@/components/AuthCard";
 import {
@@ -60,10 +61,7 @@ export default function GuestSignupPage() {
   const [phoneNo, setPhoneNo] = useState("");
   const [terms, setTerms] = useState(false);
 
-  // Date of Birth (Split Select State)
-  const [dobDay, setDobDay] = useState("");
-  const [dobMonth, setDobMonth] = useState("");
-  const [dobYear, setDobYear] = useState("");
+  // Date of Birth
   const [dob, setDob] = useState("");
 
   // Location Autocomplete State
@@ -71,53 +69,6 @@ export default function GuestSignupPage() {
   const [location, setLocation] = useState("");
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const dayInputRef = useRef<HTMLInputElement>(null);
-  const monthInputRef = useRef<HTMLInputElement>(null);
-  const yearInputRef = useRef<HTMLInputElement>(null);
-
-  // Day/Month/Year Change Handlers
-  const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
-    setDobDay(val);
-    if (val.length === 2) {
-      monthInputRef.current?.focus();
-    }
-  };
-
-  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
-    setDobMonth(val);
-    if (val.length === 2) {
-      yearInputRef.current?.focus();
-    }
-  };
-
-  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "").slice(0, 4);
-    setDobYear(val);
-  };
-
-  const handleMonthKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !dobMonth) {
-      dayInputRef.current?.focus();
-    }
-  };
-
-  const handleYearKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !dobYear) {
-      monthInputRef.current?.focus();
-    }
-  };
-
-  // Sync split DOB into YYYY-MM-DD
-  useEffect(() => {
-    if (dobDay && dobMonth && dobYear) {
-      setDob(`${dobYear}-${dobMonth}-${dobDay.padStart(2, "0")}`);
-    } else {
-      setDob("");
-    }
-  }, [dobDay, dobMonth, dobYear]);
 
   // Sync locationInput into location state
   useEffect(() => {
@@ -339,42 +290,15 @@ export default function GuestSignupPage() {
             )}
           </div>
 
-          {/* Date of Birth Field (Segmented Auto-focusing Inputs) */}
+          {/* Date of Birth Field (Custom Calendar Picker) */}
           <div>
             <FieldLabel>Date of birth</FieldLabel>
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-250 bg-white px-3.5 py-2.5 focus-within:border-brand-500 transition">
-              <input
-                ref={dayInputRef}
-                type="text"
-                inputMode="numeric"
-                placeholder="DD"
-                value={dobDay}
-                onChange={handleDayChange}
-                className="w-8 bg-transparent text-center text-sm font-medium outline-none placeholder:text-slate-300 text-slate-800"
-              />
-              <span className="text-slate-300 text-sm font-medium">/</span>
-              <input
-                ref={monthInputRef}
-                type="text"
-                inputMode="numeric"
-                placeholder="MM"
-                value={dobMonth}
-                onChange={handleMonthChange}
-                onKeyDown={handleMonthKeyDown}
-                className="w-8 bg-transparent text-center text-sm font-medium outline-none placeholder:text-slate-300 text-slate-800"
-              />
-              <span className="text-slate-300 text-sm font-medium">/</span>
-              <input
-                ref={yearInputRef}
-                type="text"
-                inputMode="numeric"
-                placeholder="YYYY"
-                value={dobYear}
-                onChange={handleYearChange}
-                onKeyDown={handleYearKeyDown}
-                className="w-12 bg-transparent text-center text-sm font-medium outline-none placeholder:text-slate-300 text-slate-800"
-              />
-            </div>
+            <DatePicker
+              value={dob}
+              onChange={setDob}
+              placeholder="Select date of birth"
+              required
+            />
           </div>
 
           <div>
