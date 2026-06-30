@@ -35,6 +35,7 @@ interface GuestMessagesClientProps {
   currentUserRole: "guest" | "host";
   back: string | null;
   hotelId: string | null;
+  hostEmail: string | null;
 }
 
 const supabase = createClient();
@@ -49,6 +50,7 @@ export default function GuestMessagesClient({
   currentUserRole,
   back,
   hotelId,
+  hostEmail: propHostEmail,
 }: GuestMessagesClientProps) {
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
@@ -207,7 +209,7 @@ export default function GuestMessagesClient({
   const hostProfile = activeConversation?.hotels?.profiles;
   const hostName = hostProfile?.full_name || "Hotel Host";
   const hostPhone = hostProfile?.phone;
-  const hostEmail = hostProfile?.email;
+  const hostEmail = propHostEmail;
 
   // Host initials for selected avatar
   const hostInitials = useMemo(() => {
@@ -277,10 +279,10 @@ export default function GuestMessagesClient({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased">
+    <div className="w-full h-[calc(100vh-4rem)] bg-[#FDFDFB] flex flex-col font-sans text-slate-800 antialiased overflow-hidden">
       
       {/* 1. Global Page Header */}
-      <header className="bg-white border-b border-slate-200/85 px-4 py-4.5 sm:px-6 md:py-5 flex items-center justify-between shadow-3xs shrink-0">
+      <header className="bg-white border-b border-slate-200/85 px-4 py-3 sm:px-6 md:py-4 flex items-center justify-between shadow-3xs shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(backUrl)}
@@ -291,14 +293,14 @@ export default function GuestMessagesClient({
           </button>
         </div>
 
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition duration-200 cursor-pointer">
+        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-550/5 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition duration-200 cursor-pointer">
           <HelpCircle className="h-3.5 w-3.5 text-slate-450" />
           <span>Need help?</span>
         </button>
       </header>
 
       {/* Main Container */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4.5 md:py-6 flex flex-col gap-5 overflow-hidden h-[calc(100vh-4.5rem)]">
+      <div className="flex-1 min-h-0 max-w-7xl w-full mx-auto px-3 sm:px-6 pb-4 md:pb-6 flex flex-col gap-4 overflow-hidden">
         
         {/* Title area (Desktop only, hidden on mobile if thread is active to maximize chat space) */}
         <div className={`shrink-0 ${activeConversationId ? "hidden md:block" : "block"}`}>

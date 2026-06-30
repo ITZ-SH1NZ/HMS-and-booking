@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import GuestMessagesClient from "./GuestMessagesClient";
 import type { Message } from "@/lib/types";
 
@@ -32,10 +33,11 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
         name,
         location,
         image_url,
+        manager_id,
         profiles: manager_id (
+          id,
           full_name,
-          phone,
-          email
+          phone
         )
       )
     `)
@@ -56,6 +58,24 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
     initialMessages = messagesData ?? [];
   }
 
+  // Fetch host email securely on the server using admin client
+  let hostEmail: string | null = null;
+  if (activeConversationId && conversations.length > 0) {
+    const activeConv = conversations.find((c) => c.id === activeConversationId);
+    const managerId = activeConv?.hotels?.profiles?.id || activeConv?.hotels?.manager_id;
+    if (managerId) {
+      try {
+        const admin = createAdminClient();
+        const { data: userData } = await admin.auth.admin.getUserById(managerId);
+        if (userData?.user) {
+          hostEmail = userData.user.email || null;
+        }
+      } catch (err) {
+        console.error("Failed to fetch host email via admin client:", err);
+      }
+    }
+  }
+
   return (
     <GuestMessagesClient
       initialConversations={conversations}
@@ -65,6 +85,7 @@ export default async function GuestMessagesPage({ searchParams }: PageProps) {
       currentUserRole="guest"
       back={back || null}
       hotelId={hotelId || null}
+      hostEmail={hostEmail}
     />
   );
 }

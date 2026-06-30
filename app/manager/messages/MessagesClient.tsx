@@ -384,7 +384,7 @@ export default function MessagesClient({
   }, [activeConversation]);
 
   return (
-    <div className="w-full h-[calc(100vh-3.5rem)] md:h-[calc(100vh-2rem)] flex overflow-hidden bg-[#F9F9FB] relative font-sans text-slate-800">
+    <div className="w-full h-[calc(100vh-7.1rem)] md:h-[calc(100vh-3.5rem)] flex overflow-hidden bg-[#F9F9FB] relative font-sans text-slate-800">
       
       {/* COLUMN 1: Filters Sidebar (Desktop) */}
       <div
