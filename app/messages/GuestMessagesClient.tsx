@@ -89,10 +89,11 @@ export default function GuestMessagesClient({
 
   // React 19 Render-phase state sync for booking reset to avoid cascading renders
   const [prevHotelId, setPrevHotelId] = useState<string | null>(null);
-  if (activeConversation?.hotel_id !== prevHotelId) {
-    setPrevHotelId(activeConversation?.hotel_id || null);
+  const currentHotelId = activeConversation?.hotel_id || null;
+  if (currentHotelId !== prevHotelId) {
+    setPrevHotelId(currentHotelId);
     setBooking(null);
-    if (activeConversation?.hotel_id) {
+    if (currentHotelId) {
       setLoadingBooking(true);
     }
   }
@@ -141,9 +142,9 @@ export default function GuestMessagesClient({
                 location,
                 image_url,
                 profiles: manager_id (
+                  id,
                   full_name,
-                  phone,
-                  email
+                  phone
                 )
               )
             `)
