@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { completeProfile } from "@/lib/auth";
@@ -51,6 +51,44 @@ export default function OnboardingPage() {
   const [dobMonth, setDobMonth] = useState("");
   const [dobYear, setDobYear] = useState("");
   const [dob, setDob] = useState("");
+
+  const dayInputRef = useRef<HTMLInputElement>(null);
+  const monthInputRef = useRef<HTMLInputElement>(null);
+  const yearInputRef = useRef<HTMLInputElement>(null);
+
+  // Day/Month/Year Change Handlers
+  const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setDobDay(val);
+    if (val.length === 2) {
+      monthInputRef.current?.focus();
+    }
+  };
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setDobMonth(val);
+    if (val.length === 2) {
+      yearInputRef.current?.focus();
+    }
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+    setDobYear(val);
+  };
+
+  const handleMonthKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !dobMonth) {
+      dayInputRef.current?.focus();
+    }
+  };
+
+  const handleYearKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !dobYear) {
+      monthInputRef.current?.focus();
+    }
+  };
 
   // Location Autocomplete State
   const [locationInput, setLocationInput] = useState("");
@@ -251,64 +289,41 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        {/* Date of Birth Field (Split Selects) */}
+        {/* Date of Birth Field (Segmented Auto-focusing Inputs) */}
         <div>
           <FieldLabel>Date of birth</FieldLabel>
-          <div className="grid grid-cols-3 gap-2">
-            <select
+          <div className="flex items-center gap-1.5 rounded-xl border border-slate-250 bg-white px-3.5 py-2.5 focus-within:border-brand-500 transition">
+            <input
+              ref={dayInputRef}
+              type="text"
+              inputMode="numeric"
+              placeholder="DD"
               value={dobDay}
-              onChange={(e) => setDobDay(e.target.value)}
-              className="rounded-xl border border-slate-250 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500"
-              required
-            >
-              <option value="">Day</option>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                <option key={d} value={String(d).padStart(2, "0")}>
-                  {d}
-                </option>
-              ))}
-            </select>
-
-            <select
+              onChange={handleDayChange}
+              className="w-8 bg-transparent text-center text-sm font-medium outline-none placeholder:text-slate-300 text-slate-800"
+            />
+            <span className="text-slate-300 text-sm font-medium">/</span>
+            <input
+              ref={monthInputRef}
+              type="text"
+              inputMode="numeric"
+              placeholder="MM"
               value={dobMonth}
-              onChange={(e) => setDobMonth(e.target.value)}
-              className="rounded-xl border border-slate-250 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500"
-              required
-            >
-              <option value="">Month</option>
-              {[
-                { value: "01", label: "January" },
-                { value: "02", label: "February" },
-                { value: "03", label: "March" },
-                { value: "04", label: "April" },
-                { value: "05", label: "May" },
-                { value: "06", label: "June" },
-                { value: "07", label: "July" },
-                { value: "08", label: "August" },
-                { value: "09", label: "September" },
-                { value: "10", label: "October" },
-                { value: "11", label: "November" },
-                { value: "12", label: "December" },
-              ].map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-
-            <select
+              onChange={handleMonthChange}
+              onKeyDown={handleMonthKeyDown}
+              className="w-8 bg-transparent text-center text-sm font-medium outline-none placeholder:text-slate-300 text-slate-800"
+            />
+            <span className="text-slate-300 text-sm font-medium">/</span>
+            <input
+              ref={yearInputRef}
+              type="text"
+              inputMode="numeric"
+              placeholder="YYYY"
               value={dobYear}
-              onChange={(e) => setDobYear(e.target.value)}
-              className="rounded-xl border border-slate-250 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500"
-              required
-            >
-              <option value="">Year</option>
-              {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - 10 - i).map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
+              onChange={handleYearChange}
+              onKeyDown={handleYearKeyDown}
+              className="w-12 bg-transparent text-center text-sm font-medium outline-none placeholder:text-slate-300 text-slate-800"
+            />
           </div>
         </div>
 
