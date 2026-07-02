@@ -123,19 +123,33 @@ Platform administrators have visibility into everything:
 
 ---
 
-## Live Platform
+## Screenshots
 
-The platform is available at **[hms-and-booking.vercel.app](https://hms-and-booking.vercel.app)**
+**Homepage** — Hero search, featured stays, and destination highlights
 
-| Page | What you will find |
-|------|--------------------|
-| Homepage | Hero search bar, featured stays, destination map |
-| Hotels | Grid of hotel cards with filters |
-| Hotel Detail | Photos, rooms, map, amenities, and reviews |
-| Booking | Step-by-step guided booking with payment checkout |
-| Guest Dashboard | All bookings, QR codes, and messaging |
-| Manager Portal | Property management, earnings, staff management |
-| Inbox | Real-time messaging with direct contact shortcuts |
+![BookNest Homepage](docs/screenshots/Home.png)
+
+---
+
+**Explore Hotels** — Full hotel grid with filters, price range, property type, and a live map split view
+
+![Explore Hotels](docs/screenshots/hotels.png)
+
+---
+
+**Manager Portal** — Add and manage all your hotel properties, view occupancy at a glance
+
+![Manager Portal](docs/screenshots/manage.png)
+
+---
+
+**Real-Time Messaging** — Guest inbox with instant delivery, conversation list, and message history
+
+![Real-Time Messaging](docs/screenshots/messages.png)
+
+---
+
+The full platform is live at **[hms-and-booking.vercel.app](https://hms-and-booking.vercel.app)**
 
 ---
 
