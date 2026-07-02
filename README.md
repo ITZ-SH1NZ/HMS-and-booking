@@ -13,6 +13,7 @@ A modern platform where hotel managers list and manage their properties and gues
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-hms--and--booking.vercel.app-0f766e?style=for-the-badge)](https://hms-and-booking.vercel.app)
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js%2016-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Powered by Supabase](https://img.shields.io/badge/Powered%20by-Supabase-3ecf8e?style=for-the-badge&logo=supabase)](https://supabase.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 </div>
 
