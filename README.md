@@ -1,102 +1,213 @@
-# HMS — Hotel Management System
+<div align="center">
 
-An Airbnb-style hotel booking app built with **Next.js (App Router)**, **TypeScript**,
-**Tailwind CSS**, and **Supabase** (Auth + Postgres + Storage).
+<img src="https://ekurxcwuriltcrsrcfqo.supabase.co/storage/v1/object/public/public_assets/logo-mark.png" width="80" alt="BookNest Logo" />
 
-It ships a landing page with a live hotel grid plus a full authentication system
-with three roles — **guest**, **manager**, and **admin** — each with its own
-sign-up and login flow, email verification, and role-based protected routes.
+# BookNest
 
-## 1. Prerequisites
+### Hotel Management and Booking — Simplified
 
-- Node.js 18+ and npm
-- A free [Supabase](https://supabase.com) project
+A modern platform where hotel managers list and manage their properties and guests discover, book, and communicate with hosts — all in one place.
 
-## 2. Configure Supabase
+<br/>
 
-1. **Create a project** at supabase.com.
-2. **Apply the schema:** open _SQL Editor → New query_, paste the contents of
-   [`supabase/schema.sql`](supabase/schema.sql), and run it. This creates the
-   `profiles`, `manager_verifications`, `hotels`, `rooms`, and `reviews` tables,
-   the sign-up trigger, row-level-security policies, and two storage buckets.
-3. **Enable Google OAuth** (for guests): _Authentication → Providers → Google_,
-   add your Google client ID/secret.
-4. **Email verification** is on by default. Under _Authentication → URL
-   Configuration_, add `http://localhost:3000/auth/callback` to the **Redirect
-   URLs**.
-5. **Get your keys:** _Settings → API_ → copy the Project URL and the `anon`
-   public key.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-hms--and--booking.vercel.app-0f766e?style=for-the-badge)](https://hms-and-booking.vercel.app)
+[![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js%2016-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![Powered by Supabase](https://img.shields.io/badge/Powered%20by-Supabase-3ecf8e?style=for-the-badge&logo=supabase)](https://supabase.com)
 
-## 3. Environment variables
+</div>
 
-Copy the example file and fill in your values:
+---
+
+## What is BookNest?
+
+BookNest is a full-stack hotel booking platform built for two kinds of people:
+
+- **Guests** who want to browse and book hotels quickly, pay online, and communicate directly with the host.
+- **Hotel managers** who want a clean, professional way to list their property, manage bookings, handle check-ins, and talk to their guests.
+
+Think of it as a self-contained, independently deployable alternative to the large booking platforms — built from scratch.
+
+---
+
+## Who is it for?
+
+| User Type | What they can do |
+|-----------|-----------------|
+| Guest | Search hotels, book rooms, pay online, check in with a QR code, message the host |
+| Manager | List hotels, manage rooms and availability, view earnings, chat with guests |
+| Staff | Assist managers with check-ins and guest communication |
+| Admin | Approve hotel listings, verify managers, oversee the platform |
+
+---
+
+## Key Features
+
+### Search and Discovery
+
+Guests can search hotels by destination, travel dates, and number of guests. Results are shown as hotel cards with pricing, location, and photos. A full interactive map view lets guests explore hotels geographically — each hotel appears as a clickable pin on the map.
+
+---
+
+### Hotel Listing Pages
+
+Each hotel has a dedicated page with:
+
+- A full photo gallery
+- Room types with individual pricing and capacity
+- An interactive location map
+- Guest reviews and ratings
+- A complete amenities list
+
+---
+
+### Booking Flow
+
+The booking experience is smooth and guided:
+
+1. Select check-in and check-out dates from a live availability calendar
+2. Choose a room type
+3. Review a transparent price breakdown (room rate, nights, taxes)
+4. Complete payment securely via Razorpay
+5. Receive an instant booking confirmation email
+
+---
+
+### Online Payments via Razorpay
+
+Payments are handled through **Razorpay**, a trusted payment gateway. The integration supports credit cards, debit cards, UPI, and net banking.
+
+All payment processing happens on Razorpay's secure servers — card details never touch BookNest's systems. A server-side verification step ensures payments cannot be tampered with.
+
+---
+
+### QR Code Check-In
+
+Every confirmed booking generates a unique **QR code**. Guests present it at the hotel. Staff scan it from the management dashboard using their device camera to instantly verify and record the check-in.
+
+No paper. No manual lookups. No delays.
+
+---
+
+### Real-Time Messaging
+
+Guests and hotel managers can send messages directly within the platform. Messages are delivered instantly — no page refresh required. The system also supports:
+
+- File and image attachments (with automatic compression before upload)
+- Typing indicators
+- Unread message badges in the navigation bar
+- Direct contact shortcuts to call, WhatsApp, or email the host
+
+---
+
+### Hotel Manager Portal
+
+Managers have a dedicated section of the platform where they can:
+
+- Create hotel listings through a guided, step-by-step form
+- Manage rooms, pricing, and availability
+- View and respond to guest messages
+- Track bookings and check-in status
+- Monitor earnings and request payouts
+- Invite staff members to assist with their property
+
+---
+
+### Admin Dashboard
+
+Platform administrators have visibility into everything:
+
+- All users across the platform
+- Hotel listing approvals and rejections
+- Manager verification requests
+- Platform-wide booking and revenue statistics
+
+---
+
+## Live Platform
+
+The platform is available at **[hms-and-booking.vercel.app](https://hms-and-booking.vercel.app)**
+
+| Page | What you will find |
+|------|--------------------|
+| Homepage | Hero search bar, featured stays, destination map |
+| Hotels | Grid of hotel cards with filters |
+| Hotel Detail | Photos, rooms, map, amenities, and reviews |
+| Booking | Step-by-step guided booking with payment checkout |
+| Guest Dashboard | All bookings, QR codes, and messaging |
+| Manager Portal | Property management, earnings, staff management |
+| Inbox | Real-time messaging with direct contact shortcuts |
+
+---
+
+## Built With
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Database | Supabase (PostgreSQL) |
+| Authentication | Supabase Auth and Google OAuth |
+| Payments | Razorpay |
+| Maps | MapLibre GL and Leaflet |
+| Real-Time Messaging | Supabase Realtime (WebSockets) |
+| Email | Brevo (transactional email API) |
+| Hosting | Vercel |
+| Styling | Tailwind CSS |
+
+---
+
+## Security
+
+- All database tables are protected with Row Level Security. Users can only access data they are permitted to see.
+- Payments are verified server-side using a cryptographic signature before any booking is confirmed.
+- Admin and manager routes are protected by role checks on every API request.
+- User email addresses are stored in a private authentication schema and are never exposed to the client directly.
+
+---
+
+## Running Locally
+
+**Prerequisites:** Node.js 18+, a Supabase project, a Razorpay test account, a Brevo account.
 
 ```bash
-cp .env.local.example .env.local
-```
+# Clone the repository
+git clone https://github.com/ITZ-SH1NZ/HMS-and-booking.git
+cd HMS-and-booking
 
-```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
-
-## 4. Run
-
-```bash
+# Install dependencies
 npm install
+
+# Configure environment variables
+# Copy .env.local and fill in your credentials
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 5. Create an admin
+---
 
-Admins are created manually:
+## Project Structure
 
-1. _Authentication → Users → Add user_ — create the user with email + password
-   and mark the email confirmed.
-2. In the SQL editor, set the role:
+```
+app/
+  hotels/       Hotel listing and detail pages
+  bookings/     Booking management, check-in, and reviews
+  messages/     Guest inbox and real-time messaging
+  dashboard/    Guest bookings dashboard
+  manager/      Hotel manager portal
+  admin/        Admin dashboard
+  api/          All server-side API routes
 
-   ```sql
-   update public.profiles set role = 'admin'
-   where id = (select id from auth.users where email = 'admin@example.com');
-   ```
+components/     Shared UI components
+lib/            Utilities, email templates, database helpers
+supabase/       Database schema and migration files
+```
 
-3. Log in at `/login` → you'll be redirected to `/admin/dashboard`.
+---
 
-## How it fits together
+<div align="center">
 
-| Area | File(s) |
-| --- | --- |
-| Supabase clients | [`lib/supabase/`](lib/supabase/) (browser, server, proxy/session) |
-| Auth helpers | [`lib/auth.ts`](lib/auth.ts) |
-| Auth context | [`components/AuthProvider.tsx`](components/AuthProvider.tsx) |
-| Route protection | [`proxy.ts`](proxy.ts) + [`components/ProtectedRoute.tsx`](components/ProtectedRoute.tsx) |
-| Landing page | [`app/page.tsx`](app/page.tsx) |
-| Login | [`app/login/page.tsx`](app/login/page.tsx) |
-| Guest sign-up | [`app/signup/page.tsx`](app/signup/page.tsx) |
-| Manager sign-up | [`app/signup/manager/page.tsx`](app/signup/manager/page.tsx) |
-| Email verification | [`app/verify-email/page.tsx`](app/verify-email/page.tsx) |
-| OAuth / email-link callback | [`app/auth/callback/route.ts`](app/auth/callback/route.ts) |
-| Dashboards | [`app/dashboard/`](app/dashboard/), [`app/manager/`](app/manager/), [`app/admin/`](app/admin/) |
+Built by **Team Neuron**
 
-### Sign-up data flow
+[Live Platform](https://hms-and-booking.vercel.app) &nbsp;&middot;&nbsp; [GitHub Repository](https://github.com/ITZ-SH1NZ/HMS-and-booking)
 
-Profiles are created by a Postgres trigger (`handle_new_user`) that reads the
-metadata passed to `supabase.auth.signUp`, so it works even before the email is
-confirmed (when no session exists yet). Manager verification documents are
-uploaded to the `manager-documents` storage bucket during sign-up and the path
-is passed in the same metadata.
-
-### Role routing
-
-| Role | After login |
-| --- | --- |
-| Guest | `/` |
-| Manager (pending) | `/manager/waiting` |
-| Manager (approved) | `/manager/dashboard` |
-| Manager (rejected) | login error with the rejection reason |
-| Admin | `/admin/dashboard` |
-
-`proxy.ts` enforces these rules on every request to a protected route group.
+</div>

@@ -1,0 +1,432 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{parskip}
+\usepackage{mdframed}
+\usepackage{fontenc}
+\usepackage{lmodern}
+
+% Colors
+\definecolor{primary}{RGB}{15, 118, 110}
+\definecolor{codebg}{RGB}{245, 245, 245}
+\definecolor{note}{RGB}{239, 246, 255}
+\definecolor{noteborder}{RGB}{59, 130, 246}
+
+% Hyperlink styling
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=primary,
+}
+
+% Section title styling
+\titleformat{\section}{\Large\bfseries\color{primary}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{}{0em}{}
+
+% Code listing style
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{gray},
+  captionpos=b,
+}
+
+% Note box environment
+\newmdenv[
+  backgroundcolor=note,
+  linecolor=noteborder,
+  linewidth=2pt,
+  leftline=true,
+  rightline=false,
+  topline=false,
+  bottomline=false,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+]{notebox}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{BookNest --- Technical Documentation}
+\lhead{Team Neuron}
+\cfoot{\thepage}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    {\Huge\bfseries\color{primary} BookNest\par}
+    \vspace{0.5cm}
+    {\Large Hotel Management \& Booking System\par}
+    \vspace{1cm}
+    {\large Technical Documentation\par}
+    \vspace{0.5cm}
+    {\normalsize Explaining how everything was built --- for beginners\par}
+    \vspace{2cm}
+    \hrule
+    \vspace{0.5cm}
+    {\large \textbf{Team Neuron}\par}
+    \vspace{3cm}
+    {\small \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+BookNest is a full-stack hotel booking and management platform. It allows hotel managers to list properties, manage bookings, and talk to guests --- while guests can search hotels, make payments, and check in, all from their phone or computer.
+
+This document explains, in plain language, every major technical system we built and how it works.
+
+\begin{notebox}
+\textbf{Tech Stack at a Glance:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Frontend \& Backend:} Next.js 16 (React framework)
+  \item \textbf{Database:} Supabase (PostgreSQL with built-in authentication)
+  \item \textbf{Payments:} Razorpay (test mode)
+  \item \textbf{Maps:} MapLibre GL + Leaflet
+  \item \textbf{Hosting:} Vercel
+  \item \textbf{Email:} Brevo (transactional email API)
+\end{itemize}
+\end{notebox}
+
+\newpage
+\section{Authentication System}
+
+\subsection{What is Authentication?}
+Authentication is how a website knows \textit{who you are}. When you log in, the system checks your identity and remembers you across pages.
+
+\subsection{How We Built It}
+
+We used \textbf{Supabase Auth}, which handles all the hard parts of login for us. We support two ways to sign in:
+
+\begin{enumerate}
+  \item \textbf{Email and Password} --- A user types their email and password. Supabase checks it securely and gives them a session (like a key card).
+  \item \textbf{Google OAuth} --- A user clicks ``Continue with Google.'' They are redirected to Google's servers, Google confirms their identity, and then sends them back to our app with a token.
+\end{enumerate}
+
+\subsection{Roles}
+Every user in BookNest has one of three roles:
+\begin{itemize}
+  \item \textbf{Guest} --- Can search and book hotels.
+  \item \textbf{Manager} --- Can list hotels and manage bookings.
+  \item \textbf{Admin} --- Can approve managers and oversee everything.
+\end{itemize}
+
+When a new user signs up, a database trigger automatically creates a profile row for them with their name, phone, and role.
+
+\subsection{Row Level Security (RLS)}
+Supabase uses something called \textbf{Row Level Security}. Think of it as a guard at the door of every database table. For example, a policy says: ``A guest can only read their own profile.'' We wrote custom rules so that guests can also read the host's name and phone number when they have an active conversation with them.
+
+\newpage
+\section{Hotel Listing and Creation System}
+
+\subsection{Overview}
+Hotel managers go through a \textbf{step-by-step guided form} to create and publish a hotel listing. This is similar to how Airbnb works.
+
+\subsection{The Steps}
+
+The creation flow is broken into clear stages so the manager is never overwhelmed:
+
+\begin{enumerate}
+  \item \textbf{Basic Info} --- Hotel name, description, type (resort, boutique hotel, etc.)
+  \item \textbf{Location} --- The manager types an address or clicks on a map to drop a pin. We store the exact latitude and longitude coordinates.
+  \item \textbf{Amenities} --- Manager selects which features the hotel has (pool, Wi-Fi, parking, etc.)
+  \item \textbf{Photos} --- Manager uploads images, which are stored in Supabase Storage (a cloud file system).
+  \item \textbf{Rooms} --- Manager adds individual room types with their own prices, capacity, and photos.
+  \item \textbf{Policies} --- Check-in/check-out times, cancellation rules, etc.
+  \item \textbf{Review \& Publish} --- A final summary screen before going live.
+\end{enumerate}
+
+\subsection{Admin Approval}
+When a manager submits a new listing, it starts with a \texttt{pending} status. An admin must review and approve it before guests can see it. This prevents fake or low-quality listings.
+
+\newpage
+\section{Map System}
+
+\subsection{What it Does}
+BookNest uses interactive maps in two places:
+\begin{itemize}
+  \item \textbf{Hotel Detail Page} --- Shows where the hotel is on a map.
+  \item \textbf{Explore / Destinations Page} --- Shows all hotels as clickable pins on a full map.
+\end{itemize}
+
+\subsection{Libraries Used}
+
+We use two map libraries:
+
+\begin{itemize}
+  \item \textbf{MapLibre GL} --- A high-performance, open-source map renderer. It draws maps using WebGL (a graphics technology in the browser), which makes them fast and smooth.
+  \item \textbf{Leaflet} --- A simpler map library used for the location picker during hotel creation (where the manager pins the hotel's location).
+\end{itemize}
+
+\subsection{How the Map Works}
+
+\begin{enumerate}
+  \item The browser loads the map tiles (image pieces of the map) from a public tile server.
+  \item We pass in the hotel's \texttt{latitude} and \texttt{longitude} coordinates (stored in our database).
+  \item The library places a marker pin at those coordinates.
+  \item For the explore page, we loop through all hotels and place a pin for each one.
+\end{enumerate}
+
+\begin{notebox}
+\textbf{What are coordinates?} Every place on Earth can be described by two numbers --- latitude (how far north/south) and longitude (how far east/west). For example, Delhi is approximately latitude 28.6 and longitude 77.2.
+\end{notebox}
+
+\newpage
+\section{Booking Flow}
+
+\subsection{How a Guest Books a Hotel}
+
+The booking process follows a multi-step flow, guiding the guest from selecting dates to confirming payment.
+
+\begin{enumerate}
+  \item \textbf{Search} --- The guest searches by destination, dates, and number of guests using our search bar.
+  \item \textbf{Select a Hotel} --- The guest browses the results and opens a hotel detail page.
+  \item \textbf{Choose Dates \& Room} --- An availability calendar shows which dates are free. The guest picks check-in and check-out dates and selects a room type.
+  \item \textbf{Review Summary} --- A clear price breakdown is shown (room rate x nights + taxes).
+  \item \textbf{Pay} --- The guest completes payment via Razorpay (see next section).
+  \item \textbf{Confirmation} --- After payment, the booking is confirmed and a confirmation email is sent.
+\end{enumerate}
+
+\subsection{Availability Logic}
+When a guest picks dates, our system checks the database for any existing bookings that overlap those dates. If a room is already booked, it is marked unavailable and the guest cannot select it.
+
+\newpage
+\section{Razorpay Payment Gateway (Test Mode)}
+
+\subsection{What is a Payment Gateway?}
+A payment gateway is a service that securely handles money movement between the customer's bank and the hotel's account. We never touch the actual card details --- Razorpay handles that.
+
+\subsection{How We Integrated Razorpay}
+
+We used Razorpay's \textbf{test mode}, which lets us simulate real payments using dummy card numbers during development and demos. No real money is charged.
+
+The flow works in three steps:
+
+\begin{enumerate}
+  \item \textbf{Order Creation (Server Side)} \\
+  When a guest is ready to pay, our Next.js server calls the Razorpay API to create an ``order'' with the booking amount. Razorpay returns an \texttt{order\_id}.
+
+  \item \textbf{Payment (Browser Side)} \\
+  The guest's browser opens the Razorpay payment popup (a secure window from Razorpay). The guest enters their card details. Razorpay processes the payment and returns a \texttt{payment\_id} and a \texttt{signature}.
+
+  \item \textbf{Verification (Server Side)} \\
+  Our server receives the \texttt{payment\_id} and \texttt{signature}. It uses a secret key to verify the signature is genuine (preventing fraud). If verified, the booking status in our database is updated to \texttt{confirmed}.
+\end{enumerate}
+
+\begin{notebox}
+\textbf{Why verify again on the server?} Because a malicious user could fake a payment in the browser. The server-side verification using a secret key ensures the payment actually happened on Razorpay's servers and was not tampered with.
+\end{notebox}
+
+\subsection{Webhooks}
+We also set up a \textbf{webhook} --- an automatic notification from Razorpay to our server whenever a payment event happens (e.g., payment captured, payment failed). This acts as a backup, so even if the user closes their browser mid-payment, the booking still gets confirmed.
+
+\newpage
+\section{QR Code Check-In System}
+
+\subsection{What is QR Check-In?}
+Instead of printing paper tickets, BookNest generates a unique \textbf{QR code} for each confirmed booking. The guest shows this QR code at the hotel, and the hotel staff scans it to verify the booking instantly.
+
+\subsection{How It Works}
+
+\subsubsection{Generating the QR Code}
+After a booking is confirmed, we use a JavaScript library called \textbf{qrcode} to generate a QR code image. The QR code encodes the booking's unique ID.
+
+\begin{lstlisting}[language=JavaScript, caption=Generating a QR Code]
+import QRCode from 'qrcode';
+
+// booking.id is a unique string like "abc-123-xyz"
+const qrDataUrl = await QRCode.toDataURL(booking.id);
+// qrDataUrl is a base64 image the browser can display
+\end{lstlisting}
+
+\subsubsection{Scanning the QR Code}
+Hotel staff open the hotel management panel on their phone or tablet. They use the device camera to scan the guest's QR code. We use the \textbf{html5-qrcode} library to access the camera and decode the QR code.
+
+Once scanned, the decoded booking ID is sent to our server, which looks up the booking in the database and confirms:
+\begin{itemize}
+  \item Is this booking real?
+  \item Is today within the check-in date?
+  \item Has the guest already checked in?
+\end{itemize}
+
+The booking status is then updated to \texttt{checked\_in} in the database.
+
+\newpage
+\section{Real-Time Messaging System}
+
+\subsection{What is Real-Time Messaging?}
+Real-time messaging means that when a host sends a message, the guest sees it instantly without refreshing the page --- just like WhatsApp or iMessage.
+
+\subsection{How We Built It}
+
+We used \textbf{Supabase Realtime}, a feature built into Supabase. It works using a technology called \textbf{WebSockets}.
+
+\begin{notebox}
+\textbf{What is a WebSocket?} Normally, a browser asks the server for information only when you click something. A WebSocket is a permanent open connection between the browser and server, so the server can push new information to the browser the moment something changes --- without the browser asking.
+\end{notebox}
+
+\subsubsection{The Messaging Architecture}
+
+\begin{enumerate}
+  \item When a guest or manager opens their inbox, the browser opens a WebSocket channel to Supabase.
+  \item The channel subscribes to any changes in the \texttt{messages} table for the active conversation.
+  \item When a new message is inserted (by the other party), Supabase instantly broadcasts it to all subscribers of that channel.
+  \item The browser receives the new message and adds it to the chat without any page refresh.
+\end{enumerate}
+
+\subsubsection{Typing Indicators}
+We also implemented a ``typing...'' indicator. When a user is typing, we broadcast a temporary event through the WebSocket channel (not saved to the database). The other party's screen shows ``typing...'' for a few seconds.
+
+\subsubsection{Unread Message Count}
+Each conversation stores two counters: \texttt{guest\_unread} and \texttt{host\_unread}. When a new message arrives, the counter for the recipient increments. When they open the conversation, it resets to zero. This powers the notification badge in the navbar.
+
+\subsubsection{File Attachments and Compression}
+Guests and hosts can send images and files in messages. Before uploading, we compress large images client-side using the browser's \textbf{Canvas API}, reducing a 150 MB photo to under 200 KB. The compressed file is then uploaded to \textbf{Supabase Storage}, and the download link is saved in the message record.
+
+\newpage
+\section{Direct Contact: Call, WhatsApp and Email}
+
+\subsection{Overview}
+When a guest is in a conversation with a host, they see three quick-contact buttons on the right panel: \textbf{Call}, \textbf{WhatsApp}, and \textbf{Email}. These let guests reach hosts outside the app instantly.
+
+\subsection{How Each Button Works}
+
+These buttons are simple HTML links that use special URL schemes understood by every phone and computer:
+
+\subsubsection{Call Button}
+\begin{lstlisting}[language=HTML, caption=Phone Call Link]
+<a href="tel:+917736184696">Call</a>
+\end{lstlisting}
+When a user taps this link on a mobile device, the phone's dialler opens with the number pre-filled. On a computer, apps like FaceTime or Skype handle it.
+
+\subsubsection{WhatsApp Button}
+\begin{lstlisting}[language=HTML, caption=WhatsApp Deep Link]
+<a href="https://wa.me/917736184696">WhatsApp</a>
+\end{lstlisting}
+\texttt{wa.me} is WhatsApp's official link format. Opening this URL on any device launches WhatsApp (or WhatsApp Web on a computer) with a chat to that number already open. We strip all non-numeric characters from the phone number before building this link.
+
+\subsubsection{Email Button}
+\begin{lstlisting}[language=HTML, caption=Email Mailto Link]
+<a href="mailto:host@example.com">Email</a>
+\end{lstlisting}
+The \texttt{mailto:} scheme opens the user's default email client (Gmail, Outlook, Apple Mail, etc.) with the host's address pre-filled.
+
+\subsection{How We Solved the Privacy Problem}
+The host's profile (name, phone) is stored in a private database table protected by \textbf{Row Level Security}. By default, a guest was not allowed to read another user's profile.
+
+We fixed this by writing a custom database function called \texttt{shares\_conversation\_with()}. This function checks: ``Does the logged-in guest have an active conversation with a hotel whose manager is this person?'' If yes, the guest is allowed to read that manager's profile --- but only if a real conversation exists. Random users cannot look up anyone's phone number.
+
+\newpage
+\section{Email Notification System}
+
+\subsection{Overview}
+BookNest sends automated emails for key events such as booking confirmations, check-in reminders, and staff invitations.
+
+\subsection{How We Built It}
+
+We use \textbf{Brevo} (formerly Sendinblue) as our email sending service. Instead of setting up our own email server, Brevo provides an API we call from our server.
+
+\begin{enumerate}
+  \item A booking is confirmed (payment verified).
+  \item Our Next.js server calls the Brevo API with the recipient's email, subject, and a custom HTML template.
+  \item Brevo delivers the email to the guest's inbox within seconds.
+\end{enumerate}
+
+The emails are styled with a custom HTML template matching the BookNest brand, including a logo, booking details table, and a check-in reminder.
+
+\newpage
+\section{Manager and Staff System}
+
+\subsection{Role-Based Access Control}
+BookNest has a structured permission system. A \textbf{manager} owns hotels. A \textbf{staff} member is invited by a manager and can perform specific tasks like replying to messages or managing check-ins.
+
+\subsection{Staff Invitation Flow}
+\begin{enumerate}
+  \item A manager enters a staff member's email address in their dashboard.
+  \item The system creates a pending invitation record and sends an invitation email.
+  \item The staff member clicks the link in the email, creates an account, and is automatically linked to the manager's hotel.
+  \item Their account role is updated from \texttt{guest} to \texttt{staff} in the database.
+\end{enumerate}
+
+\subsection{Manager Verification}
+Before a manager can publish hotels, they must submit a verification request. An admin reviews their details and approves or rejects them. This ensures only legitimate businesses can list hotels.
+
+\newpage
+\section{Admin Dashboard}
+
+\subsection{Overview}
+Admins have a special dashboard at \texttt{/admin} that is not accessible to regular users. It gives a bird's-eye view of the entire platform.
+
+\subsection{What Admins Can Do}
+\begin{itemize}
+  \item View all users (guests, managers, staff) and suspend accounts if needed.
+  \item Review and approve or reject hotel listings submitted by managers.
+  \item Review and approve or reject manager verification requests.
+  \item View platform-wide statistics: total bookings, revenue, active hotels.
+\end{itemize}
+
+All admin API routes check that the logged-in user has the \texttt{admin} role before executing. If a regular user tries to access these endpoints, they receive a ``permission denied'' error.
+
+\newpage
+\section{Hosting and Deployment}
+
+\subsection{Vercel}
+The application is hosted on \textbf{Vercel}, a cloud platform made for Next.js apps. Every time we push code to our GitHub repository, Vercel automatically:
+\begin{enumerate}
+  \item Pulls the latest code.
+  \item Builds the production version of the app.
+  \item Deploys it globally so users from any country get fast load times.
+\end{enumerate}
+This process is called \textbf{Continuous Deployment} --- the live app is always up to date with our latest code.
+
+\subsection{Supabase}
+Supabase is a cloud database service. It provides:
+\begin{itemize}
+  \item A \textbf{PostgreSQL database} for storing all our data (users, hotels, bookings, messages).
+  \item \textbf{Authentication} for managing user login sessions.
+  \item \textbf{Storage} for hotel photos and message attachments.
+  \item \textbf{Realtime} for WebSocket-powered live messaging.
+\end{itemize}
+
+\newpage
+\section{Summary}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Feature} & \textbf{Technology Used} & \textbf{Purpose} \\
+\midrule
+Authentication & Supabase Auth, Google OAuth & User login and sessions \\
+Database & Supabase (PostgreSQL) & All app data storage \\
+Maps & MapLibre GL, Leaflet & Hotel locations, explore page \\
+Payments & Razorpay (Test Mode) & Online booking payments \\
+QR Check-In & qrcode + html5-qrcode & Contactless hotel check-in \\
+Real-Time Chat & Supabase Realtime (WebSocket) & Guest-host messaging \\
+File Compression & Browser Canvas API & Reduce image upload size \\
+Email & Brevo API & Booking confirmations \\
+Hosting & Vercel & Live deployment \\
+Direct Contact & tel: / wa.me / mailto: links & Call, WhatsApp, Email host \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{1cm}
+
+BookNest demonstrates how modern web technologies can be combined to build a complete, production-ready platform --- with real payments, real-time communication, and secure data management --- using mostly free and open-source tools.
+
+\end{document}
